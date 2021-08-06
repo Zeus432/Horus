@@ -1,30 +1,60 @@
+import asyncio
 import discord
 from discord.ext import commands
-import time
+
+from discord.ext.commands.errors import DisabledCommand
 
 
-bot = commands.Bot(command_prefix="h!")
+class Bot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix=commands.when_mentioned_or('h!'),  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
 
-@bot.event
-async def on_ready():
-  print ("Bot is online!")
+    async def on_ready(self):
+        print(f'Logged in as {self.user} (ID: {self.user.id})')
+        await asyncio.sleep(10)
+        await bot.change_presence(status=discord.Status.do_not_disturb, activity = discord.Game(name="h!help | Watching over Woodlands"))
 
-@bot.command()
-async def ping(ctx):
-    t_1 = time.perf_counter()
-    await ctx.author.trigger_typing()  # tell Discord that the bot is "typing", which is a very simple request
-    t_2 = time.perf_counter()
-    time_delta = round((t_2-t_1)*1000)  # calculate the time needed to trigger typing
-    await ctx.reply(f"Pong. {time_delta}ms")
+bot = Bot()
 
-@bot.command(brief="Send a message with a button!") # Create a command inside a cog
-async def button(ctx):
-    view = discord.ui.View() # Establish an instance of the discord.ui.View class
-    style = discord.ButtonStyle.grey  # The button will be gray in color
-    item = discord.ui.Button(style=style, label="This is the button", url="https://www.youtube.com/watch?v=Uj1ykZWtPYI&list=PLzJ2D8f51wW-H40q3dMB0evI7iJ0dmRdT&index=3")  # Create an item to pass into the view class.
-    view.add_item(item=item)  # Add that item into the view class
-    item = discord.ui.Button(style=discord.ButtonStyle.green , label ="Another Button Woo" )
-    view.add_item(item=item)
-    await ctx.send("This message has buttons!", view=view)  # Send your message with a button.
+@bot.command(name="load")
+@commands.is_owner()
+async def load(ctx, cog_name):
+    try:
+        bot.load_extension(f"Cogs.{cog_name}")
+        await ctx.send(f"Loaded `{cog_name}`")
+    except commands.ExtensionAlreadyLoaded:
+        bot.unload_extension(f"Cogs.{cog_name}")
+        bot.load_extension(f"Cogs.{cog_name}")
+        await ctx.send(f"Reloaded `{cog_name}`")
+    except commands.ExtensionNotFound:
+        await ctx.send(f"Cog `{cog_name}` not found")
+@load.error
+async def load_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.NotOwner):
+        await ctx.send("Missing Permissions! Only Bot Owner can run this")
 
-bot.run("ODU4MzM1NjYzNTcxOTkyNjE4.YNcpYQ.0JI0p1KWY1zrDsjbYhmgBMkMrNw")
+@bot.command(name="unload")
+@commands.is_owner()
+async def unload(ctx, cog_name):
+    try:
+        bot.unload_extension(f"Cogs.{cog_name}")
+        await ctx.send(f"Unloaded `{cog_name}`")
+    except commands.ExtensionNotFound:
+        await ctx.send(f"Cog `{cog_name}` not found")
+    except commands.ExtensionNotLoaded:
+        await ctx.send("Cog is already unloaded")
+
+@unload.error
+async def unload_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.NotOwner):
+        await ctx.send("Missing Permissions! Only Bot Owner can run this")
+
+#load Cogs on turning on
+coglist = ['Fun', 'Utility']
+for i in coglist:
+    bot.load_extension(f"Cogs.{i}")
+
+print(f"Loaded Cogs - {coglist}")
+bot.help_command = commands.DefaultHelpCommand(command_attrs=dict(hidden=True))
+
+bot.run('ODU4MzM1NjYzNTcxOTkyNjE4.YNcpYQ.0JI0p1KWY1zrDsjbYhmgBMkMrNw')
