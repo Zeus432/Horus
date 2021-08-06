@@ -6,9 +6,6 @@ class Fun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
 
-    def helper(self, message: discord.Message): #Notice self!
-            return message.content.startswith("hi")
-
     @commands.command()
     async def coolservers(self, ctx: commands.Context):
         class Dropdown(discord.ui.Select):
@@ -54,7 +51,6 @@ class Fun(commands.Cog):
         class Guess(discord.ui.View):
             numlist = random.sample(range(1, 100), 4)
             correct = random.choice(numlist)
-            print(numlist, correct)
 
             def __init__(self):
                 super().__init__()
