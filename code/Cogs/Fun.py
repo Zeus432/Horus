@@ -1,12 +1,14 @@
 import discord
 from discord.ext import commands
 import random
+import asyncio    
 
 class Fun(commands.Cog): 
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
 
-    @commands.command()
+    @commands.command(name = "coolservers", aliases = ['servers','cs'], help = "View a list of cool servers owned by some members of Woodlands", brief = "Cool Server Lists", hidden = True)
+    @commands.guild_only()
     async def coolservers(self, ctx: commands.Context):
         class Dropdown(discord.ui.Select):
             def __init__(self):
@@ -42,10 +44,14 @@ class Fun(commands.Cog):
                 # Adds the dropdown to our view object.
                 self.add_item(Dropdown())
 
-        view = DropdownView()
-        await ctx.send('Cool Servers List', view=view)
+        if ctx.guild.id == 809632911690039307:
+            view = DropdownView()
+            await ctx.send('Cool Servers List', view=view)
+        else:
+            await ctx.send("This Server is not Whitelisted")
 
-    @commands.command()
+    @commands.command(name = "guessthenumber", aliases = ['guess','gtn'], help = "Play a fun game of guess the correct number", brief = "Guess the Number")
+    @commands.guild_only()
     async def gtn(self, ctx: commands.Context):
 
         class Guess(discord.ui.View):
@@ -134,6 +140,45 @@ class Fun(commands.Cog):
 
         view=Guess()
         await ctx.reply('Guess the Number!', view=view)
+        await asyncio.sleep(30)
+
+    @commands.command(name = "testbuttons", aliases = ['button','buttons','tb'], help = "View Different Buttons that can be made", brief = "Test Some Buttons")
+    @commands.guild_only()
+    async def testbuttons(self, ctx: commands.Context):
+        class somebutton(discord.ui.View):
+
+            def __init__(self):
+                super().__init__()
+                self.value = None
+
+            @discord.ui.button(label= "Green Button", style=discord.ButtonStyle.green, emoji = "<a:prickler:819942044838920233>")
+            async def button1(self, button: discord.ui.Button, interaction: discord.Interaction):
+                if interaction.user.id == ctx.author.id:
+                    await interaction.response.send_message(content="You pressed the green button <a:prickler:819942044838920233>")
+                else:
+                    await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
+
+            @discord.ui.button(label= "Red Button", style=discord.ButtonStyle.red, emoji = "<:CozyBlanket:847491897622134795>")
+            async def button2(self, button: discord.ui.Button, interaction: discord.Interaction):
+                if interaction.user.id == ctx.author.id:
+                    await interaction.response.send_message(content="You pressed the red button <:CozyBlanket:847491897622134795>")
+                else:
+                    await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
+
+            @discord.ui.button(label= "Grey Button", style=discord.ButtonStyle.grey, emoji = "<:Shinobu:847464133003575306>")
+            async def button3(self, button: discord.ui.Button, interaction: discord.Interaction):
+                if interaction.user.id == ctx.author.id:
+                    await interaction.response.send_message(content="You pressed the grey button <:Shinobu:847464133003575306>")
+                else:
+                    await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
+
+        view=somebutton()
+        view.add_item(discord.ui.Button(label= "Link Button", style=discord.ButtonStyle.link, url="https://www.youtube.com/watch?v=QtBDL8EiNZo", emoji = "<:Popcorn:847491974004998145>"))
+        message = await ctx.reply('A sample of all the buttons.', view=view)
+        await asyncio.sleep(69)
+        for item in view.children:
+            item.disabled = True
+        await message.edit("A sample of all the buttons. This message is no longer active", view = view)
 
 def setup(bot: commands.Bot):
     bot.add_cog(Fun(bot))
