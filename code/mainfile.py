@@ -1,12 +1,6 @@
 import asyncio
 import discord
 from discord.ext import commands
-from Utils.settings import *
-import time
-import datetime
-
-coglist = WorkingCogs
-
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
 class Bot(commands.Bot):
@@ -26,7 +20,6 @@ bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
 
 @bot.command(name="load", aliases = ['l'], help = "Load Cogs onto the bot", brief = "Load Cogs")
-@commands.guild_only()
 @commands.is_owner()
 async def load(ctx, cog_name = None):
     coglist = WorkingCogs
@@ -97,11 +90,7 @@ async def load_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
         await ctx.message.add_reaction("<:doubtit:782677480267579412>")
-    else:
-        await ctx.send(f"```py\n```{error}")
 
-@bot.command(name="unload", aliases = ['ul'], help = "Unload loaded Cogs", brief = "Unload Cogs")
-@commands.guild_only()
 @commands.is_owner()
 async def unload(ctx, cog_name = None):
     coglist = WorkingCogs
@@ -169,8 +158,6 @@ async def unload_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
         await ctx.message.add_reaction("<:doubtit:782677480267579412>")
-    else:
-        await ctx.send(f"```py\n```{error}")
 
 #load Cogs on turning on
 error = "Error with loading cogs:"
