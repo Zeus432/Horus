@@ -1,8 +1,6 @@
 import asyncio
 import discord
 from discord.ext import commands
-import logging
-from settings import *
 
 class Bot(commands.Bot):
     def __init__(self):
