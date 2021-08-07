@@ -4,13 +4,6 @@ from discord.ext import commands
 import logging
 from settings import *
 
-logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
-
-
 class Bot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('h!'),  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
@@ -39,10 +32,6 @@ async def load_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
         await ctx.message.add_reaction("<:doubtit:782677480267579412>")
-    elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
-        await ctx.send("Specify Something to Load Smh")
-
-@bot.command(name="unload", aliases = ['ul'], help = "Unload Cogs loaded Cogs", brief = "Unload Cogs")
 @commands.is_owner()
 async def unload(ctx, cog_name):
     try:
@@ -54,29 +43,6 @@ async def unload(ctx, cog_name):
         await ctx.send("Cog is already unloaded")
 
 @unload.error
-async def unload_error(ctx, error):
-    if isinstance(error, discord.ext.commands.errors.NotOwner):
-        await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
-        await ctx.message.add_reaction("<:doubtit:782677480267579412>")
-    elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
-        await ctx.send("Specify Something to Unload Smh")
-
-@bot.command(name="shutdown", aliases = ['stop','gotosleepwhorus'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown")
-@commands.is_owner()
-async def shutdown(ctx):
-    message = await ctx.reply("Shutting down")
-    await asyncio.sleep(0.5)
-    await message.edit("Shutting down .")
-    await asyncio.sleep(0.5)
-    await message.edit("Shutting down . .")
-    await asyncio.sleep(0.5)
-    await message.edit("Shutting down . . .")
-    await asyncio.sleep(0.5)
-    await message.edit("Goodbye <a:Frogsleb:849663487080792085>")
-    await ctx.message.add_reaction("<a:tick:873113604080144394>")
-    await bot.close()
-
-@shutdown.error
 async def unload_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
