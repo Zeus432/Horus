@@ -1,7 +1,6 @@
 import asyncio
 import discord
 from discord.ext import commands
-#/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -90,7 +89,6 @@ async def load_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
         await ctx.message.add_reaction("<:doubtit:782677480267579412>")
-
 @commands.is_owner()
 async def unload(ctx, cog_name = None):
     coglist = WorkingCogs
