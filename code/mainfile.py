@@ -1,7 +1,8 @@
+from HelpClass.Useful import botemojis
 import asyncio
 import discord
 from discord.ext import commands
-from Utils.settings import *
+from HelpClass.settings import *
 import time
 import datetime
 
@@ -47,12 +48,12 @@ async def load(ctx, cog_name = None):
                 if length >= 20:
                     length = 20
                 options = []
-                cogdetails = {'ErrorHandler':{'emoji':'<:Error:873642469114384456>','msg':'Load up the Global Error Handler'},'CustomHelp':{'emoji':'<a:DES_Loading2:864035219971506226>','msg':'Load the Custom Help Menu for the Bot'}}
+                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Load up the Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Load the Custom Help Menu for the Bot'}}
                 def getemoji(cog):
                     try:
                         return cogdetails[cog]
                     except:
-                        return {'emoji':'<:cogsred:873220470416236544>','msg':f'Load Cog: {cog}'}
+                        return {'emoji':botemojis("cogs"),'msg':f'Load Cog: {cog}'}
                 for i in coglist:
                     options.append(discord.SelectOption(label=i, description=getemoji(i)['msg'], emoji=getemoji(i)['emoji']))
                 super().__init__(placeholder='Choose Cogs to Load', min_values=1, max_values=length, options=options)
@@ -96,9 +97,9 @@ async def load(ctx, cog_name = None):
 async def load_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
-        await ctx.message.add_reaction("<:doubtit:782677480267579412>")
+        await ctx.message.add_reaction(botemojis("error"))
     else:
-        await ctx.send(f"```py\n```{error}")
+        await ctx.send(f"```py\n{error}```")
 
 @bot.command(name="unload", aliases = ['ul'], help = "Unload loaded Cogs", brief = "Unload Cogs")
 @commands.guild_only()
@@ -121,12 +122,12 @@ async def unload(ctx, cog_name = None):
                 if length >= 20:
                     length = 20
                 options = []
-                cogdetails = {'ErrorHandler':{'emoji':'<:Error:873642469114384456>','msg':'Unload Global Error Handler'},'CustomHelp':{'emoji':'<a:DES_Loading2:864035219971506226>','msg':'Unload the Custom Help Menu and use the default'}}
+                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Unload Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Unload the Custom Help Menu and use the default'}}
                 def getemoji(cog):
                     try:
                         return cogdetails[cog]
                     except:
-                        return {'emoji':'<:cogsred:873220470416236544>','msg':f'Unload Cog: {cog}'}
+                        return {'emoji':botemojis("cogs"),'msg':f'Unload Cog: {cog}'}
                 for i in coglist:
                     options.append(discord.SelectOption(label=i, description=getemoji(i)['msg'], emoji=getemoji(i)['emoji']))
                 super().__init__(placeholder='Choose Cogs to Unload', min_values=1, max_values=length, options=options)
@@ -168,9 +169,9 @@ async def unload(ctx, cog_name = None):
 async def unload_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
         await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
-        await ctx.message.add_reaction("<:doubtit:782677480267579412>")
+        await ctx.message.add_reaction(botemojis("error"))
     else:
-        await ctx.send(f"```py\n```{error}")
+        await ctx.send(f"```py\n{error}```")
 
 #load Cogs on turning on
 error = "Error with loading cogs:"

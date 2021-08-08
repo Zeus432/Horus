@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+from Useful.Useful import HelpButtons
 
 class EmbedHelpCommand(commands.HelpCommand):
     """This is an example of a HelpCommand that utilizes embeds.
@@ -37,10 +38,11 @@ class EmbedHelpCommand(commands.HelpCommand):
                 if cog and cog.description:
                     value = '{0}\n{1}'.format(cog.description, value)
                     
-                embed.add_field(name=name, value=value, inline=False)
-
+                if name != "CustomEmbed":
+                    embed.add_field(name=name, value=value, inline=False)
         embed.set_footer(text=self.get_ending_note())
-        await self.get_destination().send(embed=embed)
+        view=HelpButtons()
+        await self.get_destination().send(view = view,embed=embed)
 
     async def send_cog_help(self, cog):
         embed = discord.Embed(title='{0.qualified_name} Commands'.format(cog), colour=self.COLOUR)
@@ -52,7 +54,8 @@ class EmbedHelpCommand(commands.HelpCommand):
             embed.add_field(name=self.get_command_signature(command), value=command.short_doc or '...', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        await self.get_destination().send(embed=embed)
+        view=HelpButtons()
+        await self.get_destination().send(view = view,embed=embed)
 
     async def send_group_help(self, group):
         embed = discord.Embed(title=group.qualified_name, colour=self.COLOUR)
@@ -65,7 +68,8 @@ class EmbedHelpCommand(commands.HelpCommand):
                 embed.add_field(name=self.get_command_signature(command), value=command.short_doc or '...', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        await self.get_destination().send(embed=embed)
+        view=HelpButtons()
+        await self.get_destination().send(view = view,embed=embed)
 
     # This makes it so it uses the function above
     # Less work for us to do since they're both similar.

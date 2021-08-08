@@ -1,6 +1,6 @@
 from discord.ext import commands
 from typing import Any
-from Utils.Useful import BaseEmbed, print_exception
+from Useful.Useful import *
 
 class CommandErrorHandler(commands.Cog):
 
@@ -19,6 +19,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.reply(*args, delete_after=60, **kwargs)
         if hasattr(ctx.command, 'on_error'):
             return
+        senderror = None
 
         cog = ctx.cog
         if cog:
@@ -37,8 +38,11 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.NoPrivateMessage):
             pass
 
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.reply("Missing Permissions!")
+
         elif isinstance(error, commands.BadArgument):
-            if ctx.command.qualified_name == 'ui':
+            if ctx.command.qualified_name == 'userinfo':
                 await ctx.send('I could not find that member. Please try again.')
             else:
                 senderror = True
@@ -46,6 +50,7 @@ class CommandErrorHandler(commands.Cog):
         else:
             senderror = True
         if senderror == True:
+            botemojis("error")
             await send_del(embed=BaseEmbed.to_error(description=f"{error}"))
             traceback_error = print_exception(f'Ignoring exception in command {ctx.command}:', error)
             error_message = "__**Command Errored!**__\n\n" \

@@ -33,3 +33,18 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
         trace = error.__traceback__
         lines = traceback.format_exception(etype, error, trace)
         return "".join(lines)
+
+def botemojis(emoji = None):
+    listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:Error:873859732044136469>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>","boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>"}
+    try:
+        return listemoji[emoji]
+    except:
+        return "<:Error:873859732044136469>"
+
+class HelpButtons(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+
+    @discord.ui.button(style=discord.ButtonStyle.gray, emoji = "\U0001f5d1")
+    async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.message.delete()

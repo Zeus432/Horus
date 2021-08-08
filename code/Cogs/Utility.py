@@ -1,11 +1,9 @@
-from asyncio.tasks import run_coroutine_threadsafe
+from Useful.Useful import botemojis
 from discord.ext import commands
 import discord
-from discord.ext.commands.core import has_role
-from Utils.settings import *
+from Useful.settings import *
 import datetime
 from dateutil.relativedelta import relativedelta
-import time
 
 
 class Utility(commands.Cog):
@@ -26,8 +24,8 @@ class Utility(commands.Cog):
         uiembed = discord.Embed(title=f"{member.display_name}・{member}",colour=member.color,timestamp=ctx.message.created_at, description=f"**User ID:** `{member.id}`")
         uiembed.set_thumbnail(url=member.avatar)
         uiembed.set_footer(text=f"{ctx.guild}", icon_url=ctx.guild.icon)
-        uiembed.add_field(name="Created on:", value= f"<t:{round(member.created_at.timestamp())}:D>\n(<t:{round(member.created_at.timestamp())}:R>)")
-        uiembed.add_field(name="Joined on:", value=f"<t:{round(member.joined_at.timestamp())}:D>\n(<t:{round(member.joined_at.timestamp())}:R>)")
+        uiembed.add_field(name="Joined Discord:", value= f"<t:{round(member.created_at.timestamp())}:D>\n(<t:{round(member.created_at.timestamp())}:R>)")
+        uiembed.add_field(name="Joined Server:", value=f"<t:{round(member.joined_at.timestamp())}:D>\n(<t:{round(member.joined_at.timestamp())}:R>)")
         roles = ""
         for role in member.roles:
             if str(role) != "@everyone":
@@ -37,11 +35,11 @@ class Utility(commands.Cog):
         uiembed.add_field(name="User Roles:", value=f"{roles}", inline=False)
         badge = ""
         if member.id in BotOwners:
-            badge += f"<a:ShinyBadge:873222765937832027> **[Bot Owner]({member.avatar})**\n"
+            badge += f"{botemojis('dev')} **[Whorus Dev]({member.avatar})**\n"
         for role in member.roles:
             try:
                 if role.id == ctx.guild.premium_subscriber_role.id:
-                    badge += "<a:booster:873218832326594590> **[Server Booster](https://cdn.discordapp.com/emojis/782210035329138698.gif?v=1)**\n"
+                    badge += f"{botemojis('boost')} **[Server Booster](https://cdn.discordapp.com/emojis/782210035329138698.gif?v=1)**\n"
             except:
                 break
         if 809632911690039307 in [g.id for g in self.bot.guilds if g.get_member(member.id)]:
@@ -51,23 +49,11 @@ class Utility(commands.Cog):
         if member.id == 786150805773746197:
             badge += f"<a:rooburn:873586500518948884> **[Fellintron Nab]({member.avatar})**"
         if member.bot:
-            badge = f"<:cogsred:873220470416236544> **[Bots Supreme]({member.avatar})**\n"
+            badge = f"{botemojis('cogs')} **[Bots Supreme]({member.avatar})**\n"
         if badge != "":
             uiembed.add_field(name="Special Badges:", value=badge)
         uiembed.add_field(name="Servers:", value=f"{len([g.id for g in self.bot.guilds if g.get_member(member.id)])} shared")
         await ctx.send(embed=uiembed)
-
-    @userinfo.error
-    async def userinfo_error(self, ctx, error):
-        if isinstance(error, discord.ext.commands.errors.MemberNotFound):
-            await ctx.send(error)
-        else:
-            await ctx.send(f"```py\n{error}```")
-
-    @commands.command(name='testerror')
-    @commands.guild_only()
-    async def testerror(self, ctx, who, what):
-        await ctx.send(who,what)
 
     @commands.command(name='uptime')
     @commands.guild_only()
