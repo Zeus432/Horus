@@ -6,6 +6,7 @@ from contextlib import redirect_stdout
 import io
 import asyncio
 
+from Useful.Useful import *
 # to expose to the eval command
 
 
@@ -29,7 +30,7 @@ class Owner(commands.Cog):
         else: return content
 
     async def cog_check(self, ctx):
-        return await self.bot.is_owner(ctx.author)
+        return await self.bot.is_owner(ctx.author) 
 
     def get_syntax_error(self, e):
         if e.text is None:
@@ -72,25 +73,22 @@ class Owner(commands.Cog):
         else:
             value = stdout.getvalue()
             try:
-                await ctx.message.add_reaction('\u2705')
+                await ctx.message.add_reaction(botemojis('tick'))
             except:
                 pass
-
+            view=HelpButtons()
             if ret is None:
                 if value:
-                    await ctx.send(f'```py\n{value}\n```')
+                    await ctx.send(f'```py\n{value}\n```', view=view)
             else:
                 self._last_result = ret
-                await ctx.send(f'```py\n{value}{ret}\n```')
+                await ctx.send(f'```py\n{value}{ret}\n```', view=view)
     @_eval.error
     async def _eval_error(self, ctx, error, test = None):
-        if isinstance(error, discord.ext.commands.errors.CheckFailure):
-            await ctx.reply("Only the Bot Owner can eval")
-            await ctx.message.add_reaction(":doubtit:")
-        elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
+        if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.send("I need something to eval bitch")
         else:
-            await ctx.send(f"```py\n```{error}")
+            await ctx.send(f"```py\n{error}```")
     
     @commands.command(name="shutdown", aliases = ['stop','gotosleepwhorus'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown ")
     async def shutdown(self, ctx):
@@ -105,13 +103,12 @@ class Owner(commands.Cog):
         await asyncio.sleep(0.5)
         await msg.edit("Goodbye <a:Frogsleb:849663487080792085>")
         try:
-            await ctx.message.add_reaction("<a:tick:873113604080144394>")
+            await ctx.message.add_reaction(botemojis('tick'))
         except:
             pass
         await self.bot.close()
     
     @commands.command()
-    @commands.is_owner()
     async def disable(self, ctx, command):
         """Disable a command."""
 
@@ -124,7 +121,6 @@ class Owner(commands.Cog):
         await ctx.send(f"Disabled {command.name} command.")
 
     @commands.command()
-    @commands.is_owner()
     async def enable(self, ctx, command):
         """Enable a command."""
 
@@ -135,6 +131,13 @@ class Owner(commands.Cog):
             return await ctx.send("This command is already enabled.")
         command.enabled = True
         await ctx.send(f"Enabled {command.name} command.")
+
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
+            await ctx.message.add_reaction(botemojis('boost'))
+        else:
+            await ctx.reply(error)           
 
 def setup(bot):
     bot.add_cog(Owner(bot))
