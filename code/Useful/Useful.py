@@ -4,6 +4,7 @@ import discord
 import datetime
 import traceback
 import sys
+import pathlib
 
 class BaseEmbed(discord.Embed):
     """Main purpose is to get the usual setup of Embed for a command or an error embed"""
@@ -48,3 +49,25 @@ class HelpButtons(discord.ui.View):
     @discord.ui.button(style=discord.ButtonStyle.blurple, emoji = botemojis("trash"))
     async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
         await interaction.message.delete()
+
+def fileanalytics():
+    p = pathlib.Path('./')
+    cm = cr = fn = cl = ls = fc = 0
+    for f in p.rglob('*.py'):
+        if str(f).startswith("venv"):
+            continue
+        fc += 1
+        with f.open() as of:
+            for l in of.readlines():
+                l = l.strip()
+                if l.startswith('class'):
+                    cl += 1
+                if l.startswith('def'):
+                    fn += 1
+                if l.startswith('async def'):
+                    cr += 1
+                if '#' in l:
+                    cm += 1
+                ls += 1
+    return [fc,ls,cl,fn,cr,cm,f"file: {fc}\nline: {ls:,}\nclass: {cl}\nfunction: {fn}\ncoroutine: {cr}\ncomment: {cm:,}"]
+    #returns in order 1. Files, 2. Lines, 3. Classes, 4.Functions, 5.Coroutines, 6.Comments, 7.The whole thing together
