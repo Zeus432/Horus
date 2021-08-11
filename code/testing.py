@@ -1,7 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
-from settings import *
+from Useful.settings import *
 
 
 class Bot(commands.Bot):

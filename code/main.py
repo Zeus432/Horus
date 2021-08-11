@@ -1,10 +1,11 @@
-from HelpClass.Useful import botemojis
+from Useful.Useful import botemojis
 import asyncio
 import discord
 from discord.ext import commands
-from HelpClass.settings import *
+from Useful.settings import *
 import time
 import datetime
+import os
 
 coglist = WorkingCogs
 
@@ -17,7 +18,7 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
         await asyncio.sleep(10)
-        await bot.change_presence(status=discord.Status.do_not_disturb, activity = discord.Game(name="h!help | Watching over Woodlands"))
+        await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
         bot.launch_time = datetime.datetime.utcnow()
         bot.launch_ts = time.time()
 
@@ -25,9 +26,19 @@ bot = Bot()
 bot.owner_ids = BotOwners
 bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
+bot.snipes = {}
+
+@bot.event
+async def on_message_delete(message):
+  bot.snipes[message.channel.id] = message
+
+def cogstate(cog_name):
+    if bot.get_cog(cog_name) == None:
+        return "State: Unloaded"
+    else:
+        return "State: Loaded"
 
 @bot.command(name="load", aliases = ['l'], help = "Load Cogs onto the bot", brief = "Load Cogs")
-@commands.guild_only()
 @commands.is_owner()
 async def load(ctx, cog_name = None):
     coglist = WorkingCogs
@@ -48,12 +59,12 @@ async def load(ctx, cog_name = None):
                 if length >= 20:
                     length = 20
                 options = []
-                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Load up the Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Load the Custom Help Menu for the Bot'}}
+                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Load Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Load Custom Help Menu'}}
                 def getemoji(cog):
                     try:
                         return cogdetails[cog]
                     except:
-                        return {'emoji':botemojis("cogs"),'msg':f'Load Cog: {cog}'}
+                        return {'emoji':botemojis("cogs"),'msg':cogstate(cog_name=cog)}
                 for i in coglist:
                     options.append(discord.SelectOption(label=i, description=getemoji(i)['msg'], emoji=getemoji(i)['emoji']))
                 super().__init__(placeholder='Choose Cogs to Load', min_values=1, max_values=length, options=options)
@@ -67,6 +78,14 @@ async def load(ctx, cog_name = None):
                             try:
                                 bot.load_extension(f"Cogs.{cog}")
                                 Loaded += f", `{cog}`"
+                                for opt in view.children:
+                                    for item in opt.options:
+                                        print(item.value)
+                                        if item.value == cog:
+                                            item.description = "State: Loaded"
+                                            await msg.edit(view = view)
+                                            break
+                                        
                             except commands.ExtensionAlreadyLoaded:
                                 bot.unload_extension(f"Cogs.{cog}")
                                 bot.load_extension(f"Cogs.{cog}")
@@ -77,7 +96,7 @@ async def load(ctx, cog_name = None):
                             Reloaded = f"**Reloaded Cogs:**\n{Reloaded[2:]}"
                         await interaction.response.send_message(f'{Loaded}{Reloaded}', ephemeral=False)
                 else:
-                    await interaction.response.send_message("This select menu isn't for you to use, run `h!load` to use this command", ephemeral=True)
+                    await interaction.response.send_message("This select isn't for you to use", ephemeral=True)
 
         class DropdownView(discord.ui.View):
             def __init__(self):
@@ -87,22 +106,21 @@ async def load(ctx, cog_name = None):
                 self.add_item(Dropdown())
 
         view = DropdownView()
-        msg = await ctx.send('Select Menu to Load Cogs', view=view)
+        msg = await ctx.send('Select to Load Cogs', view=view)
         await asyncio.sleep(30)
         for item in view.children:
             item.disabled = True
-        await msg.edit("Select Menu to Load Cogs. This message is no longer active", view = view)
+        await msg.edit("Select to Load Cogs. This message is no longer active", view = view)
 
 @load.error
 async def load_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.NotOwner):
-        await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
+        await ctx.reply("Only the Bot Owner can run this command!")
         await ctx.message.add_reaction(botemojis("error"))
     else:
         await ctx.send(f"```py\n{error}```")
 
 @bot.command(name="unload", aliases = ['ul'], help = "Unload loaded Cogs", brief = "Unload Cogs")
-@commands.guild_only()
 @commands.is_owner()
 async def unload(ctx, cog_name = None):
     coglist = WorkingCogs
@@ -122,12 +140,12 @@ async def unload(ctx, cog_name = None):
                 if length >= 20:
                     length = 20
                 options = []
-                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Unload Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Unload the Custom Help Menu and use the default'}}
+                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Unload Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Unload  Custom Help Menu and use the default one'}}
                 def getemoji(cog):
                     try:
                         return cogdetails[cog]
                     except:
-                        return {'emoji':botemojis("cogs"),'msg':f'Unload Cog: {cog}'}
+                        return {'emoji':botemojis("cogs"),'msg':cogstate(cog_name=cog)}
                 for i in coglist:
                     options.append(discord.SelectOption(label=i, description=getemoji(i)['msg'], emoji=getemoji(i)['emoji']))
                 super().__init__(placeholder='Choose Cogs to Unload', min_values=1, max_values=length, options=options)
@@ -141,6 +159,13 @@ async def unload(ctx, cog_name = None):
                             try:
                                 bot.unload_extension(f"Cogs.{cog}")
                                 Unloaded += f", `{cog}`"
+                                for opt in view.children:
+                                    for item in opt.options:
+                                        print(item.value)
+                                        if item.value == cog:
+                                            item.description = "State: Unloaded"
+                                            await msg.edit(view = view)
+                                            break
                             except commands.ExtensionNotLoaded:
                                 Failed += f", `{cog}`"
                         if Unloaded != "":

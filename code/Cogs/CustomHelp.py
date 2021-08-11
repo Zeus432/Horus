@@ -1,6 +1,8 @@
 from discord.ext import commands
 import discord
+from discord.ext.commands.context import Context
 from Useful.Useful import HelpButtons
+import asyncio
 
 class EmbedHelpCommand(commands.HelpCommand):
     """This is an example of a HelpCommand that utilizes embeds.
@@ -41,8 +43,15 @@ class EmbedHelpCommand(commands.HelpCommand):
                 if name != "CustomEmbed":
                     embed.add_field(name=name, value=value, inline=False)
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons()
-        await self.get_destination().send(view = view,embed=embed)
+        view=HelpButtons(30)
+        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
+        try:
+            await asyncio.wait_for(view.wait(), timeout=30)
+        except asyncio.TimeoutError:
+            try:
+                await msg.edit(view=None)
+            except:
+                pass
 
     async def send_cog_help(self, cog):
         embed = discord.Embed(title='{0.qualified_name} Commands'.format(cog), colour=self.COLOUR)
@@ -51,30 +60,70 @@ class EmbedHelpCommand(commands.HelpCommand):
 
         filtered = await self.filter_commands(cog.get_commands(), sort=True)
         for command in filtered:
-            embed.add_field(name=self.get_command_signature(command), value=command.short_doc or '...', inline=False)
+            embed.add_field(name=self.get_command_signature(command), value="ree"+ command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons()
-        await self.get_destination().send(view = view,embed=embed)
+        view=HelpButtons(30)
+        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
+        try:
+            await asyncio.wait_for(view.wait(), timeout=30)
+        except asyncio.TimeoutError:
+            try:
+                await msg.edit(view=None)
+            except:
+                pass
 
     async def send_group_help(self, group):
+        COLOUR = discord.Colour(0x9c9cff)
         embed = discord.Embed(title=group.qualified_name, colour=self.COLOUR)
+        aliases = '`, `'.join(c for c in group.aliases)
         if group.help:
             embed.description = group.help
+        if aliases != '':
+            embed.add_field(name="**Aliases:**", value=f"`{aliases}`", inline=False)
 
         if isinstance(group, commands.Group):
             filtered = await self.filter_commands(group.commands, sort=True)
             for command in filtered:
-                embed.add_field(name=self.get_command_signature(command), value=command.short_doc or '...', inline=False)
+                embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons()
-        await self.get_destination().send(view = view,embed=embed)
+        view=HelpButtons(30)
+        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
+        try:
+            await asyncio.wait_for(view.wait(), timeout=30)
+        except asyncio.TimeoutError:
+            try:
+                await msg.edit(view=None)
+            except:
+                pass
 
     # This makes it so it uses the function above
     # Less work for us to do since they're both similar.
     # If you want to make regular command help look different then override it
-    send_command_help = send_group_help
+    async def send_command_help(self, command):
+        embed = discord.Embed(title=command.qualified_name, colour=self.COLOUR)
+        aliases = '`, `'.join(c for c in command.aliases)
+        if command.help:
+            embed.description = command.help
+        if aliases != '':
+            embed.add_field(name="**Aliases:**", value=f"`{aliases}`", inline=False)
+
+        if isinstance(command, commands.Group):
+            filtered = await self.filter_commands(command, sort=True)
+            for command in filtered:
+                embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
+
+        embed.set_footer(text=self.get_ending_note())
+        view=HelpButtons(30)
+        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
+        try:
+            await asyncio.wait_for(view.wait(), timeout=30)
+        except asyncio.TimeoutError:
+            try:
+                await msg.edit(view=None)
+            except:
+                pass
 
 class CustomEmbed(commands.Cog):
     def __init__(self, bot):

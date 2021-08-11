@@ -4,19 +4,56 @@ import discord
 from Useful.settings import *
 import datetime
 from dateutil.relativedelta import relativedelta
+import asyncio
 
 
 class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
         self.bot.launch_time = bot.launch_time
+
+    def get_uptime(self):
+        delta_uptime = relativedelta(datetime.datetime.utcnow(), self.bot.launch_time)
+        days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
+
+        uptimes = {x[0]: x[1] for x in [('days, ' if days != 1 else 'day, ', days), ('hours, ' if hours != 1 else 'hour, ', hours),
+                                        ('minutes' if minutes != 1 else 'minute', minutes), ('seconds' if seconds != 1 else 'second', seconds)] if x[1]}
+
+        last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes)-1)
+        uptime_string = "".join(
+            f"{v} {k}" if k != last else f" and {v} {k}" if len(uptimes) != 1 else f"{v} {k}"
+            for k, v in uptimes.items()
+        )
+        return uptime_string
+
+
+    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info'])
+    @commands.guild_only()
+    async def info(self, ctx):
+        who = self.bot.get_user(760823877034573864)
+        emb = discord.Embed(colour = discord.Colour(10263807))
+        emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
+        emb.add_field(name="Coded in:",value="**Language:** [**`python 3.8.5`**](https://www.python.org/)\n**Library:** [**`discord.py 2.0`**](https://github.com/Rapptz/discord.py)\nㅤㅤㅤㅤ⤷ Master Branch")
+        emb.add_field(name="About Horus:",value=f"Horus is a semi private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
+        emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
+        emb.add_field(name="Bot Uptime:",value=self.get_uptime())
+        emb.add_field(name="On Discord Since:",value=f"<t:{round(self.bot.get_user(858335663571992618).created_at.timestamp())}:D>")
+        emb.set_thumbnail(url=self.bot.get_user(858335663571992618).avatar)
+        view = discord.ui.View()
+        button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.grey)
+        async def callback(interaction):
+            em = discord.Embed(description=f"Sorry not giving invite rn, atleast not until I finish setting up the base of my bot <:hadtodoittoem:874263602897502208>\nBut here is something else to make up for it {botemojis('pray')}",colour = ctx.author.colour)
+            await ctx.reply(embed = em, mention_author = False)
+            await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
+        button.callback = callback
+        view.add_item(button)
+        await ctx.send(embed = emb, view=view)
     
     @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
     @commands.guild_only()
     async def ping(self, ctx):
         await ctx.author.trigger_typing() 
         await ctx.reply(f"Pong {round(self.bot.latency*1000)}ms")
-
     @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info")
     @commands.guild_only()
     async def userinfo(self, ctx, *, member: discord.Member = None):
@@ -59,19 +96,34 @@ class Utility(commands.Cog):
     @commands.guild_only()
     async def uptime(self, ctx: commands.Context):
         """Gets the uptime of the bot"""
-        delta_uptime = relativedelta(datetime.datetime.utcnow(), self.bot.launch_time)
-        delta_unix = datetime.datetime.utcnow() - self.bot.launch_time
-        days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
-
-        uptimes = {x[0]: x[1] for x in [('days', days), ('hours', hours),
-                                        ('minutes', minutes), ('seconds', seconds)] if x[1]}
-
-        last = "".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes)-1)
-        uptime_string = "".join(
-            f"{v} {k}" if k != last else f" and {v} {k}" if len(uptimes) != 1 else f"{v} {k}"
-            for k, v in uptimes.items()
-        )
+        uptime_string = self.get_uptime()
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
+
+    @commands.command(name = "senddm", help = "Send dm to delegates", brief = "Send dm")
+    async def senddm(self, ctx, *, member: discord.Member):
+        """Send dm"""
+        member
+        def check(m: discord.Message):
+            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+
+        msg = ctx.message
+        await ctx.send("Enter context of the message")
+        try:
+            msgcontent = await self.bot.wait_for(event='message', check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await msg.reply("Response Timed Out!")
+        else:
+            try:
+                embed = discord.Embed(title="New Dm recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color= 0x2F3136)
+                await member.send(embed= embed)
+                await member.send(msgcontent.content)
+                await ctx.reply("message sent")
+            except:
+                await ctx.reply("I was unable to dm this user. Make sure their dms isn't closed")
+            
+    @senddm.error
+    async def senddm_error(self, ctx, error):
+        await ctx.send(f"{error}")
 
 def setup(bot: commands.Bot):
     bot.add_cog(Utility(bot))

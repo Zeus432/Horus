@@ -16,7 +16,7 @@ class BaseEmbed(discord.Embed):
     @classmethod
     def default(cls, ctx: commands.Context, **kwargs) -> "BaseEmbed":
         instance = cls(**kwargs)
-        instance.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        instance.set_footer(text=f"User: {ctx.author}", icon_url=ctx.author.avatar)
         return instance
 
     @classmethod
@@ -35,16 +35,16 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
         return "".join(lines)
 
 def botemojis(emoji = None):
-    listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:Error:873859732044136469>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>","boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>"}
+    listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:Error:874511415086551080>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>","boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>","trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>"}
     try:
         return listemoji[emoji]
     except:
         return "<:Error:873859732044136469>"
 
 class HelpButtons(discord.ui.View):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, timeout:int, **kwargs):
+        super().__init__(timeout=timeout, **kwargs)
 
-    @discord.ui.button(style=discord.ButtonStyle.gray, emoji = "\U0001f5d1")
+    @discord.ui.button(style=discord.ButtonStyle.blurple, emoji = botemojis("trash"))
     async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
         await interaction.message.delete()

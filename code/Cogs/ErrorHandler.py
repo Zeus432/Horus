@@ -12,11 +12,9 @@ class CommandErrorHandler(commands.Cog):
         """The event triggered when an error is raised while invoking a command."""
         async def send_del(*args: Any, **kwargs: Any) -> None:
             if embed := kwargs.get("embed"):
-                command = self.bot.get_command('ping')
-                command_sig = f"{ctx.clean_prefix}{command.qualified_name} {command.signature}"
-                text = f"If you think this is an error. Report via {command_sig}"
+                text = f"Spamming errored commands will result in a blacklist"
                 embed.set_footer(icon_url=self.bot.user.avatar, text=text)
-            await ctx.reply(*args, delete_after=60, **kwargs)
+            await ctx.reply(*args, **kwargs)
         if hasattr(ctx.command, 'on_error'):
             return
         senderror = None
@@ -35,6 +33,9 @@ class CommandErrorHandler(commands.Cog):
         if isinstance(error, commands.DisabledCommand):
             await ctx.reply(f'This command is disabled.')
 
+        elif isinstance(error, commands.MissingRequiredArgument):
+            return await ctx.send_help(ctx.command)
+
         elif isinstance(error, commands.NoPrivateMessage):
             pass
 
@@ -43,10 +44,9 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, commands.BadArgument):
             if ctx.command.qualified_name == 'userinfo':
-                await ctx.send('I could not find that member. Please try again.')
+                await ctx.send(error)
             else:
                 senderror = True
-
         else:
             senderror = True
         if senderror == True:

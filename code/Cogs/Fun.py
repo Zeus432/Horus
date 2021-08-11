@@ -3,9 +3,31 @@ from discord.ext import commands
 import random
 import asyncio    
 
+
+class PPfight(discord.ui.View):
+
+    def __init__(self):
+        super().__init__()
+        self.value = None
+
+    @discord.ui.button(label= "Big", style=discord.ButtonStyle.blurple)
+    async def bigpp(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id == self.ctx.author.id:
+            self.value = "Big"
+            print()
+
+    @discord.ui.button(label= "Small", style=discord.ButtonStyle.blurple)
+    async def smallpp(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id == self.ctx.author.id:
+            self.value = "Small"
+            print()
+
 class Fun(commands.Cog): 
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
+
+    async def predicate(ctx):
+        return ctx.guild.id not in [873127663840137256,844164205418512424]
 
     @commands.command(name = "coolservers", aliases = ['servers','cs'], help = "View a list of cool servers owned by some members of Woodlands", brief = "Cool Server Lists", hidden = True)
     @commands.guild_only()
@@ -44,7 +66,7 @@ class Fun(commands.Cog):
                 # Adds the dropdown to our view object.
                 self.add_item(Dropdown())
 
-        if ctx.guild.id == 809632911690039307:
+        if ctx.guild.id in [873127663840137256,844164205418512424,844164205418512424]:
             view = DropdownView()
             await ctx.send('Cool Servers List', view=view)
         else:
