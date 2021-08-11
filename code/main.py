@@ -5,18 +5,37 @@ from discord.ext import commands
 from Useful.settings import *
 import time
 import datetime
-import os
+import logging
 
 coglist = WorkingCogs
+log = logging.getLogger('asyncio')
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler())
+from Cogs.Owner import *
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
 class Bot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('h!'),  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
-
+        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
+    
+    async def noprefix(self, bot, message):
+        prefix_return = ["h!"]
+        if await bot.is_owner(message.author):
+            prefix_return = ["h!",""]
+        print(prefix_return)
+        return prefix_return
+    
     async def on_ready(self):
-        print(f'Logged in as {self.user} (ID: {self.user.id})')
+        print(f'\n\nLogged in as {self.user} (ID: {self.user.id})')
+        total_members = list(bot.get_all_members())
+        total_channels = sum(1 for x in bot.get_all_channels())
+        print(f'Guilds: {len(bot.guilds)}')
+        print(f'Large Guilds: {sum(g.large for g in bot.guilds)}')
+        print(f'Chunked Guilds: {sum(g.chunked for g in bot.guilds)}')
+        print(f'Members: {len(total_members)}')
+        print(f'Channels: {total_channels}')
+        print(f'Message Cache Size: {len(bot.cached_messages)}\n')
         await asyncio.sleep(10)
         await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
         bot.launch_time = datetime.datetime.utcnow()
