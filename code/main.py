@@ -228,6 +228,11 @@ for i in coglist:
     except:
         error += f" {i},"
         pass
+coglist.append("jishaku")
+try:
+    bot.load_extension('jishaku')
+except:
+    error += f" jishaku,"
 if error == "Error with loading cogs:":
     error = "No errors while Loading Cogs,"
 

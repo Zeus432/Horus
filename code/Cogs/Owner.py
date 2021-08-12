@@ -134,6 +134,8 @@ class Owner(commands.Cog):
                 if m.author.id == what.id:
                     msgid = m.id
                     break
+        if ctx.message.reference != None:
+            msgid = ctx.message.reference.message_id
         view = discord.ui.View()
         view.add_item(discord.ui.Button(label= "◄◄", style=discord.ButtonStyle.grey))
         view.add_item(discord.ui.Button(label= "▐▐", style=discord.ButtonStyle.grey))
@@ -221,8 +223,8 @@ class Owner(commands.Cog):
                 self.bot.prefixstate = False
                 state = "disabled, use default prefixes now <a:hmmnope:810188098464907334>"
         except:
-            self.bot.prefixstate = False
-            state = "disabled, use default prefixes now <a:hmmnope:810188098464907334>"
+            self.bot.prefixstate = True
+            state = f"enabled for bot owners {botemojis('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
 
     @commands.group(invoke_without_command=True)
