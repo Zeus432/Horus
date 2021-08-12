@@ -63,12 +63,17 @@ class Utility(commands.Cog):
         uiembed.set_footer(text=f"{ctx.guild}", icon_url=ctx.guild.icon)
         uiembed.add_field(name="Joined Discord:", value= f"<t:{round(member.created_at.timestamp())}:D>\n(<t:{round(member.created_at.timestamp())}:R>)")
         uiembed.add_field(name="Joined Server:", value=f"<t:{round(member.joined_at.timestamp())}:D>\n(<t:{round(member.joined_at.timestamp())}:R>)")
-        roles = ""
+        roles, extra = "",0
         for role in member.roles:
             if str(role) != "@everyone":
-                roles += f"{role.mention} "
+                if len(roles) < 900:
+                    roles += f"{role.mention} "
+                else:
+                    extra += 1
+
+        roles = roles + f" and {extra} other roles . . ." if extra != 0 and roles != "" else roles
         if roles == "":
-            roles = "None"
+            roles = "This user has no roles"
         uiembed.add_field(name="User Roles:", value=f"{roles}", inline=False)
         badge = ""
         if member.id in BotOwners:

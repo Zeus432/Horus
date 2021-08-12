@@ -12,18 +12,12 @@ coglist = WorkingCogs
 log = logging.getLogger('asyncio')
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())
-from Cogs.Owner import *
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
 async def run():
-
-    # NOTE: 127.0.0.1 is the loopback address. If your db is running on the same machine as the code, this address will work
-    credentials = {"user": "siddharthm", "database": "horus", "host": "127.0.0.1"}
+    credentials = {"user": dbuser, "database": dbdb, "host": dbhost}
     db = await asyncpg.create_pool(**credentials)
-
-    # Example create table code, you'll probably change it to suit you
-    await db.execute("CREATE TABLE IF NOT EXISTS users(id bigint PRIMARY KEY, data text);")
     bot.db = db
 
 class Bot(commands.Bot):

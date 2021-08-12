@@ -71,3 +71,7 @@ def fileanalytics():
                 ls += 1
     return [fc,ls,cl,fn,cr,cm,f"file: {fc}\nline: {ls:,}\nclass: {cl}\nfunction: {fn}\ncoroutine: {cr}\ncomment: {cm:,}"]
     #returns in order 1. Files, 2. Lines, 3. Classes, 4.Functions, 5.Coroutines, 6.Comments, 7.The whole thing together
+
+def woodlands_only(ctx):
+    hidecmd = True if ctx.guild.id in [809632911690039307,844164205418512424] else False
+    return hidecmd

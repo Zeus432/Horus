@@ -35,7 +35,7 @@ class EmbedHelpCommand(commands.HelpCommand):
             name = 'Miscellaneous' if cog is None else cog.qualified_name
             filtered = await self.filter_commands(commands, sort=True)
             if filtered:
-                value = '`\n・`'.join(c.name for c in commands)
+                value = '`\n・`'.join(c.name for c in filtered)
                 value = f"・`{value}`"
                 if cog and cog.description:
                     value = '{0}\n{1}'.format(cog.description, value)
@@ -60,7 +60,7 @@ class EmbedHelpCommand(commands.HelpCommand):
 
         filtered = await self.filter_commands(cog.get_commands(), sort=True)
         for command in filtered:
-            embed.add_field(name=self.get_command_signature(command), value="ree"+ command.short_doc or 'No documentation provided', inline=False)
+            embed.add_field(name=self.get_command_signature(command), value= command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
         view=HelpButtons(30)

@@ -40,7 +40,10 @@ class CommandErrorHandler(commands.Cog):
             pass
 
         elif isinstance(error, commands.CheckFailure):
-            await ctx.reply("Missing Permissions!")
+            if ctx.command.qualified_name != 'coolservers':
+                await ctx.reply("Missing Permissions!")
+            else:
+                await ctx.reply(f'This command is not available here', delete_after = 10)
 
         elif isinstance(error, commands.BadArgument):
             if ctx.command.qualified_name == 'userinfo':

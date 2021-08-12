@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 import random
-import asyncio    
-
+import asyncio
+from Useful.Useful import *
 
 class PPfight(discord.ui.View):
 
@@ -26,11 +26,9 @@ class Fun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
 
-    async def predicate(ctx):
-        return ctx.guild.id not in [873127663840137256,844164205418512424]
-
-    @commands.command(name = "coolservers", aliases = ['servers','cs'], help = "View a list of cool servers owned by some members of Woodlands", brief = "Cool Server Lists", hidden = True)
+    @commands.command(name = "coolservers", aliases = ['servers','cs'], help = "View a list of cool servers owned by some members of Woodlands", brief = "Cool Server Lists")
     @commands.guild_only()
+    @commands.check(woodlands_only)
     async def coolservers(self, ctx: commands.Context):
         class Dropdown(discord.ui.Select):
             def __init__(self):
@@ -66,11 +64,9 @@ class Fun(commands.Cog):
                 # Adds the dropdown to our view object.
                 self.add_item(Dropdown())
 
-        if ctx.guild.id in [873127663840137256,844164205418512424,844164205418512424]:
-            view = DropdownView()
-            await ctx.send('Cool Servers List', view=view)
-        else:
-            await ctx.send("This Server is not Whitelisted")
+        view = DropdownView()
+        await ctx.send('Cool Servers List', view=view)
+
 
     @commands.command(name = "guessthenumber", aliases = ['guess','gtn'], help = "Play a fun game of guess the correct number", brief = "Guess the Number")
     @commands.guild_only()
