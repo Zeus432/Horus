@@ -6,6 +6,7 @@ from Useful.settings import *
 import time
 import datetime
 import logging
+import asyncpg
 
 coglist = WorkingCogs
 log = logging.getLogger('asyncio')
@@ -15,15 +16,28 @@ from Cogs.Owner import *
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
+async def run():
+
+    # NOTE: 127.0.0.1 is the loopback address. If your db is running on the same machine as the code, this address will work
+    credentials = {"user": "siddharthm", "database": "horus", "host": "127.0.0.1"}
+    db = await asyncpg.create_pool(**credentials)
+
+    # Example create table code, you'll probably change it to suit you
+    await db.execute("CREATE TABLE IF NOT EXISTS users(id bigint PRIMARY KEY, data text);")
+    bot.db = db
+
 class Bot(commands.Bot):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
     
     async def noprefix(self, bot, message):
         prefix_return = ["h!"]
         if await bot.is_owner(message.author):
-            prefix_return = ["h!",""]
-        print(prefix_return)
+            try:
+                if bot.prefixstate == True:
+                    prefix_return.append("")
+            except:
+                pass
         return prefix_return
     
     async def on_ready(self):
@@ -45,11 +59,6 @@ bot = Bot()
 bot.owner_ids = BotOwners
 bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
-bot.snipes = {}
-
-@bot.event
-async def on_message_delete(message):
-  bot.snipes[message.channel.id] = message
 
 def cogstate(cog_name):
     if bot.get_cog(cog_name) == None:
@@ -230,4 +239,5 @@ if error == "Error with loading cogs:":
 
 print(f"Attempted to Load Cogs - {coglist}\n\n{error[:-1]}")
 
+bot.loop.run_until_complete(run())
 bot.run(TOKEN)

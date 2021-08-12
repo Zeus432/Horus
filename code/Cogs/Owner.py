@@ -211,6 +211,20 @@ class Owner(commands.Cog):
             await msg.delete()
             await ctx.send(f"```glsl\n{guilds}```")
 
+    @commands.command()
+    async def noprefix(self, ctx):
+        try:
+            if self.bot.prefixstate == False:
+                self.bot.prefixstate = True
+                state = "enabled for bot owners"
+            else:
+                self.bot.prefixstate = False
+                state = "disabled, use default prefixes now <a:hmmnope:810188098464907334>"
+        except:
+            self.bot.prefixstate = False
+            state = "disabled, use default prefixes now <a:hmmnope:810188098464907334>"
+        await ctx.reply(f"No prefix has been {state}")
+
     @commands.group(invoke_without_command=True)
     async def foo(self, ctx):
         await ctx.send("1")
