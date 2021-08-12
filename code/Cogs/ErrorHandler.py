@@ -1,3 +1,4 @@
+from discord import colour
 from discord.ext import commands
 from typing import Any
 from Useful.Useful import *
@@ -54,18 +55,22 @@ class CommandErrorHandler(commands.Cog):
             senderror = True
         if senderror == True:
             botemojis("error")
-            await send_del(embed=BaseEmbed.to_error(description=f"{error}"))
+            if await self.bot.is_owner(ctx.message.author):
+                await ctx.message.add_reaction(botemojis('error'))
+                await ctx.reply("This command has errored, check your Error Logs to see what happened")
+            else:
+                await send_del(embed=BaseEmbed.to_error("**Command Error!**",description=f"This error has been forwarded to the bot developer and will be fixed soon. Do not spam errored commands, doing so will get you blacklisted. If this isn't fixed feel free to dm me <@760823877034573864>\n\n**Error:**```py\n{error}```"), delete_after = 20)
             traceback_error = print_exception(f'Ignoring exception in command {ctx.command}:', error)
-            error_message = "__**Command Errored!**__\n\n" \
-                            f"**Command:** {ctx.message.content}\n" \
-                            f"**Message ID:** `{ctx.message.id}`\n" \
-                            f"**Author:** {ctx.author.mention} (`{ctx.author.id}`)\n" \
-                            f"**Guild:** **{ctx.guild}** (`{ctx.guild.id}`)\n" \
-                            f"**Channel:** {ctx.channel.mention} (`{ctx.channel.id}`)\n" \
-                            f"**Jump:** [`Jump to Error`]({ctx.message.jump_url})"
+            embed = BaseEmbed.default(ctx, title = "**Command Error!**")
+            embed.add_field(name="Command Used:", value=f"`{ctx.message.content}`", inline=False)
+            embed.add_field(name="Author:", value=f"{ctx.author.mention}\n (`{ctx.author.id}`)")
+            embed.add_field(name="Channel:", value=f"{ctx.channel.mention}\n (`{ctx.channel.id}`)")
+            embed.add_field(name="Guild:", value=f"**{ctx.guild}**\n (`{ctx.guild.id}`)")
+            embed.add_field(name="Message ID:", value=f"`{ctx.message.id}`")
+            embed.add_field(name="Jump to Error", value=f"[**Message Link \U0001f517**]({ctx.message.jump_url})")
             channel = self.bot.get_channel(873252901726863441)
             self.bot.error_channel = channel
-            await self.bot.error_channel.send(embed=BaseEmbed.default(ctx, description=error_message))
+            await self.bot.error_channel.send(embed=embed)
             await self.bot.error_channel.send(f"```py\n{traceback_error}```")
 
 def setup(bot):

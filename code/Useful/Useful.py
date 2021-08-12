@@ -15,8 +15,8 @@ class BaseEmbed(discord.Embed):
             self.add_field(name=n, value=v, inline=field_inline)
 
     @classmethod
-    def default(cls, ctx: commands.Context, **kwargs) -> "BaseEmbed":
-        instance = cls(**kwargs)
+    def default(cls, ctx: commands.Context,color: Union[discord.Color, int] = discord.Color.red(), **kwargs) -> "BaseEmbed":
+        instance = cls(color=color,**kwargs)
         instance.set_footer(text=f"User: {ctx.author}", icon_url=ctx.author.avatar)
         return instance
 
