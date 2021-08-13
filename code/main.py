@@ -7,6 +7,7 @@ import time
 import datetime
 import logging
 import asyncpg
+from Useful.Useful import *
 
 coglist = WorkingCogs
 log = logging.getLogger('asyncio')
@@ -219,6 +220,23 @@ async def unload_error(ctx, error):
         await ctx.message.add_reaction(botemojis("error"))
     else:
         await ctx.send(f"```py\n{error}```")
+
+
+#guild listeners
+@bot.event
+async def on_guild_join(guild):
+    print()
+    channel = bot.get_channel(874212184828297297)
+    bot.log_channel = channel
+    embed = BaseEmbed.guildanalytics(bot = bot, join=True, guild = guild)
+    await bot.log_channel.send(embed=embed)
+
+@bot.event
+async def on_guild_remove(guild):
+    channel = bot.get_channel(874212184828297297)
+    bot.log_channel = channel
+    embed = BaseEmbed.guildanalytics(bot = bot, join=False, guild = guild)
+    await bot.log_channel.send(embed=embed)
 
 #load Cogs on turning on
 error = "Error with loading cogs:"
