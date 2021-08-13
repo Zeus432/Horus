@@ -54,7 +54,6 @@ class CommandErrorHandler(commands.Cog):
         else:
             senderror = True
         if senderror == True:
-            botemojis("error")
             if await self.bot.is_owner(ctx.message.author):
                 await ctx.message.add_reaction(botemojis('error'))
                 await ctx.reply("This command has errored, check your Error Logs to see what happened")

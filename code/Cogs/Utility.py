@@ -105,6 +105,7 @@ class Utility(commands.Cog):
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
 
     @commands.command(name = "senddm", help = "Send dm to delegates", brief = "Send dm")
+    @commands.check(woodlands_only)
     async def senddm(self, ctx, *, member: discord.Member):
         """Send dm"""
         member

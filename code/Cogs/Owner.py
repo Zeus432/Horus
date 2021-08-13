@@ -11,7 +11,7 @@ from Useful.settings import *
 # to expose to the eval command
 
 
-class Owner(commands.Cog):
+class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
     def __init__(self, bot):
         self.bot = bot
@@ -147,29 +147,31 @@ class Owner(commands.Cog):
         view.add_item(discord.ui.Button(label= "◄◄", style=discord.ButtonStyle.grey))
         view.add_item(discord.ui.Button(label= "▐▐", style=discord.ButtonStyle.grey))
         view.add_item(discord.ui.Button(label= "►►", style=discord.ButtonStyle.grey))
-        button = discord.ui.Button(emoji= "\U0001f50a", style=discord.ButtonStyle.grey)
+        buttontime = discord.ui.Button(label= "0:00 / 3:56", style=discord.ButtonStyle.grey)
+        view.add_item(buttontime)
+        button = discord.ui.Button(label= "━━━━━◉", emoji="\U0001f50a", style=discord.ButtonStyle.grey)
         async def callback(interaction):
             if button.emoji.name == "\U0001f50a":
-                button2.label = "◉━━━━━"
+                button.label = "◉━━━━━"
                 button.emoji = "\U0001f507"
             else:
-                button2.label = "━━━━━◉"
+                button.label = "━━━━━◉"
                 button.emoji = "\U0001f50a"
             await interaction.response.edit_message(view=view)
         button.callback = callback
         view.add_item(button)
-        button2 = discord.ui.Button(label= "━━━━━◉", style=discord.ButtonStyle.grey)
-        view.add_item(button2)
         try:
             channel = ctx.channel
             replyto = await channel.fetch_message(msgid)
             msg = await replyto.reply('Now playing: \nWho Asked (Feat. Nobody Did)\n⬤────────────────', view=view)
         except:
             msg = await ctx.send('Now playing: \nWho Asked (Feat. Nobody Did)\n⬤────────────────', view=view)
+        timelim = ['0:00', '1:19', '1:55', '2:37', '3:56']
         for x in range(1,5):
             await asyncio.sleep(1)
             try:
-                await msg.edit("Now playing: \nWho Asked (Feat. Nobody Did)\n"+"────"*x + "⬤" + "────"*(4-x))
+                buttontime.label = f"{timelim[x]} / 3:56"
+                await msg.edit("Now playing: \nWho Asked (Feat. Nobody Did)\n"+"────"*x + "⬤" + "────"*(4-x), view=view)            
             except:
                 pass
         for item in view.children:
