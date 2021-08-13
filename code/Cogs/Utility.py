@@ -54,10 +54,11 @@ class Utility(commands.Cog):
     async def ping(self, ctx):
         await ctx.author.trigger_typing() 
         await ctx.reply(f"Pong {round(self.bot.latency*1000)}ms")
-    @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info")
+    @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info", ignore_extra = True)
     @commands.guild_only()
-    async def userinfo(self, ctx, *, member: discord.Member = None):
-        member = ctx.author if not member else member
+    async def userinfo(self, ctx, member: discord.Member = None):
+        if type(member) != discord.Member:
+            member = ctx.author
         uiembed = discord.Embed(title=f"{member.display_name}・{member}",colour=member.color,timestamp=ctx.message.created_at, description=f"**User ID:** `{member.id}`")
         uiembed.set_thumbnail(url=member.avatar)
         uiembed.set_footer(text=f"{ctx.guild}", icon_url=ctx.guild.icon)
