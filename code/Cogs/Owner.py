@@ -7,6 +7,7 @@ import io
 import asyncio
 
 from Useful.Useful import *
+from Useful.settings import *
 # to expose to the eval command
 
 
@@ -30,7 +31,13 @@ class Owner(commands.Cog):
         else: return content
 
     async def cog_check(self, ctx):
-        return await self.bot.is_owner(ctx.author) 
+        if ctx.command.qualified_name != 'whoasked':
+            return await self.bot.is_owner(ctx.author)
+        else:
+            if await self.bot.is_owner(ctx.author) == True or ctx.author.id in sweg:
+                return True
+            else:
+                return False
 
     def get_syntax_error(self, e):
         if e.text is None:
@@ -122,7 +129,7 @@ class Owner(commands.Cog):
             pass
         await self.bot.close()
     
-    @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "when people say random shit no one asked for")
+    @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "when people say random shit no one asked for", hidden = True)
     async def whoasked(self, ctx, what: Union[discord.Member, discord.Message, str] = "None"):
         """Who even asked bro"""
         msgid = None
@@ -218,7 +225,7 @@ class Owner(commands.Cog):
         try:
             if self.bot.prefixstate == False:
                 self.bot.prefixstate = True
-                state = "enabled for bot owners"
+                state = f"enabled for bot owners {botemojis('tokitosip')}"
             else:
                 self.bot.prefixstate = False
                 state = "disabled, use default prefixes now <a:hmmnope:810188098464907334>"
@@ -240,9 +247,11 @@ class Owner(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CheckFailure):
-            await ctx.message.add_reaction(botemojis('error'))
+            print(f"{error}\nyes")
+        if isinstance(error, commands.CheckFailure):
+            await ctx.reply("I applaud the effort, but no don't run this unless you're the bot owner", delete_after = 20)
         elif isinstance(error, commands.MissingRequiredArgument):
-            pass
+            await ctx.reply("Missing Arguments!")
         else:
             await ctx.reply(error)  
 
