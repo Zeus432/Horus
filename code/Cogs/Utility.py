@@ -33,9 +33,9 @@ class Utility(commands.Cog):
         who = self.bot.get_user(760823877034573864)
         emb = discord.Embed(colour = discord.Colour(10263807))
         emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
-        emb.add_field(name="Coded in:",value="**Language:** [**`python 3.8.5`**](https://www.python.org/)\n**Library:** [**`discord.py 2.0`**](https://github.com/Rapptz/discord.py)\nㅤㅤㅤㅤ⤷ Master Branch")
+        emb.add_field(name="Coded in:",value=f"**Language:** [**`python 3.8.5`**](https://www.python.org/)\n**Library:** [**`discord.py 2.0`**](https://github.com/Rapptz/discord.py)\nㅤㅤㅤㅤ{botemojis('replyend')} Master Branch")
         emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
-        emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}\n**{fileanalytics()[1]}** lines of code")
+        emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
         emb.add_field(name="Bot Uptime:",value=self.get_uptime())
         emb.add_field(name="On Discord Since:",value=f"<t:{round(self.bot.get_user(858335663571992618).created_at.timestamp())}:D>")
         emb.set_thumbnail(url=self.bot.get_user(858335663571992618).avatar)
@@ -54,6 +54,8 @@ class Utility(commands.Cog):
     async def ping(self, ctx):
         await ctx.author.trigger_typing() 
         await ctx.reply(f"Pong {round(self.bot.latency*1000)}ms")
+    
+    
     @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info", ignore_extra = True)
     @commands.guild_only()
     async def userinfo(self, ctx, member: discord.Member = None):

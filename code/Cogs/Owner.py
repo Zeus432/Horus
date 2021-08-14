@@ -215,12 +215,19 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"Enabled {command.name} command.")
 
     @commands.command()
-    async def getguilds(self, ctx):
+    async def getguildslist(self, ctx):
         async with ctx.typing():
             msg = await ctx.reply("Fetching Guilds", mention_author = False)
             guilds = ", ".join([g.name + f" ({g.id})" for g in self.bot.guilds])
             await msg.delete()
             await ctx.send(f"```glsl\n{guilds}```")
+    
+    @commands.command()
+    async def getguild(self, ctx, guild: discord.Guild):
+        async with ctx.typing():
+            emb = BaseEmbed.guildanalytics(bot = self.bot, join=None, guild = guild)
+            await ctx.reply(embed = emb)
+
 
     @commands.command()
     async def noprefix(self, ctx):
@@ -247,15 +254,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     async def meee(self, ctx):
         await ctx.send("3")      
 
-    async def cog_command_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
-            print(f"{error}\nyes")
-        if isinstance(error, commands.CheckFailure):
-            await ctx.reply("I applaud the effort, but no don't run this unless you're the bot owner", delete_after = 20)
-        elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.reply("Missing Arguments!")
-        else:
-            await ctx.reply(error)  
+#errorhandler
 
 def setup(bot):
     bot.add_cog(Owner(bot))

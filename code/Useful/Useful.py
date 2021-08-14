@@ -63,15 +63,22 @@ features = {
             "INVITE_SPLASH": "Splash Invite",
             "MEMBER_LIST_DISABLED": "Member list disabled",
             "MEMBER_VERIFICATION_GATE_ENABLED": "Membership Screening enabled",
+            "MONETIZATION_ENABLED": "Monetisation is enabled",
             "MORE_EMOJI": "More Emojis",
+            "MORE_STICKERS":"More Stickers",
             "NEWS": "News Channels",
             "PARTNERED": "Partnered",
             "PREVIEW_ENABLED": "Preview enabled",
             "PUBLIC_DISABLED": "Public disabled",
+            "PRIVATE_THREADS": "Threads Private",
+            "SEVEN_DAY_THREAD_ARCHIVE": "Threads Archive time - 7 Days",
+            "THREE_DAY_THREAD_ARCHIVE": "Threads Archive time - 3 Days",
+            "TICKETED_EVENTS_ENABLED": "Ticketed Events Enabled",
             "VANITY_URL": "Vanity URL",
             "VERIFIED": "Verified",
             "VIP_REGIONS": "VIP Voice Servers",
-            "WELCOME_SCREEN_ENABLED": "Welcome Screen enabled"
+            "WELCOME_SCREEN_ENABLED": "Welcome Screen enabled",
+            "THREADS_ENABLED":"Threads Enabled"
         }
 
 class BaseEmbed(discord.Embed):
@@ -94,31 +101,45 @@ class BaseEmbed(discord.Embed):
         return cls(title=title, color=color, **kwargs)
 
     @classmethod
-    def guildanalytics(cls, bot, join: bool, guild: discord.Guild, **kwargs) -> "BaseEmbed":
+    def guildanalytics(cls, bot, guild: discord.Guild,join: bool = None, **kwargs) -> "BaseEmbed":
         colour = discord.Color.red() if join == False else discord.Color.green()
+        colour = discord.Colour(0x9c9cff) if join == None else colour
         msg = "I've left this server" if join == False else "I've joined a new server"
-        embed = discord.Embed(title = guild, colour = colour, description = f"{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now")
+        description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n"
+        description += f"I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>\n" if join != True else ""
+        description += f"{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now" if join != None else ""
+        embed = discord.Embed(title = guild, colour = colour, description = description)
         owner,region = guild.owner, guild.region.name
         ifnsfw = len([c for c in guild.text_channels if c.is_nsfw()])
         ifgprem = guild.premium_tier
         gfl = [
-            f"・ {features[c]}" for c in guild.features 
+            f"{botemojis('parrow')} {features[c]}" for c in guild.features 
         ]
         if gfl == []:
-            gfl = "No Features Available"
+            featurend = "No Features Available"
+        else:
+            threadinfo = ""
+            if "THREADS_ENABLED" in  guild.features:
+                threadinfo = f"\n{botemojis('parrow')} Threads Enabled"
+                threadinfo += f"\nㅤㅤ{botemojis('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
+                threadinfo += f"\nㅤㅤ{botemojis('replyend')} Archive time limit: "
+                threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
+            #Threads
+            featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Threads")]) + threadinfo
+            
         if ifnsfw > 0:
-            ifnsfw = "\n・\U0001F51E Nsfw: **{ifnshw}**"
+            ifnsfw = f"\nㅤㅤ{botemojis('replyend')} Nsfw ⤏ **{ifnsfw}**"
         else:
             ifnsfw = ""
-        embed.set_footer(url="https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text=guild.name)
+        embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text=guild.name if "VERIFIED" in guild.features or "PARTNERED" in guild.features else discord.Embed.Empty)
         embed.add_field(name="**Guild Info**", value=f"**Owner:** {owner.mention} (`{owner.id}`)\n**Region:** {vc_regions[region]}\n**Verif. Level:** {verif[str(guild.verification_level)]}\n**Server ID:** `{guild.id}`",inline=False)
         embed.add_field(name="**Members**",value=f"Humans: **{len([g.id for g in guild.members if not g.bot])}**\nBots: **{len([g.id for g in guild.members if g.bot])}**\nTotal: **{len([g.id for g in guild.members])}**")
         embed.add_field(name="**Channels**",value=f"{botemojis('text')} Text Channels: **{len(guild.text_channels)}** {ifnsfw}\n{botemojis('voice')} Voice Channels: **{len(guild.voice_channels)}**\n{botemojis('stage')} Stage Channels: **{len(guild.stage_channels)}**")
-        embed.add_field(name="**Misc**",value=f"AFK channel: **{guild.afk_channel}**\nAFK timeout: **{guild.afk_timeout}**\nCustom emojis: **{len(guild.emojis)}**\nRoles: **{len(guild.roles)}**")
+        embed.add_field(name="**Misc**",value=f"AFK channel: **{guild.afk_channel}**\nAFK timeout: **{(guild.afk_timeout)/60} minutes**\nCustom emojis: **{len(guild.emojis)}**\nRoles: **{len(guild.roles)}**", inline=False)
         if ifgprem > 0:
             nitro_boost = f"Tier **{str(guild.premium_tier)}** with **{guild.premium_subscription_count}** boosters\nFile size limit: **{_size(guild.filesize_limit)}**\nEmoji limit: **{str(guild.emoji_limit)}**\nVCs max bitrate: **{_bitsize(guild.bitrate_limit)}**"
             embed.add_field(name="**Nitro State**", value=nitro_boost)
-        embed.add_field(name="**Server Features**", value=gfl, inline=False)
+        embed.add_field(name="**Server Features**", value=featurend, inline=False)
         embed.set_thumbnail(url=guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
         if guild.banner:
             embed.set_image(url=guild.banner)
@@ -138,7 +159,9 @@ def botemojis(emoji = None):
     listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:Error:874511415086551080>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>",
                   "boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>",
                   "trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>","tokitosip":"<a:TokitoSip:875425433980645416>",
-                  "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>"}
+                  "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>","replycont":"<:replycont:875990141427146772>","replyend":"<:replyend:875990157554237490>",
+                  "parrow":"<:parrowright:872774335675375649>"
+                  }
     try:
         return listemoji[emoji]
     except:
