@@ -1,11 +1,7 @@
 from discord.ext import commands
 import discord
-import traceback
-import textwrap
-from contextlib import redirect_stdout
-import io
 import asyncio
-
+from jishaku.codeblocks import codeblock_converter
 from Useful.Useful import *
 from Useful.settings import *
 # to expose to the eval command
@@ -44,66 +40,12 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
             return f'```py\n{e.__class__.__name__}: {e}\n```'
         return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
-    @commands.command(pass_context=True, name='eval', aliases = ['e'])
-    async def _eval(self, ctx, *, body: str):
+    @commands.command(pass_context=True, name='eval', aliases = ['e','run'])
+    async def _eval(self, ctx, *, code: codeblock_converter):
         """Evaluates code"""
+        jsk = self.bot.get_command("jishaku py")
+        await jsk(ctx,argument=code)
 
-        env = {
-            'bot': self.bot,
-            'ctx': ctx,
-            'channel': ctx.channel,
-            'author': ctx.author,
-            'guild': ctx.guild,
-            'message': ctx.message,
-            '_': self._last_result
-        }
-
-        env.update(globals())
-
-        body = self.cleanup_code(body)
-        stdout = io.StringIO()
-
-        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
-
-        try:
-            exec(to_compile, env)
-        except Exception as e:
-            return await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
-
-        func = env['func']
-        try:
-            with redirect_stdout(stdout):
-                ret = await func()
-        except Exception as e:
-            value = stdout.getvalue()
-            await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
-        else:
-            value = stdout.getvalue()
-            try:
-                await ctx.message.add_reaction(botemojis('tick'))
-            except:
-                pass
-            view=HelpButtons(60)
-            if ret is None:
-                if value:
-                    msg =await ctx.send(f'```py\n{value}\n```', view=view)
-                    try:
-                        await asyncio.wait_for(view.wait(), timeout=30)
-                    except asyncio.TimeoutError:
-                        try:
-                            await msg.edit(view=None)
-                        except:
-                            pass
-            else:
-                self._last_result = ret
-                msg = await ctx.send(f'```py\n{value}{ret}\n```', view=view)
-                try:
-                    await asyncio.wait_for(view.wait(), timeout=30)
-                except asyncio.TimeoutError:
-                    try:
-                        await msg.edit(view=None)
-                    except:
-                        pass
     @_eval.error
     async def _eval_error(self, ctx, error, test = None):
         if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
