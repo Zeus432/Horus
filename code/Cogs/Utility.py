@@ -42,7 +42,7 @@ class Utility(commands.Cog):
         view = discord.ui.View()
         button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.grey)
         async def callback(interaction):
-            em = discord.Embed(description=f"Sorry not giving invite rn, atleast not until I finish setting up the base of my bot <:hadtodoittoem:874263602897502208>\nBut here is something else to make up for it {botemojis('pray')}",colour = ctx.author.colour)
+            em = discord.Embed(description=f"Sorry not giving invite rn, atleast not until I finish setting up the base of my bot <:hadtodoittoem:874263602897502208>\nBut here is something else {botemojis('shinobubully')}",colour = ctx.author.colour)
             await ctx.reply(embed = em, mention_author = False)
             await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
         button.callback = callback
@@ -106,33 +106,6 @@ class Utility(commands.Cog):
         """Gets the uptime of the bot"""
         uptime_string = self.get_uptime()
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
-
-    @commands.command(name = "senddm", help = "Send dm to delegates", brief = "Send dm")
-    @commands.check(woodlands_only)
-    async def senddm(self, ctx, *, member: discord.Member):
-        """Send dm"""
-        member
-        def check(m: discord.Message):
-            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
-
-        msg = ctx.message
-        await ctx.send("Enter context of the message")
-        try:
-            msgcontent = await self.bot.wait_for(event='message', check=check, timeout=30)
-        except asyncio.TimeoutError:
-            await msg.reply("Response Timed Out!")
-        else:
-            try:
-                embed = discord.Embed(title="New Dm recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color= 0x2F3136)
-                await member.send(embed= embed)
-                await member.send(msgcontent.content)
-                await ctx.reply("message sent")
-            except:
-                await ctx.reply("I was unable to dm this user. Make sure their dms isn't closed")
-            
-    @senddm.error
-    async def senddm_error(self, ctx, error):
-        await ctx.send(f"{error}")
 
 def setup(bot: commands.Bot):
     bot.add_cog(Utility(bot))

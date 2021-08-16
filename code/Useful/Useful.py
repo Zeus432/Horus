@@ -160,7 +160,7 @@ def botemojis(emoji = None):
                   "boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>",
                   "trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>","tokitosip":"<a:TokitoSip:875425433980645416>",
                   "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>","replycont":"<:replycont:875990141427146772>","replyend":"<:replyend:875990157554237490>",
-                  "parrow":"<:parrowright:872774335675375649>"
+                  "parrow":"<:parrowright:872774335675375649>","shinobubully":"<:shinobubully:849249987417997323>"
                   }
     try:
         return listemoji[emoji]
@@ -200,3 +200,65 @@ def fileanalytics():
 def woodlands_only(ctx):
     hidecmd = True if ctx.guild.id in [809632911690039307,844164205418512424] else False
     return hidecmd
+
+class plural:
+    def __init__(self, value):
+        self.value = value
+    def __format__(self, format_spec):
+        v = self.value
+        singular, sep, plural = format_spec.partition('|')
+        plural = plural or f'{singular}s'
+        if abs(v) != 1:
+            return f'{v} {plural}'
+        return f'{v} {singular}'
+
+class TabularData:
+    def __init__(self):
+        self._widths = []
+        self._columns = []
+        self._rows = []
+
+    def set_columns(self, columns):
+        self._columns = columns
+        self._widths = [len(c) + 2 for c in columns]
+
+    def add_row(self, row):
+        rows = [str(r) for r in row]
+        self._rows.append(rows)
+        for index, element in enumerate(rows):
+            width = len(element) + 2
+            if width > self._widths[index]:
+                self._widths[index] = width
+
+    def add_rows(self, rows):
+        for row in rows:
+            self.add_row(row)
+
+    def render(self):
+        """Renders a table in rST format.
+        Example:
+        +-------+-----+
+        | Name  | Age |
+        +-------+-----+
+        | Alice | 24  |
+        |  Bob  | 19  |
+        +-------+-----+
+        """
+
+        sep = '+'.join('-' * w for w in self._widths)
+        sep = f'+{sep}+'
+
+        to_draw = [sep]
+
+        def get_entry(d):
+            elem = '|'.join(f'{e:^{self._widths[i]}}' for i, e in enumerate(d))
+            return f'|{elem}|'
+
+        to_draw.append(get_entry(self._columns))
+        to_draw.append(sep)
+
+        for row in self._rows:
+            to_draw.append(get_entry(row))
+
+        to_draw.append(sep)
+        return '\n'.join(to_draw)
