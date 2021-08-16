@@ -51,13 +51,15 @@ class Bot(commands.Bot):
         bot.launch_ts = time.time()
 
 bot = Bot()
-bot.owner_ids = BotOwners
+bot.owner_ids = frozenset(BotOwners)
 bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
 
 def cogstate(cog_name):
     if bot.get_cog(cog_name) == None:
         return "State: Unloaded"
+    elif cog_name == 'jishaku':
+        return "Jishaku Cog"
     else:
         return "State: Loaded"
 
@@ -67,11 +69,17 @@ async def load(ctx, cog_name = None):
     coglist = WorkingCogs
     if cog_name != None:
         try:
+            if cog_name == 'jishaku':
+                bot.load_extension(cog_name)
             bot.load_extension(f"Cogs.{cog_name}")
             await ctx.send(f"Loaded `{cog_name}`")
         except commands.ExtensionAlreadyLoaded:
-            bot.unload_extension(f"Cogs.{cog_name}")
-            bot.load_extension(f"Cogs.{cog_name}")
+            if cog_name == 'jishaku':
+                bot.unload_extension(cog_name)
+                bot.load_extension(cog_name)
+            else:
+                bot.unload_extension(f"Cogs.{cog_name}")
+                bot.load_extension(f"Cogs.{cog_name}")
             await ctx.send(f"Reloaded `{cog_name}`")
         except commands.ExtensionNotFound:
             await ctx.send(f"Cog `{cog_name}` not found")
@@ -99,7 +107,10 @@ async def load(ctx, cog_name = None):
                         Reloaded = ""
                         for cog in self.values:
                             try:
-                                bot.load_extension(f"Cogs.{cog}")
+                                if cog == 'jishaku':
+                                    bot.load_extension(cog)
+                                else:
+                                    bot.load_extension(f"Cogs.{cog}")
                                 Loaded += f", `{cog}`"
                                 for opt in view.children:
                                     for item in opt.options:
@@ -110,8 +121,12 @@ async def load(ctx, cog_name = None):
                                             break
                                         
                             except commands.ExtensionAlreadyLoaded:
-                                bot.unload_extension(f"Cogs.{cog}")
-                                bot.load_extension(f"Cogs.{cog}")
+                                if cog_name == 'jishaku':
+                                    bot.unload_extension(cog_name)
+                                    bot.load_extension(cog_name)
+                                else:
+                                    bot.unload_extension(f"Cogs.{cog}")
+                                    bot.load_extension(f"Cogs.{cog}")
                                 Reloaded += f", `{cog}`"
                         if Loaded != "":
                             Loaded = f"**Loaded Cogs:**\n{Loaded[2:]}\n\n"
@@ -149,7 +164,10 @@ async def unload(ctx, cog_name = None):
     coglist = WorkingCogs
     if cog_name != None:
         try:
-            bot.unload_extension(f"Cogs.{cog_name}")
+            if cog_name == 'jishaku':
+                bot.unload_extension(cog_name)
+            else:
+                bot.unload_extension(f"Cogs.{cog_name}")
             await ctx.send(f"Unloaded `{cog_name}`")
         except commands.ExtensionNotFound:
             await ctx.send(f"Cog `{cog_name}` not found")
@@ -180,7 +198,10 @@ async def unload(ctx, cog_name = None):
                         Failed = ""
                         for cog in self.values:
                             try:
-                                bot.unload_extension(f"Cogs.{cog}")
+                                if cog == 'jishaku':
+                                    bot.unload_extension(cog)
+                                else:
+                                    bot.unload_extension(f"Cogs.{cog}")
                                 Unloaded += f", `{cog}`"
                                 for opt in view.children:
                                     for item in opt.options:
@@ -242,15 +263,14 @@ async def on_guild_remove(guild):
 error = "Error with loading cogs:"
 for i in coglist:
     try:
+        if i == 'jishaku':
+            bot.load_extension(i)
+            continue
         bot.load_extension(f"Cogs.{i}")
     except:
         error += f" {i},"
         pass
-coglist.append("jishaku")
-try:
-    bot.load_extension('jishaku')
-except:
-    error += f" jishaku,"
+
 if error == "Error with loading cogs:":
     error = "No errors while Loading Cogs,"
 
