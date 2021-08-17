@@ -160,7 +160,8 @@ def botemojis(emoji = None):
                   "boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>",
                   "trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>","tokitosip":"<a:TokitoSip:875425433980645416>",
                   "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>","replycont":"<:replycont:875990141427146772>","replyend":"<:replyend:875990157554237490>",
-                  "parrow":"<:parrowright:872774335675375649>","shinobubully":"<:shinobubully:849249987417997323>"
+                  "parrow":"<:parrowright:872774335675375649>","shinobubully":"<:shinobubully:849249987417997323>","yikes":"<:Yikes:877267180662714428>","pandahug":"<a:pandahug:877267922282749952>",
+                  "apos":"<:AphosHoardingCats:877268478493597696>","shadowz":"<a:shadowzcat:877269423025684561>","owner":"<:owner:877271761710878740>","rooburn":"<a:rooburn:873586500518948884>"
                   }
     try:
         return listemoji[emoji]

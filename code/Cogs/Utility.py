@@ -80,19 +80,21 @@ class Utility(commands.Cog):
         uiembed.add_field(name="User Roles:", value=f"{roles}", inline=False)
         badge = ""
         if member.id in BotOwners:
-            badge += f"{botemojis('dev')} **[Whorus Dev]({member.avatar})**\n"
+            badge += f"{botemojis('dev')} [**Whorus Dev**]({member.avatar})\n"
+
+        if member == ctx.guild.owner:
+            badge += f"{botemojis('owner')} [**Server Owner**]({member.avatar})\n"
+
         for role in member.roles:
             try:
                 if role.id == ctx.guild.premium_subscriber_role.id:
                     badge += f"{botemojis('boost')} **[Server Booster](https://cdn.discordapp.com/emojis/782210035329138698.gif?v=1)**\n"
             except:
-                break
-        if 809632911690039307 in [g.id for g in self.bot.guilds if g.get_member(member.id)]:
+                break   
+        if 809632911690039307 == ctx.guild.id:
             badge += f"<:begone_thot:865247289391841310> **[{self.bot.get_guild(809632911690039307)}]({self.bot.get_guild(809632911690039307).icon})**\n"
-        if member.id == 728613015393533983:
-            badge += f"<:BaldAditya:873289287142088724> **[Bald Aditya](https://cdn.discordapp.com/emojis/873289287142088724.png?v=1)**\n"
-        if member.id == 786150805773746197:
-            badge += f"<a:rooburn:873586500518948884> **[Fellintron Nab]({member.avatar})**"
+        if member.id in memberbadges:
+            badge += memberbadges[member.id] + f"({member.avatar})\n"
         if member.bot:
             badge = f"{botemojis('cogs')} **[Bots Supreme]({member.avatar})**\n"
         if badge != "":
