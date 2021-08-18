@@ -54,6 +54,7 @@ bot = Bot()
 bot.owner_ids = frozenset(BotOwners)
 bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
+bot.colour = discord.Colour(0x9c9cff)
 
 def cogstate(cog_name):
     if bot.get_cog(cog_name) == None:

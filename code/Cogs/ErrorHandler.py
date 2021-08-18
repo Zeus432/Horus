@@ -63,8 +63,11 @@ class CommandErrorHandler(commands.Cog):
             embed = BaseEmbed.default(ctx, title = "**Command Error!**")
             embed.add_field(name="Command Used:", value=f"`{ctx.message.content}`", inline=False)
             embed.add_field(name="Author:", value=f"{ctx.author.mention}\n (`{ctx.author.id}`)")
-            embed.add_field(name="Channel:", value=f"{ctx.channel.mention}\n (`{ctx.channel.id}`)")
-            embed.add_field(name="Guild:", value=f"**{ctx.guild}**\n (`{ctx.guild.id}`)")
+            if ctx.guild:
+                embed.add_field(name="Channel:", value=f"{ctx.channel.mention}\n (`{ctx.channel.id}`)")
+                embed.add_field(name="Guild:", value=f"**{ctx.guild}**\n (`{ctx.guild.id}`)")
+            else:
+                embed.add_field(name="Dm Channel:", value=f"<#{ctx.channel.id}>\n (`{ctx.channel.id}`)")
             embed.add_field(name="Message ID:", value=f"`{ctx.message.id}`")
             embed.add_field(name="Jump to Error", value=f"[**Message Link \U0001f517**]({ctx.message.jump_url})")
             channel = self.bot.get_channel(873252901726863441)
