@@ -1,6 +1,5 @@
 from discord.ext import commands
 import discord
-from discord.ext.commands.context import Context
 from Useful.Useful import HelpButtons
 import asyncio
 
@@ -18,6 +17,10 @@ class EmbedHelpCommand(commands.HelpCommand):
     """
     # Set the embed colour here
     COLOUR = discord.Colour(0x9c9cff)
+    def nodms(self):
+        if not self.context.guild:
+            raise commands.NoPrivateMessage
+        
 
     def get_ending_note(self):
         return 'Use {0}{1} [command] for more info on a command.'.format(self.context.clean_prefix, self.invoked_with)
@@ -26,6 +29,7 @@ class EmbedHelpCommand(commands.HelpCommand):
         return '{0.qualified_name} {0.signature}'.format(command)
 
     async def send_bot_help(self, mapping):
+        self.nodms()
         embed = discord.Embed(title='Bot Commands', colour=self.COLOUR)
         description = self.context.bot.description
         if description:
@@ -54,13 +58,14 @@ class EmbedHelpCommand(commands.HelpCommand):
                 pass
 
     async def send_cog_help(self, cog):
+        self.nodms()
         embed = discord.Embed(title='{0.qualified_name} Commands'.format(cog), colour=self.COLOUR)
         if cog.description:
             embed.description = cog.description
 
         filtered = await self.filter_commands(cog.get_commands(), sort=True)
         for command in filtered:
-            embed.add_field(name=self.get_command_signature(command), value= command.short_doc or 'No documentation provided', inline=False)
+            embed.add_field(name=command.qualified_name, value= command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
         view=HelpButtons(30)
@@ -74,18 +79,16 @@ class EmbedHelpCommand(commands.HelpCommand):
                 pass
 
     async def send_group_help(self, group):
-        COLOUR = discord.Colour(0x9c9cff)
-        embed = discord.Embed(title=group.qualified_name, colour=self.COLOUR)
+        self.nodms()
+        embed = discord.Embed(colour=self.COLOUR, description=group.help or 'No documentation provided')
+        embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in group.aliases)
-        if group.help:
-            embed.description = group.help
         if aliases != '':
             embed.add_field(name="**Aliases:**", value=f"`{aliases}`", inline=False)
 
-        if isinstance(group, commands.Group):
-            filtered = await self.filter_commands(group.commands, sort=True)
-            for command in filtered:
-                embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
+        filtered = await self.filter_commands(group.commands, sort=True)
+        for command in filtered:
+            embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No info', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
         view=HelpButtons(30)
@@ -98,19 +101,17 @@ class EmbedHelpCommand(commands.HelpCommand):
             except:
                 pass
 
-    # This makes it so it uses the function above
-    # Less work for us to do since they're both similar.
-    # If you want to make regular command help look different then override it
     async def send_command_help(self, command):
-        embed = discord.Embed(title=command.qualified_name, colour=self.COLOUR)
+        embed = discord.Embed(colour=self.COLOUR, description=f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n")
+        embed.add_field(name="Description:", value= command.help or 'No documentation provided')
+        embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in command.aliases)
-        if command.help:
-            embed.description = command.help
         if aliases != '':
-            embed.add_field(name="**Aliases:**", value=f"`{aliases}`", inline=False)
+            embed.add_field(name="Aliases:", value=f"`{aliases}`", inline=False)
 
         if isinstance(command, commands.Group):
             filtered = await self.filter_commands(command, sort=True)
+            embed.description=command.help or 'No documentation provided'
             for command in filtered:
                 embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
 
