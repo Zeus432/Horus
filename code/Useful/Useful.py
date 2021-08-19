@@ -161,7 +161,9 @@ def botemojis(emoji = None):
                   "trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>","tokitosip":"<a:TokitoSip:875425433980645416>",
                   "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>","replycont":"<:replycont:875990141427146772>","replyend":"<:replyend:875990157554237490>",
                   "parrow":"<:parrowright:872774335675375649>","shinobubully":"<:shinobubully:849249987417997323>","yikes":"<:Yikes:877267180662714428>","pandahug":"<a:pandahug:877267922282749952>",
-                  "apos":"<:AphosHoardingCats:877268478493597696>","shadowz":"<a:shadowzcat:877269423025684561>","owner":"<:owner:877271761710878740>","rooburn":"<a:rooburn:873586500518948884>"
+                  "apos":"<:AphosHoardingCats:877268478493597696>","shadowz":"<a:shadowzcat:877269423025684561>","owner":"<:owner:877271761710878740>","rooburn":"<a:rooburn:873586500518948884>",
+                  "judge":"<:judge:877796702633996288>","staff":"<:Staff:877796922876919808>","UNSC":"<:UNSC:877810185954017350> ","UNHRC":"<:UNHRC:877810210650091520>","WHO":"<:WHO:877810579845283870>",
+                  "IPC":"<:IPC:877810993621782529>","mod":"<:Moderator:877796954011222047>"
                   }
     try:
         return listemoji[emoji]
@@ -294,4 +296,9 @@ async def senderror(bot, ctx, error):
     channel = bot.get_channel(873252901726863441)
     bot.error_channel = channel
     await bot.error_channel.send(embed=embed)
-    await bot.error_channel.send(f"```py\n{traceback_error}```")
+    serror = ""
+    for i in traceback_error.split('\n'):
+        if len(serror + i) > 1900:
+            await bot.error_channel.send(f"```py\n{serror}```")
+            serror = ""
+        serror += f"\n{i}"

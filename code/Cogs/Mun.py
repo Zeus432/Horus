@@ -76,17 +76,24 @@ class Mun(commands.Cog):
         guild = self.bot.get_guild(876044372460838922)
         member = guild.get_member(member.id)
         user = guild.get_member(ctx.author.id)
-        chk = True
+        chk,match = False,False
         if member:
-            for i in [876703407551938580,876703436048044092,876703447083253770,876703642063896647]:
+            for i in [876703407551938580,876703436048044092,876703447083253770]:
                 if i in [r.id for r in user.roles]:
-                    council,chk = i,False
-                    if council not in [r.id for r in member.roles]:
-                        await ctx.reply("You can only send messages to delegates in your own council!")
-                        council = None
-                    break
-            if chk:
+                    council,chk = i,True
+                    if council in [r.id for r in member.roles]:
+                        match = True
+                        break
+            for i in [876704912149475378,876700774082695198]:
+                if i in [r.id for r in user.roles]:
+                    council = chk = match = True
+            if user.id in [760823877034573864,401717120918093846]:
+                council = chk = match = True
+            if not chk:
                 await ctx.reply("You need to be a part of the council to use this command!")
+            if chk and not match:
+                await ctx.reply("You can only send messages to delegates in your own council!")
+                council = None
         else:
             council = None
             await ctx.reply(f'You can only dm users who are a part of the councils in **{guild}**')
@@ -109,13 +116,14 @@ class Mun(commands.Cog):
                         await member.send(msgcontent.content)
                         try:
                             for i in self.chairs[council]:
-                                try:
-                                    chair = self.bot.get_user(i)
-                                    embed = discord.Embed(title="New Message Sent!",description=f"{ctx.author.mention} (`{ctx.author.id}`) has sent a message to {member.mention} (`{member.id}`)", color= 0x2F3136)
-                                    await chair.send(embed=embed)
-                                    await chair.send(msgcontent.content)
-                                except:
-                                    pass
+                                if user.id != i and member.id != i:
+                                    try:
+                                        chair = self.bot.get_user(i)
+                                        embed = discord.Embed(title="New Message Sent!",description=f"{ctx.author.mention} (`{ctx.author.id}`) has sent a message to {member.mention} (`{member.id}`)", color= 0x2F3136)
+                                        await chair.send(embed=embed)
+                                        await chair.send(msgcontent.content)
+                                    except:
+                                        pass
                         except:
                             pass
                         await ctx.reply(f"Message has been sent via EB to {member.mention}")
@@ -141,6 +149,8 @@ class Mun(commands.Cog):
             await ctx.reply(f'This command is not available here', delete_after = 10)
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send_help(ctx.command)
+        elif isinstance(error, commands.MemberNotFound):
+            await ctx.reply(f'I was unable to find this user')
         else:
             await senderror(bot=self.bot,ctx=ctx,error=error)
 

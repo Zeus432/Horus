@@ -34,7 +34,7 @@ class Utility(commands.Cog):
         emb = discord.Embed(colour = discord.Colour(10263807))
         emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
         emb.add_field(name="Coded in:",value=f"**Language:** [**`python 3.8.5`**](https://www.python.org/)\n**Library:** [**`discord.py 2.0`**](https://github.com/Rapptz/discord.py)\nㅤㅤㅤㅤ{botemojis('replyend')} Master Branch")
-        emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
+        emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and {'Im really bad at making a bot info description ' if 876044372460838922 == ctx.guild.id else 'is also called as Whorus'} <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
         emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
         emb.add_field(name="Bot Uptime:",value=self.get_uptime())
         emb.add_field(name="On Discord Since:",value=f"<t:{round(self.bot.get_user(858335663571992618).created_at.timestamp())}:D>")
@@ -42,7 +42,7 @@ class Utility(commands.Cog):
         view = discord.ui.View()
         button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.grey)
         async def callback(interaction):
-            em = discord.Embed(description=f"Sorry not giving invite rn, atleast not until I finish setting up the base of my bot <:hadtodoittoem:874263602897502208>\nBut here is something else {botemojis('shinobubully')}",colour = ctx.author.colour)
+            em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
             await ctx.reply(embed = em, mention_author = False)
             await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
         button.callback = callback
@@ -67,7 +67,7 @@ class Utility(commands.Cog):
         uiembed.add_field(name="Joined Discord:", value= f"<t:{round(member.created_at.timestamp())}:D>\n(<t:{round(member.created_at.timestamp())}:R>)")
         uiembed.add_field(name="Joined Server:", value=f"<t:{round(member.joined_at.timestamp())}:D>\n(<t:{round(member.joined_at.timestamp())}:R>)")
         roles, extra = "",0
-        for role in member.roles:
+        for role in sorted(member.roles, reverse=True):
             if str(role) != "@everyone":
                 if len(roles) < 900:
                     roles += f"{role.mention} "
@@ -78,9 +78,20 @@ class Utility(commands.Cog):
         if roles == "":
             roles = "This user has no roles"
         uiembed.add_field(name="User Roles:", value=f"{roles}", inline=False)
+        if 876044372460838922 == ctx.guild.id:
+            mun = ""
+            guild = self.bot.get_guild(876044372460838922)
+            user = guild.get_member(member.id)
+            mun += f"{botemojis('mod')} [**Organiser**]({user.avatar})\n" if user.id in [760823877034573864,401717120918093846] else ""
+            mun += f"{botemojis('judge')} [**Council Chair**]({user.avatar})\n" if 876704912149475378 in [r.id for r in user.roles] else ""
+            mun += f"{botemojis('staff')} [**Volunteer**]({user.avatar})\n" if 876700774082695198 in [r.id for r in user.roles] else ""
+            for i in [876703407551938580,876703436048044092,876703447083253770]:
+                if i in [r.id for r in user.roles]:
+                    mun += f"{botemojis(str(guild.get_role(i)))} [**{guild.get_role(i)}**](https://discord.gg/GYqqjQeZKs)\n"
+            uiembed.add_field(name="GT Model United Nations", value=mun if mun != "" else "\U0001f465 [**Participant**](https://discord.gg/GYqqjQeZKs)",inline=False)
         badge = ""
         if member.id in BotOwners:
-            badge += f"{botemojis('dev')} [**Whorus Dev**]({member.avatar})\n"
+            badge += f"{botemojis('dev')} [**{'H' if 876044372460838922 == ctx.guild.id else 'Wh'}orus Dev**]({member.avatar})\n"
 
         if member == ctx.guild.owner:
             badge += f"{botemojis('owner')} [**Server Owner**]({member.avatar})\n"
