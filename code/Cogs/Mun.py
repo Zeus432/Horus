@@ -2,6 +2,7 @@ from Useful.Useful import botemojis
 from discord.ext import commands
 import discord
 from Useful.settings import *
+from Useful.Menus import *
 import asyncio
 from Cogs.CustomHelp import *
 
@@ -151,6 +152,8 @@ class Mun(commands.Cog):
             await ctx.send_help(ctx.command)
         elif isinstance(error, commands.MemberNotFound):
             await ctx.reply(f'I was unable to find this user')
+        elif isinstance(error, commands.errors.CommandOnCooldown):
+            await ctx.reply(f'Command is on cooldown, Try again in {round(error.retry_after, 1)} seconds')
         else:
             await senderror(bot=self.bot,ctx=ctx,error=error)
 

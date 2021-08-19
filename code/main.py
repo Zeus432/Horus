@@ -2,12 +2,13 @@ from Useful.Useful import botemojis
 import asyncio
 import discord
 from discord.ext import commands
-from Useful.settings import *
 import time
 import datetime
 from loguru import logger
 import asyncpg
 from Useful.Useful import *
+from Useful.settings import *
+from Useful.Menus import *
 
 coglist = WorkingCogs
 logger.remove()
@@ -57,10 +58,10 @@ bot.launch_ts = time.time()
 bot.colour = discord.Colour(0x9c9cff)
 
 def cogstate(cog_name):
-    if bot.get_cog(cog_name) == None:
-        return "State: Unloaded"
-    elif cog_name == 'jishaku':
+    if cog_name == 'jishaku':
         return "Jishaku Cog"
+    elif bot.get_cog(cog_name) == None:
+        return "State: Unloaded"
     else:
         return "State: Loaded"
 
@@ -122,9 +123,9 @@ async def load(ctx, cog_name = None):
                                             break
                                         
                             except commands.ExtensionAlreadyLoaded:
-                                if cog_name == 'jishaku':
-                                    bot.unload_extension(cog_name)
-                                    bot.load_extension(cog_name)
+                                if cog == 'jishaku':
+                                    bot.unload_extension(cog)
+                                    bot.load_extension(cog)
                                 else:
                                     bot.unload_extension(f"Cogs.{cog}")
                                     bot.load_extension(f"Cogs.{cog}")
