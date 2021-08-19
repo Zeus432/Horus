@@ -153,11 +153,10 @@ async def load(ctx, cog_name = None):
 
 @load.error
 async def load_error(ctx, error):
-    if isinstance(error, discord.ext.commands.errors.NotOwner):
-        await ctx.reply("Only the Bot Owner can run this command!")
-        await ctx.message.add_reaction(botemojis("error"))
+    if isinstance(error, commands.CheckFailure):
+        await ctx.reply("Only the Bot Owner can run this command!", delete_after = 5)
     else:
-        await ctx.send(f"```py\n{error}```")
+        await senderror(bot,ctx,error)
 
 @bot.command(name="unload", aliases = ['ul'], help = "Unload loaded Cogs", brief = "Unload Cogs")
 @commands.is_owner()
@@ -237,11 +236,10 @@ async def unload(ctx, cog_name = None):
 
 @unload.error
 async def unload_error(ctx, error):
-    if isinstance(error, discord.ext.commands.errors.NotOwner):
-        await ctx.reply("Missing Permissions! Only the Bot Owner can run this")
-        await ctx.message.add_reaction(botemojis("error"))
+    if isinstance(error, commands.CheckFailure):
+        await ctx.reply("Only the Bot Owner can run this command!", delete_after = 5)
     else:
-        await ctx.send(f"```py\n{error}```")
+        await senderror(bot,ctx,error)
 
 
 #guild listeners

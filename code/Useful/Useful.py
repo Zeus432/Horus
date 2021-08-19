@@ -1,5 +1,5 @@
 from discord.ext import commands
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple, Optional, Any
 import discord
 import datetime
 import traceback
@@ -263,3 +263,35 @@ class TabularData:
 
         to_draw.append(sep)
         return '\n'.join(to_draw)
+    
+
+async def senderror(bot, ctx, error):
+    async def send_del(*args: Any, **kwargs: Any) -> None:
+        if embed := kwargs.get("embed"):
+            text = f"Spamming errored commands will result in a blacklist"
+            embed.set_footer(icon_url=bot.user.avatar, text=text)
+        await ctx.reply(*args, **kwargs)
+    if await bot.is_owner(ctx.message.author):
+        try:
+            await ctx.message.add_reaction(botemojis('error'))
+        except:
+            pass
+        await ctx.reply("This command has errored, check your Error Logs to see what happened")
+    else:
+        await bot.wait_until_ready()
+        await send_del(embed=BaseEmbed.to_error("**Command Error!**",description=f"This error has been forwarded to the bot developer and will be fixed soon. Do not spam errored commands, doing so will get you blacklisted. If this isn't fixed feel free to dm me <@760823877034573864>\n\n**Error:**```py\n{error}```"), delete_after = 20)
+    traceback_error = print_exception(f'Ignoring exception in command {ctx.command}:', error)
+    embed = BaseEmbed.default(ctx, title = "**Command Error!**")
+    embed.add_field(name="Command Used:", value=f"`{ctx.message.content}`", inline=False)
+    embed.add_field(name="Author:", value=f"{ctx.author.mention}\n (`{ctx.author.id}`)")
+    if ctx.guild:
+        embed.add_field(name="Channel:", value=f"{ctx.channel.mention}\n (`{ctx.channel.id}`)")
+        embed.add_field(name="Guild:", value=f"**{ctx.guild}**\n (`{ctx.guild.id}`)")
+    else:
+        embed.add_field(name="Dm Channel:", value=f"<#{ctx.channel.id}>\n (`{ctx.channel.id}`)")
+    embed.add_field(name="Message ID:", value=f"`{ctx.message.id}`")
+    embed.add_field(name="Jump to Error", value=f"[**Message Link \U0001f517**]({ctx.message.jump_url})")
+    channel = bot.get_channel(873252901726863441)
+    bot.error_channel = channel
+    await bot.error_channel.send(embed=embed)
+    await bot.error_channel.send(f"```py\n{traceback_error}```")

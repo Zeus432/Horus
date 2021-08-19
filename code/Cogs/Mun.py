@@ -4,7 +4,6 @@ import discord
 from Useful.settings import *
 import asyncio
 from Cogs.CustomHelp import *
-from Cogs.ErrorHandler import CommandErrorHandler
 
 #dm buttons
 class Choose(discord.ui.View):
@@ -140,10 +139,10 @@ class Mun(commands.Cog):
                 await ctx.reply("This command can only be run in the bot's dms.")
                 return
             await ctx.reply(f'This command is not available here', delete_after = 10)
-        if isinstance(error, commands.MissingRequiredArgument):
+        elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send_help(ctx.command)
-        elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.reply("You're in cooldown")
+        else:
+            await senderror(bot=self.bot,ctx=ctx,error=error)
 
 def setup(bot: commands.Bot):
     bot.add_cog(Mun(bot))
