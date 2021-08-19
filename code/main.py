@@ -5,14 +5,14 @@ from discord.ext import commands
 from Useful.settings import *
 import time
 import datetime
-import logging
+from loguru import logger
 import asyncpg
 from Useful.Useful import *
 
 coglist = WorkingCogs
-log = logging.getLogger('asyncio')
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler())
+logger.remove()
+logger.add("horus.log", rotation="5 MB",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
+logger.debug("That's it, beautiful and simple logging!") 
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 

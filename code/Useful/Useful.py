@@ -5,6 +5,7 @@ import datetime
 import traceback
 import sys
 import pathlib
+from loguru import logger
 
 
 def _size(num):
@@ -282,7 +283,7 @@ async def senderror(bot, ctx, error):
     else:
         await bot.wait_until_ready()
         await send_del(embed=BaseEmbed.to_error("**Command Error!**",description=f"This error has been forwarded to the bot developer and will be fixed soon. Do not spam errored commands, doing so will get you blacklisted. If this isn't fixed feel free to dm me <@760823877034573864>\n\n**Error:**```py\n{error}```"), delete_after = 20)
-    traceback_error = print_exception(f'Ignoring exception in command {ctx.command}:', error)
+    traceback_error = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
     embed = BaseEmbed.default(ctx, title = "**Command Error!**")
     embed.add_field(name="Command Used:", value=f"`{ctx.message.content}`", inline=False)
     embed.add_field(name="Author:", value=f"{ctx.author.mention}\n (`{ctx.author.id}`)")
@@ -302,3 +303,5 @@ async def senderror(bot, ctx, error):
             await bot.error_channel.send(f"```py\n{serror}```")
             serror = ""
         serror += f"\n{i}"
+    await bot.error_channel.send(f"```py\n{serror}```")
+    logger.opt(exception=error).error(f"Ignoring exception in command {ctx.command}\nCommand Used - {ctx.message.content}\n")
