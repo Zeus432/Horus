@@ -13,7 +13,7 @@ from Useful.Menus import *
 coglist = WorkingCogs
 logger.remove()
 logger.add("horus.log", rotation="5 MB",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
-logger.debug("That's it, beautiful and simple logging!") 
+logger.debug("Logged into Horus") 
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
@@ -246,17 +246,16 @@ async def unload_error(ctx, error):
 #guild listeners
 @bot.event
 async def on_guild_join(guild):
-    print()
     channel = bot.get_channel(874212184828297297)
     bot.log_channel = channel
-    embed = BaseEmbed.guildanalytics(bot = bot, join=True, guild = guild)
+    embed = guildanalytics(bot = bot, join=True, guild = guild)
     await bot.log_channel.send(embed=embed)
 
 @bot.event
 async def on_guild_remove(guild):
+    embed = guildanalytics(bot = bot, join=False, guild = guild)
     channel = bot.get_channel(874212184828297297)
     bot.log_channel = channel
-    embed = BaseEmbed.guildanalytics(bot = bot, join=False, guild = guild)
     await bot.log_channel.send(embed=embed)
 
 #load Cogs on turning on

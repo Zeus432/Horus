@@ -1,16 +1,15 @@
 from discord.ext import commands
 import discord
 import asyncio
-from jishaku.codeblocks import codeblock_converter
 from Useful.Useful import *
 from Useful.settings import *
+from Useful.Menus import guildanalytics,GuildButtons
+from typing import Union
 import io
 from contextlib import redirect_stdout
 import textwrap
-# to expose to the eval command
 
-
-class Owner(commands.Cog, command_attrs=dict(hidden=True)):
+class Owner(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -48,12 +47,14 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         """Evaluates a code"""
 
         env = {
+            'bot.http.token': "[ token omitted ]",
             'bot': self.bot,
             'ctx': ctx,
             'channel': ctx.channel,
             'author': ctx.author,
             'guild': ctx.guild,
             'message': ctx.message,
+            'bot.http.token': "[ token omitted ]",
             '_': self._last_result
         }
 
@@ -200,7 +201,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         command.enabled = True
         await ctx.send(f"Enabled {command.name} command.")
     
-    @commands.command(hidden=True)
+    @commands.command()
     async def sql(self, ctx, *, query: str):
         """Run some SQL."""
         # the imports are here because I imagine some people would want to use
@@ -245,7 +246,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
 
     @commands.command()
-    async def getguildslist(self, ctx):
+    async def guilds(self, ctx):
         async with ctx.typing():
             msg = await ctx.reply("Fetching Guilds", mention_author = False)
             guilds = ", ".join([g.name + f" ({g.id})" for g in self.bot.guilds])
@@ -255,8 +256,10 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     async def getguild(self, ctx, guild: discord.Guild):
         async with ctx.typing():
-            emb = BaseEmbed.guildanalytics(bot = self.bot, join=None, guild = guild)
-            await ctx.reply(embed = emb)
+            emb = guildanalytics(bot = self.bot, join=None, guild = guild)
+            view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot)
+            msg = await ctx.reply(embed = emb,view = view)
+            view.message,view.user = msg,ctx.author
 
 
     @commands.command()

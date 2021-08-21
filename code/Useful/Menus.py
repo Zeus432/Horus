@@ -101,49 +101,6 @@ class BaseEmbed(discord.Embed):
                  color: Union[discord.Color, int] = discord.Color.red(), **kwargs) -> "BaseEmbed":
         return cls(title=title, color=color, **kwargs)
 
-    @classmethod
-    def guildanalytics(cls, bot, guild: discord.Guild,join: bool = None, **kwargs) -> "BaseEmbed":
-        colour = discord.Color.red() if join == False else discord.Color.green()
-        colour = discord.Colour(0x9c9cff) if join == None else colour
-        msg = "I've left this server" if join == False else "I've joined a new server"
-        description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n"
-        description += f"I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>\n" if join != True else ""
-        description += f"{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now" if join != None else ""
-        embed = discord.Embed(title = guild, colour = colour, description = description)
-        owner,region = guild.owner, guild.region.name
-        ifnsfw = len([c for c in guild.text_channels if c.is_nsfw()])
-        ifgprem = guild.premium_tier
-        gfl = [f"{botemojis('parrow')} {features[c]}" for c in guild.features ]
-        if gfl == []:
-            featurend = "No Features Available"
-        else:
-            threadinfo = ""
-            if "THREADS_ENABLED" in  guild.features:
-                threadinfo = f"\n{botemojis('parrow')} Threads Enabled"
-                threadinfo += f"\nㅤㅤ{botemojis('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
-                threadinfo += f"\nㅤㅤ{botemojis('replyend')} Archive time limit: "
-                threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
-            #Threads
-            featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Threads")]) + threadinfo
-            
-        if ifnsfw > 0:
-            ifnsfw = f"\nㅤㅤ{botemojis('replyend')} Nsfw ⤏ **{ifnsfw}**"
-        else:
-            ifnsfw = ""
-        embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text=guild.name if "VERIFIED" in guild.features or "PARTNERED" in guild.features else discord.Embed.Empty)
-        embed.add_field(name="**Guild Info**", value=f"**Owner:** {owner.mention} (`{owner.id}`)\n**Region:** {vc_regions[region]}\n**Verif. Level:** {verif[str(guild.verification_level)]}\n**Server ID:** `{guild.id}`",inline=False)
-        embed.add_field(name="**Members**",value=f"Humans: **{len([g.id for g in guild.members if not g.bot])}**\nBots: **{len([g.id for g in guild.members if g.bot])}**\nTotal: **{len([g.id for g in guild.members])}**")
-        embed.add_field(name="**Channels**",value=f"{botemojis('text')} Text Channels: **{len(guild.text_channels)}** {ifnsfw}\n{botemojis('voice')} Voice Channels: **{len(guild.voice_channels)}**\n{botemojis('stage')} Stage Channels: **{len(guild.stage_channels)}**")
-        embed.add_field(name="**Misc**",value=f"AFK channel: **{guild.afk_channel}**\nAFK timeout: **{(guild.afk_timeout)/60} minutes**\nCustom emojis: **{len(guild.emojis)}**\nRoles: **{len(guild.roles)}**", inline=False)
-        if ifgprem > 0:
-            nitro_boost = f"Tier **{str(guild.premium_tier)}** with **{guild.premium_subscription_count}** boosters\nFile size limit: **{_size(guild.filesize_limit)}**\nEmoji limit: **{str(guild.emoji_limit)}**\nVCs max bitrate: **{_bitsize(guild.bitrate_limit)}**"
-            embed.add_field(name="**Nitro State**", value=nitro_boost)
-        embed.add_field(name="**Server Features**", value=featurend, inline=False)
-        embed.set_thumbnail(url=guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
-        if guild.banner:
-            embed.set_image(url=guild.banner)
-        return embed
-
 async def senderror(bot, ctx, error):
     async def send_del(*args: Any, **kwargs: Any) -> None:
         if embed := kwargs.get("embed"):
@@ -182,11 +139,53 @@ async def senderror(bot, ctx, error):
     await bot.error_channel.send(f"```py\n{serror}```")
     logger.opt(exception=error).error(f"Ignoring exception in command {ctx.command}\nCommand Used - {ctx.message.content}\n")
 
+class Confirm(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=30)
+        self.value = None
+
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
+        self.value = True
+        for item in self.children:
+            item.disabled = True
+        try:
+            await self.guild.leave()
+            await interaction.message.edit(view=self,embed=discord.Embed(description=f"I have left [**{self.guild}**]({self.guild.icon}), sucks for them {botemojis('shinobubully')}",color=discord.Colour.green()))
+        except:
+            await interaction.message.edit(view=self,embed=discord.Embed(description=f"I was unable to leave [**{self.guild}**]({self.guild.icon}) {botemojis('error')}",color=discord.Colour.red()))
+            button.style = discord.ButtonStyle.red
+        self.stop()
+
+    # This one is similar to the confirmation button except sets the inner value to `False`
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
+    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
+        self.value = False
+        for item in self.children:
+            item.style = discord.ButtonStyle.grey
+            item.disabled = True
+        button.style = discord.ButtonStyle.red
+        await interaction.message.edit(view=self,embed=discord.Embed(description=f"Guess I'm not leaving [**{self.guild}**]({self.guild.icon}) today",color=discord.Colour.red()))
+        self.stop()
+    
+    async def on_timeout(self):
+        self.value = False
+        for item in self.children:
+            item.style = discord.ButtonStyle.grey
+            if item.label == "Cancel":
+                item.style = discord.ButtonStyle.red
+            item.disabled = True
+        await self.msg.edit(view=self,embed=discord.Embed(description=f"You took too long to respond",color=discord.Colour.blurple()))
+        self.stop()
+
+
+
 class GuildButtons(discord.ui.View):
-    def __init__(self,guild):
-        super().__init__(timeout=10)
-        self.value = 3
+    def __init__(self,guild,ctx,bot):
+        super().__init__(timeout=90)
         self.guild = guild
+        self.ctx = ctx
+        self.bot = bot
     
     @discord.ui.button(label= "Join Guild", style=discord.ButtonStyle.green)
     async def joinguild(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -197,7 +196,7 @@ class GuildButtons(discord.ui.View):
                 invite = await chan.create_invite()
                 break
             except: pass
-        if invite:
+        if invite or None:
             await interaction.response.send_message(f"Invite Generated for [**{self.guild}**]( {invite} )", ephemeral=True)
         else:
             await interaction.response.send_message(f"I was unable to generate an invite to this guild {botemojis('error')}")
@@ -206,9 +205,13 @@ class GuildButtons(discord.ui.View):
     async def leaveguild(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user.id != self.user.id:
             return
-        button.disabled = True
-        await interaction.message.edit("left guild", view=self)
-        self.value = 1
+        if not self.bot.get_guild(self.guild.id):
+            await self.ctx.send(embed = discord.Embed(description=f"Error Bot is not in [**{self.guild}**]({self.guild.icon})",color=discord.Color.red()))
+            return
+        embed = discord.Embed(description=f"Are you sure you want to leave [**{self.guild}**]({self.guild.icon})?",colour=self.bot.colour)
+        confview = Confirm()
+        msg = await self.ctx.send(embed=embed,view=confview)
+        confview.msg,confview.guild = msg,self.guild
     
     @discord.ui.button(emoji = botemojis("trash"), style=discord.ButtonStyle.blurple)
     async def delete(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -219,3 +222,44 @@ class GuildButtons(discord.ui.View):
 
     async def on_timeout(self):
         await self.message.edit(view=None)
+    
+def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
+    colour = discord.Color.red() if join == False else discord.Color.green()
+    colour = discord.Colour(0x9c9cff) if join == None else colour
+    msg = "I've left this server" if join == False else "I've joined a new server"
+    description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n"
+    description += f"I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>\n" if join == None else ""
+    description += f"{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now" if join != None else ""
+    embed = discord.Embed(title = guild, colour = colour, description = description)
+    owner,region = guild.owner, guild.region.name
+    ifnsfw = len([c for c in guild.text_channels if c.is_nsfw()])
+    ifgprem = guild.premium_tier
+    gfl = [f"{botemojis('parrow')} {features[c]}" for c in guild.features ]
+    if gfl == []:
+        featurend = "No Features Available"
+    else:
+        threadinfo = ""
+        if "THREADS_ENABLED" in  guild.features:
+            threadinfo = f"\n{botemojis('parrow')} Threads Enabled"
+            threadinfo += f"\nㅤㅤ{botemojis('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
+            threadinfo += f"\nㅤㅤ{botemojis('replyend')} Archive time limit: "
+            threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
+            featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Threads")]) + threadinfo
+            
+    if ifnsfw > 0:
+        ifnsfw = f"\nㅤㅤ{botemojis('replyend')} Nsfw ⤏ **{ifnsfw}**"
+    else:
+        ifnsfw = ""
+    embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text=guild.name if "VERIFIED" in guild.features or "PARTNERED" in guild.features else discord.Embed.Empty)
+    embed.add_field(name="**Guild Info**", value=f"**Owner:** {owner.mention} (`{owner.id}`)\n**Region:** {vc_regions[region]}\n**Verif. Level:** {verif[str(guild.verification_level)]}\n**Server ID:** `{guild.id}`",inline=False)
+    embed.add_field(name="**Members**",value=f"Humans: **{len([g.id for g in guild.members if not g.bot])}**\nBots: **{len([g.id for g in guild.members if g.bot])}**\nTotal: **{len([g.id for g in guild.members])}**")
+    embed.add_field(name="**Channels**",value=f"{botemojis('text')} Text Channels: **{len(guild.text_channels)}** {ifnsfw}\n{botemojis('voice')} Voice Channels: **{len(guild.voice_channels)}**\n{botemojis('stage')} Stage Channels: **{len(guild.stage_channels)}**")
+    embed.add_field(name="**Misc**",value=f"AFK channel: **{guild.afk_channel}**\nAFK timeout: **{(guild.afk_timeout)/60} minutes**\nCustom emojis: **{len(guild.emojis)}**\nRoles: **{len(guild.roles)}**", inline=False)
+    if ifgprem > 0:
+        nitro_boost = f"Tier **{str(guild.premium_tier)}** with **{guild.premium_subscription_count}** boosters\nFile size limit: **{_size(guild.filesize_limit)}**\nEmoji limit: **{str(guild.emoji_limit)}**\nVCs max bitrate: **{_bitsize(guild.bitrate_limit)}**"
+        embed.add_field(name="**Nitro State**", value=nitro_boost)
+    embed.add_field(name="**Server Features**", value=featurend, inline=False)
+    embed.set_thumbnail(url=guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
+    if guild.banner:
+        embed.set_image(url=guild.banner)
+    return embed
