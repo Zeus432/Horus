@@ -13,14 +13,14 @@ def _size(num):
         if abs(num) < 1024.0:
             return "{0:.1f}{1}".format(num, unit)
         num /= 1024.0
-        return "{0:.1f}{1}".format(num, "YB")
+    return "{0:.1f}{1}".format(num, "YB")
             
 def _bitsize(num):
     for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
         if abs(num) < 1000.0:
             return "{0:.1f}{1}".format(num, unit)
         num /= 1000.0
-        return "{0:.1f}{1}".format(num, "YB")
+    return "{0:.1f}{1}".format(num, "YB")
 
 vc_regions = {
             "vip-us-east": "__VIP__ US East " + "\U0001F1FA\U0001F1F8",
@@ -146,6 +146,8 @@ class Confirm(discord.ui.View):
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
     async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return
         self.value = True
         for item in self.children:
             item.disabled = True
@@ -160,6 +162,8 @@ class Confirm(discord.ui.View):
     # This one is similar to the confirmation button except sets the inner value to `False`
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
     async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return
         self.value = False
         for item in self.children:
             item.style = discord.ButtonStyle.grey
