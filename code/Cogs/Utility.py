@@ -40,7 +40,7 @@ class Utility(commands.Cog):
         emb.add_field(name="On Discord Since:",value=f"<t:{round(self.bot.get_user(858335663571992618).created_at.timestamp())}:D>")
         emb.set_thumbnail(url=self.bot.get_user(858335663571992618).avatar)
         view = discord.ui.View()
-        button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.grey)
+        button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.blurple)
         async def callback(interaction):
             em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
             await ctx.reply(embed = em, mention_author = False)

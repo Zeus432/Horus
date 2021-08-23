@@ -3,7 +3,7 @@ import discord
 import asyncio
 from Useful.Useful import *
 from Useful.settings import *
-from Useful.Menus import guildanalytics,GuildButtons
+from Useful.Menus import guildanalytics,GuildButtons,senderror
 from typing import Union
 import io
 from contextlib import redirect_stdout

@@ -12,8 +12,8 @@ from Useful.Menus import *
 
 coglist = WorkingCogs
 logger.remove()
-logger.add("horus.log", rotation="5 MB",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
-logger.debug("Logged into Horus") 
+logger.add("/Users/siddharthm/Desktop/Horus/horus.log",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
+logger.info("Logged into Horus succesfully")
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
@@ -264,10 +264,13 @@ for i in coglist:
     try:
         if i == 'jishaku':
             bot.load_extension(i)
+            logger.debug(f"Loaded Cog {i}") 
             continue
         bot.load_extension(f"Cogs.{i}")
+        logger.debug(f"Loaded Cog {i}") 
     except:
         error += f" {i},"
+        logger.debug(f"Error, failed to load Cog {i}") 
         pass
 
 if error == "Error with loading cogs:":

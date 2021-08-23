@@ -41,7 +41,9 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, commands.CheckFailure):
             if ctx.command.qualified_name != 'coolservers':
-                await ctx.reply("Missing Permissions!")
+                if ctx.command.qualified_name != 'whoasked':
+                    await ctx.reply(f"Missing Permissions!")
+                else: pass
             else:
                 await ctx.reply(f'This command is not available here', delete_after = 10)
         
