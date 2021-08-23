@@ -1,5 +1,5 @@
 .DS_Store
 code/testing.py
 __pycache__
-code/Useful/settings.py
+code/Core/settings.py
 horus.log

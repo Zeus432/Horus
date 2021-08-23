@@ -1,7 +1,7 @@
-from Useful.Useful import *
+from Utils.Useful import *
 from discord.ext import commands
 import discord
-from Useful.settings import *
+from Core.settings import *
 import datetime
 from dateutil.relativedelta import relativedelta
 import unicodedata

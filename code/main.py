@@ -1,4 +1,3 @@
-from Useful.Useful import botemojis
 import asyncio
 import discord
 from discord.ext import commands
@@ -6,13 +5,13 @@ import time
 import datetime
 from loguru import logger
 import asyncpg
-from Useful.Useful import *
-from Useful.settings import *
-from Useful.Menus import *
+from Utils.Useful import *
+from Core.settings import *
+from Utils.Menus import *
 
 coglist = WorkingCogs
 logger.remove()
-logger.add("/Users/siddharthm/Desktop/Horus/horus.log",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
+logger.add("/Users/siddharthm/Desktop/Horus/code/Core/horus.log",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
 logger.info("Logged into Horus succesfully")
 
 #/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
@@ -262,15 +261,11 @@ async def on_guild_remove(guild):
 error = "Error with loading cogs:"
 for i in coglist:
     try:
-        if i == 'jishaku':
-            bot.load_extension(i)
-            logger.debug(f"Loaded Cog {i}") 
-            continue
-        bot.load_extension(f"Cogs.{i}")
+        bot.load_extension(f"{i}")
         logger.debug(f"Loaded Cog {i}") 
     except:
         error += f" {i},"
-        logger.debug(f"Error, failed to load Cog {i}") 
+        logger.error(f"Failed to load Cog {i}") 
         pass
 
 if error == "Error with loading cogs:":

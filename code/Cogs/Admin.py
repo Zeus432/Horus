@@ -1,12 +1,7 @@
-from discord.ext.commands.cog import Cog
-from Useful.Useful import botemojis
 from discord.ext import commands
 import discord
-from Useful.settings import *
-import datetime
-from dateutil.relativedelta import relativedelta
-import asyncio
-from Cogs.CustomHelp import *
+from Core.settings import *
+from Core.CustomHelp import *
 
 class AdminCogs(commands.Cog, name = "Admin"):
     COLOUR = discord.Colour(0x9c9cff)
@@ -21,7 +16,15 @@ class AdminCogs(commands.Cog, name = "Admin"):
         await ctx.send_help('permissions')
     @permissions.command()
     async def add(self, ctx):
-        print(2)
+        await self.bot.db.execute("INSERT INTO users (id, data) VALUES (1111,'This is nice')")
+        await ctx.send("Data Inserted!")
+
+    @permissions.command()
+    async def getserver(self, ctx):
+        users = await self.bot.db.fetch("SELECT * FROM users")
+        users2 = await self.bot.db.fetchrow("SELECT * FROM users")
+        users3 = await self.bot.db.fetchval("SELECT * FROM users")
+        await ctx.send(f"Here users:\n{users}\n{users2}\n{users3}")
 
 def setup(bot: commands.Bot):
     bot.add_cog(AdminCogs(bot))

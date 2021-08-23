@@ -1,18 +1,17 @@
-from Useful.Useful import botemojis
 from discord.ext import commands
 import discord
-from Useful.settings import *
-from Useful.Menus import *
+from Core.CustomHelp import *
+from Core.settings import *
+from Utils.Useful import *
+from Utils.Menus import *
 import asyncio
-from Cogs.CustomHelp import *
 
 #dm buttons
 class Choose(discord.ui.View):
 
-    def __init__(self, msg):
+    def __init__(self):
         super().__init__(timeout=30)
         self.value = 3
-        self.msg = msg
     
 
     @discord.ui.button(label= "Send via EB", style=discord.ButtonStyle.green)
@@ -106,9 +105,10 @@ class Mun(commands.Cog):
             except asyncio.TimeoutError:
                 await msg.reply("Response Timed Out!")
             else:
-                msg2 = await msg.reply('Choose:', view = None)
-                view = Choose(msg=msg2)
-                await msg2.edit(view=view)
+                msg2embed = discord.Embed(description='Choose',color=self.bot.colour)
+                view = Choose()
+                msg2 = await msg.reply(embed=msg2embed, view = view)
+                view.msg = msg2
                 await view.wait()
                 if view.value == 1:
                     try:
@@ -128,8 +128,12 @@ class Mun(commands.Cog):
                         except:
                             pass
                         await ctx.reply(f"Message has been sent via EB to {member.mention}")
+
                     except:
-                        await ctx.reply("I was unable to dm this user. Make sure their dms isn't closed") 
+                        msg2embed.add_field(name="Error!",value="\nI was unable to dm this user. Make sure their dms isn't closed")
+                        msg2embed.color = discord.Color.red()
+                        view.children[0].style = discord.ButtonStyle.red
+                        await msg2.edit(view=view,embed = msg2embed) 
                 if view.value == 2:
                     try:
                         embed = discord.Embed(title="New Message recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color= 0x2F3136)
@@ -137,9 +141,14 @@ class Mun(commands.Cog):
                         await member.send(msgcontent.content)
                         await ctx.reply(f"Message has been sent privately to {member.mention}")
                     except:
-                        await ctx.reply("I was unable to dm this user. Make sure their dms isn't closed")  
+                        msg2embed.add_field(name="Error!",value="\nI was unable to dm this user. Make sure their dms isn't closed")
+                        msg2embed.color = discord.Color.red()
+                        view.children[1].style = discord.ButtonStyle.red
+                        await msg2.edit(view=view,embed = msg2embed)  
                 if view.value == 3:
-                    await ctx.send('Cancelled')
+                    msg2embed.color = discord.Color.red()
+                    msg2embed.description += "\nProcess Cancelled"
+                    await msg2.edit(embed=msg2embed)
 
     async def cog_command_error(self, ctx, error):
         """This method will be called if a command in this cog raises an error.""" 

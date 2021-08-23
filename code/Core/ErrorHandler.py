@@ -1,8 +1,7 @@
-from discord import colour
 from discord.ext import commands
 from typing import Any
-from Useful.Useful import *
-from Useful.Menus import senderror as senderr
+from Utils.Useful import *
+from Utils.Menus import senderror as senderr
 
 class CommandErrorHandler(commands.Cog):
 

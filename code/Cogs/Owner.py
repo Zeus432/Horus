@@ -1,9 +1,9 @@
 from discord.ext import commands
 import discord
 import asyncio
-from Useful.Useful import *
-from Useful.settings import *
-from Useful.Menus import guildanalytics,GuildButtons,senderror
+from Utils.Useful import *
+from Core.settings import *
+from Utils.Menus import *
 from typing import Union
 import io
 from contextlib import redirect_stdout

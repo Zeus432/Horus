@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from Useful.Useful import HelpButtons
+from Utils.Useful import HelpButtons
 import asyncio
 
 class EmbedHelpCommand(commands.HelpCommand):
@@ -17,16 +17,17 @@ class EmbedHelpCommand(commands.HelpCommand):
     """
     # Set the embed colour here
     COLOUR = discord.Colour(0x9c9cff)
+    hidden = ["CustomEmbed","Owner"]
     def nodms(self):
         if not self.context.guild:
             raise commands.NoPrivateMessage
         
 
     def get_ending_note(self):
-        return 'Use {0}{1} [command] for more info on a command.'.format(self.context.clean_prefix, self.invoked_with)
+        return f'Use {self.context.clean_prefix}{self.invoked_with} [command] for more info on a command.'
 
     def get_command_signature(self, command):
-        return '{0.qualified_name} {0.signature}'.format(command)
+        return f'{command.qualified_name} {command.signature}'
 
     async def send_bot_help(self, mapping):
         self.nodms()
@@ -42,9 +43,9 @@ class EmbedHelpCommand(commands.HelpCommand):
                 value = '`\n・`'.join(c.name for c in filtered)
                 value = f"・`{value}`"
                 if cog and cog.description:
-                    value = '{0}\n{1}'.format(cog.description, value)
+                    value = f'{cog.description}\n{value}'
                     
-                if name != "CustomEmbed":
+                if name not in self.hidden:
                     embed.add_field(name=name, value=value, inline=False)
         embed.set_footer(text=self.get_ending_note())
         view=HelpButtons(30)
@@ -59,7 +60,7 @@ class EmbedHelpCommand(commands.HelpCommand):
 
     async def send_cog_help(self, cog):
         self.nodms()
-        embed = discord.Embed(title='{0.qualified_name} Commands'.format(cog), colour=self.COLOUR)
+        embed = discord.Embed(title=f'{cog.qualified_name} Commands', colour=self.COLOUR)
         if cog.description:
             embed.description = cog.description
 
