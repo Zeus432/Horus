@@ -1,15 +1,5 @@
-code/Cogs/__pycache__/Admin.cpython-38.pyc
-code/Cogs/__pycache__/CustomHelp.cpython-38.pyc
-code/Cogs/__pycache__/ErrorHandler.cpython-38.pyc
-code/Cogs/__pycache__/Fun.cpython-38.pyc
-code/Cogs/__pycache__/Owner.cpython-38.pyc
-code/Cogs/__pycache__/Utility.cpython-38.pyc
-code/Useful/__pycache__/settings.cpython-38.pyc
-code/Useful/__pycache__/Useful.cpython-38.pyc
-code/Useful/settings.py
 .DS_Store
-code/__pycache__/main.cpython-38.pyc
 code/testing.py
-code/Cogs/__pycache__/Mun.cpython-38.pyc
+__pycache__
+code/Useful/settings.py
 horus.log
-code/Useful/__pycache__/Menus.cpython-38.pyc
