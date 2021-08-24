@@ -66,7 +66,7 @@ class Mun(commands.Cog):
         else:
             return guild.get_member(ctx.author.id)
 
-    @commands.command(name = "send", help = "Send stuff to delegates", brief = "Send dm")
+    @commands.command(cooldown_after_parsing=True, name = "send", help = "Send stuff to delegates", brief = "Send dm")
     @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.dm_only()
     async def send(self, ctx, *, member: discord.Member):
