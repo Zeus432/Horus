@@ -14,7 +14,7 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
         return "".join(lines)
 
 def botemojis(emoji = None):
-    listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:Error:874511415086551080>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>",
+    listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:warning:879672016704258078>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>","cross":"<:crossno:879671980691972137>",
                   "boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>",
                   "trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>","tokitosip":"<a:TokitoSip:875425433980645416>",
                   "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>","replycont":"<:replycont:875990141427146772>","replyend":"<:replyend:875990157554237490>",
