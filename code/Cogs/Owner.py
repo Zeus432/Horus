@@ -47,20 +47,20 @@ class Owner(commands.Cog):
         """Evaluates a code"""
 
         env = {
-            'bot.http.token': "[ token omitted ]",
+            'bot.http.token': "",
             'bot': self.bot,
             'ctx': ctx,
             'channel': ctx.channel,
             'author': ctx.author,
             'guild': ctx.guild,
             'message': ctx.message,
-            'bot.http.token': "[ token omitted ]",
+            'faketoken': "||MjM4Uc3Nz **Token Deez Nuts** Bad joke? Nvm then <:YouWantItToMoveButItWont:873921001023500328> .wNNTIxzQgV4||",
             '_': self._last_result
         }
 
         env.update(globals())
 
-        body = self.cleanup_code(body)
+        body = self.cleanup_code(body.replace('bot.http.token','faketoken'))
         stdout = io.StringIO()
 
         to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
