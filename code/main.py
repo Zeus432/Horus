@@ -237,7 +237,7 @@ async def unload(ctx, cog_name = None):
 @unload.error
 async def unload_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        await ctx.reply("Only the Bot Owner can run this command!", delete_after = 5)
+        await ctx.reply("Only the Bot Developer can run this command!", delete_after = 5)
     else:
         await senderror(bot,ctx,error)
 
