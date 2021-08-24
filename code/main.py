@@ -145,11 +145,11 @@ async def load(ctx, cog_name = None):
                 self.add_item(Dropdown())
 
         view = DropdownView()
-        msg = await ctx.send('Select to Load Cogs', view=view)
+        msg = await ctx.send('Select Menu to Load Cogs', view=view)
         await asyncio.sleep(30)
         for item in view.children:
             item.disabled = True
-        await msg.edit("Select to Load Cogs. This message is no longer active", view = view)
+        await msg.edit("Select to Menu Load Cogs. This message is no longer active", view = view)
 
 @load.error
 async def load_error(ctx, error):
