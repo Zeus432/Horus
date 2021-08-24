@@ -2,6 +2,9 @@ import discord
 import traceback
 import sys
 import pathlib
+import json
+import datetime
+from dateutil.relativedelta import relativedelta
 
 def print_exception(text: str, error: Exception, *, _print: bool = False) -> str:
         """Prints the exception with proper traceback."""
@@ -14,15 +17,8 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
         return "".join(lines)
 
 def botemojis(emoji = None):
-    listemoji =  {"menu":"<:HelpMenu:873859534651809832>","error":"<:warning:879672016704258078>","cogs":"<:Cogs:873861289343090718>","tick":"<:tickyes:873865975441813534>","cross":"<:crossno:879671980691972137>",
-                  "boost":"<a:BoostBadge:873866459451904010>","pray":"<:angelpray:873863602023596082>","study":"<:Study:873863650471981107>","dev":"<a:DevBadge:873866720530534420>",
-                  "trash":"<:TrashCan:873917151961026601>","kermitslap":"<a:kermitslap:873919390117158922>","tokitosip":"<a:TokitoSip:875425433980645416>",
-                  "text":"<:Text:875775212648529950>","voice":"<:Voice:875775169375903745>","stage":"<:Stage:875775175965167708>","replycont":"<:replycont:875990141427146772>","replyend":"<:replyend:875990157554237490>",
-                  "parrow":"<:parrowright:872774335675375649>","shinobubully":"<:shinobubully:849249987417997323>","yikes":"<:Yikes:877267180662714428>","pandahug":"<a:pandahug:877267922282749952>",
-                  "apos":"<:AphosHoardingCats:877268478493597696>","shadowz":"<a:shadowzcat:877269423025684561>","owner":"<:owner:877271761710878740>","rooburn":"<a:rooburn:873586500518948884>",
-                  "judge":"<:judge:877796702633996288>","staff":"<:Staff:877796922876919808>","UNSC":"<:UNSC:877810185954017350> ","UNHRC":"<:UNHRC:877810210650091520>","WHO":"<:WHO:877810579845283870>",
-                  "IPC":"<:IPC:877810993621782529>","mod":"<:Moderator:877796954011222047>"
-                  }
+    with open("/Users/siddharthm/Desktop/Horus/Assets/emojis.json","r") as emojis:
+        listemoji = json.loads(emojis.read())
     try:
         return listemoji[emoji]
     except:
@@ -123,3 +119,17 @@ class TabularData:
 
         to_draw.append(sep)
         return '\n'.join(to_draw)
+
+def get_uptime(bot):
+        delta_uptime = relativedelta(datetime.datetime.utcnow(), bot.launch_time)
+        days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
+
+        uptimes = {x[0]: x[1] for x in [('days, ' if days != 1 else 'day, ', days), ('hours, ' if hours != 1 else 'hour, ', hours),
+                                        ('minutes' if minutes != 1 else 'minute', minutes), ('seconds' if seconds != 1 else 'second', seconds)] if x[1]}
+
+        last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes)-1)
+        uptime_string = "".join(
+            f"{v} {k}" if k != last else f" and {v} {k}" if len(uptimes) != 1 else f"{v} {k}"
+            for k, v in uptimes.items()
+        )
+        return uptime_string

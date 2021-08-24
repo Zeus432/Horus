@@ -2,8 +2,6 @@ from Utils.Useful import *
 from discord.ext import commands
 import discord
 from Core.settings import *
-import datetime
-from dateutil.relativedelta import relativedelta
 import unicodedata
 
 
@@ -11,20 +9,6 @@ class Utility(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
         self.bot.launch_time = bot.launch_time
-
-    def get_uptime(self):
-        delta_uptime = relativedelta(datetime.datetime.utcnow(), self.bot.launch_time)
-        days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
-
-        uptimes = {x[0]: x[1] for x in [('days, ' if days != 1 else 'day, ', days), ('hours, ' if hours != 1 else 'hour, ', hours),
-                                        ('minutes' if minutes != 1 else 'minute', minutes), ('seconds' if seconds != 1 else 'second', seconds)] if x[1]}
-
-        last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes)-1)
-        uptime_string = "".join(
-            f"{v} {k}" if k != last else f" and {v} {k}" if len(uptimes) != 1 else f"{v} {k}"
-            for k, v in uptimes.items()
-        )
-        return uptime_string
 
 
     @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info'])
@@ -34,9 +18,9 @@ class Utility(commands.Cog):
         emb = discord.Embed(colour = discord.Colour(10263807))
         emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
         emb.add_field(name="Coded in:",value=f"**Language:** [**`python 3.8.5`**](https://www.python.org/)\n**Library:** [**`discord.py 2.0`**](https://github.com/Rapptz/discord.py)\nㅤㅤㅤㅤ{botemojis('replyend')} Master Branch")
-        emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and {'Im really bad at making a bot info description ' if 876044372460838922 == ctx.guild.id else 'is also called as Whorus'} <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
+        emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and {'I am really bad at making a bot info description lmao ' if 876044372460838922 == ctx.guild.id else 'is also called as Whorus'} <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
         emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
-        emb.add_field(name="Bot Uptime:",value=self.get_uptime())
+        emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
         emb.add_field(name="On Discord Since:",value=f"<t:{round(self.bot.get_user(858335663571992618).created_at.timestamp())}:D>")
         emb.set_thumbnail(url=self.bot.get_user(858335663571992618).avatar)
         view = discord.ui.View()

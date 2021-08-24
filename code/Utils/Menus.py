@@ -82,6 +82,9 @@ features = {
             "THREADS_ENABLED":"Threads Enabled"
         }
 
+
+# Base Embeds
+
 class BaseEmbed(discord.Embed):
     """Main purpose is to get the usual setup of Embed for a command or an error embed"""
     def __init__(self, color: Union[discord.Color, int] = 0xffcccb, timestamp: datetime.datetime = None,
@@ -101,6 +104,9 @@ class BaseEmbed(discord.Embed):
                  color: Union[discord.Color, int] = discord.Color.red(), **kwargs) -> "BaseEmbed":
         return cls(title=title, color=color, **kwargs)
 
+
+# Errorhandler Senderror
+
 async def senderror(bot, ctx, error):
     async def send_del(*args: Any, **kwargs: Any) -> None:
         if embed := kwargs.get("embed"):
@@ -109,7 +115,7 @@ async def senderror(bot, ctx, error):
         await ctx.reply(*args, **kwargs)
     if await bot.is_owner(ctx.message.author):
         try:
-            await ctx.message.add_reaction(botemojis('error'))
+            await ctx.message.add_reaction(botemojis('warning'))
         except:
             pass
         await ctx.reply("This command has errored, check your Error Logs to see what happened")
@@ -138,6 +144,9 @@ async def senderror(bot, ctx, error):
         serror += f"\n{i}"
     await bot.error_channel.send(f"```py\n{serror}```")
     logger.opt(exception=error).error(f"Ignoring exception in command {ctx.command}\nCommand Used - {ctx.message.content}\n")
+
+
+# Guild Embed Confirm Buttons
 
 class Confirm(discord.ui.View):
     def __init__(self):
@@ -182,7 +191,7 @@ class Confirm(discord.ui.View):
         await self.msg.edit(view=self,embed=discord.Embed(description=f"You took too long to respond",color=discord.Colour.blurple()))
         self.stop()
 
-
+# Guild Embed Buttons
 
 class GuildButtons(discord.ui.View):
     def __init__(self,guild,ctx,bot):
@@ -226,7 +235,10 @@ class GuildButtons(discord.ui.View):
 
     async def on_timeout(self):
         await self.message.edit(view=None)
-    
+
+
+# Guild Embed
+
 def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
     colour = discord.Color.red() if join == False else discord.Color.green()
     colour = discord.Colour(0x9c9cff) if join == None else colour
@@ -238,7 +250,7 @@ def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
     owner,region = guild.owner, guild.region.name
     ifnsfw = len([c for c in guild.text_channels if c.is_nsfw()])
     ifgprem = guild.premium_tier
-    gfl = [f"{botemojis('parrow')} {features[c]}" for c in guild.features ]
+    gfl = [f"{botemojis('parrow')} {features[c]}" for c in guild.features] 
     if gfl == []:
         featurend = "No Features Available"
     else:
@@ -248,7 +260,7 @@ def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
             threadinfo += f"\nㅤㅤ{botemojis('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
             threadinfo += f"\nㅤㅤ{botemojis('replyend')} Archive time limit: "
             threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
-            featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Threads")]) + threadinfo
+        featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Threads")]) + threadinfo
             
     if ifnsfw > 0:
         ifnsfw = f"\nㅤㅤ{botemojis('replyend')} Nsfw ⤏ **{ifnsfw}**"
