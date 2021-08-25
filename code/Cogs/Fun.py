@@ -189,7 +189,7 @@ class Fun(commands.Cog):
                     await interaction.response.send_message(content="You pressed the grey button <:Shinobu:847464133003575306>")
                 else:
                     await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
-
+        
         view=somebutton()
         view.add_item(discord.ui.Button(label= "Link Button", style=discord.ButtonStyle.link, url="https://www.youtube.com/watch?v=QtBDL8EiNZo", emoji = "<:Popcorn:847491974004998145>"))
         message = await ctx.reply('A sample of all the buttons.', view=view)
@@ -197,6 +197,70 @@ class Fun(commands.Cog):
         for item in view.children:
             item.disabled = True
         await message.edit("A sample of all the buttons. This message is no longer active", view = view)
+
+    @commands.command(name="rps",brief="Play Rps")
+    async def rps(self, ctx, opponent: discord.Member):
+        if opponent.bot:
+            await ctx.send(f"You can't play with bots nab, they'll never respond {botemojis('yikes')}")
+            return
+        class View(discord.ui.View):
+            def __init__(self, *args, **kwargs):
+                self.ctx_answer = None
+                self.opponent_answer = None
+                super().__init__(*args, **kwargs)
+
+            async def button_pressed(self, button, interaction: discord.Interaction):
+                if interaction.user.id != ctx.author.id  and interaction.user.id != opponent.id:
+                    return
+
+                if interaction.user.id == ctx.author.id:
+                    if not self.ctx_answer:
+                        self.msg.content += f'\n**{ctx.author}** has chosen'
+                        self.ctx_answer = button.label
+                        await self.msg.edit(self.msg.content)
+                    else:
+                        await interaction.response.send_message(f"You've already chosen, it's too late to change it now {botemojis('kermitslap')}", ephemeral=True)
+                elif interaction.user.id == opponent.id:
+                    if not self.opponent_answer:
+                        self.msg.content += f'\n**{opponent}** has chosen'
+                        self.opponent_answer = button.label
+                        await self.msg.edit(self.msg.content)
+                    else:
+                        await interaction.response.send_message(f"You've already chosen, it's too late to change it now {botemojis('kermitslap')}", ephemeral=True)
+
+                if self.ctx_answer and self.opponent_answer:
+                    if self.ctx_answer == self.opponent_answer:
+                        output = "Its a Draw, smh stop picking the same thing"
+                    elif {"Rock":"Scissors","Paper":"Rock","Scissors":"Paper"}[self.ctx_answer] == self.opponent_answer:
+                        output = f"**{ctx.author}** has won {botemojis('kekwiggle')}"
+                    else:
+                        output = f"**{opponent}** has won {botemojis('kekwiggle')}"
+                    await self.msg.edit(f"{ctx.author.mention} vs {opponent.mention}\n**{ctx.author}** chose {self.ctx_answer}\n**{opponent}** chose {self.opponent_answer}\n{output}")
+                    for item in self.children:
+                        item.disabled = True
+                    await self.msg.edit(view=self)
+                    self.stop()
+            async def on_timeout(self):
+                await ctx.send("You took too long to respond")
+                for item in self.children:
+                    item.disabled = True
+                await self.msg.edit(view=self)
+                self.stop()
+
+            @discord.ui.button(style=discord.ButtonStyle.primary, label="Rock", emoji = "\U0001faa8")
+            async def rock(self, button, interaction):
+                await self.button_pressed(button, interaction)
+
+            @discord.ui.button(style=discord.ButtonStyle.primary, label="Paper", emoji = "\U0001f4f0")
+            async def paper(self, button, interaction):
+                await self.button_pressed(button, interaction)
+
+            @discord.ui.button(style=discord.ButtonStyle.primary, label="Scissors", emoji = "\U00002702")
+            async def scissors(self, button, interaction):
+                await self.button_pressed(button, interaction)
+        view = View(timeout=45)
+        view.msg = await ctx.send(content=f"{ctx.author.mention} vs {opponent.mention}", view = view)
+        await view.wait()
 
 def setup(bot: commands.Bot):
     bot.add_cog(Fun(bot))
