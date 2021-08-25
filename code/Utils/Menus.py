@@ -132,7 +132,7 @@ async def senderror(bot, ctx, error):
     else:
         embed.add_field(name="Dm Channel:", value=f"<#{ctx.channel.id}>\n (`{ctx.channel.id}`)")
     embed.add_field(name="Message ID:", value=f"`{ctx.message.id}`")
-    embed.add_field(name="Jump to Error", value=f"[**Message Link \U0001f517**]({ctx.message.jump_url})")
+    embed.add_field(name="Jump to Error", value=f"**[Message Link \U0001f517]({ctx.message.jump_url})**")
     channel = bot.get_channel(873252901726863441)
     bot.error_channel = channel
     await bot.error_channel.send(embed=embed)
@@ -162,9 +162,9 @@ class Confirm(discord.ui.View):
             item.disabled = True
         try:
             await self.guild.leave()
-            await interaction.message.edit(view=self,embed=discord.Embed(description=f"I have left [**{self.guild}**]({self.guild.icon}), sucks for them {botemojis('shinobubully')}",color=discord.Colour.green()))
+            await interaction.message.edit(view=self,embed=discord.Embed(description=f"I have left **[{self.guild}]({self.guild.icon})**, sucks for them {botemojis('shinobubully')}",color=discord.Colour.green()))
         except:
-            await interaction.message.edit(view=self,embed=discord.Embed(description=f"I was unable to leave [**{self.guild}**]({self.guild.icon}) {botemojis('error')}",color=discord.Colour.red()))
+            await interaction.message.edit(view=self,embed=discord.Embed(description=f"I was unable to leave **[{self.guild}]({self.guild.icon})** {botemojis('error')}",color=discord.Colour.red()))
             button.style = discord.ButtonStyle.red
         self.stop()
 
@@ -178,7 +178,7 @@ class Confirm(discord.ui.View):
             item.style = discord.ButtonStyle.grey
             item.disabled = True
         button.style = discord.ButtonStyle.red
-        await interaction.message.edit(view=self,embed=discord.Embed(description=f"Guess I'm not leaving [**{self.guild}**]({self.guild.icon}) today",color=discord.Colour.red()))
+        await interaction.message.edit(view=self,embed=discord.Embed(description=f"Guess I'm not leaving **[{self.guild}]({self.guild.icon})** today",color=discord.Colour.red()))
         self.stop()
     
     async def on_timeout(self):
@@ -210,7 +210,7 @@ class GuildButtons(discord.ui.View):
                 break
             except: pass
         if invite or None:
-            await interaction.response.send_message(f"Invite Generated for [**{self.guild}**]( {invite} )", ephemeral=True)
+            await interaction.response.send_message(f"Invite Generated for **[{self.guild}]( {invite} )**", ephemeral=True)
         else:
             await interaction.response.send_message(f"I was unable to generate an invite to this guild {botemojis('error')}")
     
@@ -219,9 +219,9 @@ class GuildButtons(discord.ui.View):
         if interaction.user.id != self.user.id:
             return
         if not self.bot.get_guild(self.guild.id):
-            await self.ctx.send(embed = discord.Embed(description=f"Error Bot is not in [**{self.guild}**]({self.guild.icon})",color=discord.Color.red()))
+            await self.ctx.send(embed = discord.Embed(description=f"Error Bot is not in **[{self.guild}]({self.guild.icon})**",color=discord.Color.red()))
             return
-        embed = discord.Embed(description=f"Are you sure you want to leave [**{self.guild}**]({self.guild.icon})?",colour=self.bot.colour)
+        embed = discord.Embed(description=f"Are you sure you want to leave **[{self.guild}]({self.guild.icon})**?",colour=self.bot.colour)
         confview = Confirm()
         msg = await self.ctx.send(embed=embed,view=confview)
         confview.msg,confview.guild = msg,self.guild
