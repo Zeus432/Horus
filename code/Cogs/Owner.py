@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import asyncio
+from discord.ext.commands import Greedy
 from Utils.Useful import *
 from Core.settings import *
 from Utils.Menus import *
@@ -261,7 +262,6 @@ class Owner(commands.Cog):
             msg = await ctx.reply(embed = emb,view = view)
             view.message,view.user = msg,ctx.author
 
-
     @commands.command()
     async def noprefix(self, ctx):
         try:
@@ -275,6 +275,47 @@ class Owner(commands.Cog):
             self.bot.prefixstate = True
             state = f"enabled for bot owners {botemojis('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
+    
+    @commands.command()
+    async def dm(self, ctx, member: Greedy[discord.User], message: Greedy[str] = None):
+        reply,error = ctx,[]
+        def check(m: discord.Message):
+            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+        if not message:
+            msg = await ctx.reply("Enter the message you want to send")
+            try:
+                reply = await self.bot.wait_for(event='message', check=check, timeout=60)
+            except asyncio.TimeoutError:
+                await ctx.reply(f"Can't send them a blank message dumbass {botemojis('kermitslap')}")
+                return
+        dmlist = '\n'.join([f"**{i}** (`{i.id}`)" for i in member])
+        view = discord.ui.View(timeout=5)
+        button = discord.ui.Button(label="Cancel", style=discord.ButtonStyle.red)
+        button.confirmed = True
+        async def callback(interaction):
+            if interaction.user.id != ctx.author.id:
+                return
+            emb.description = emb.description + "\n\n**Process Canceled by User**"
+            emb.color = discord.Colour.red()
+            await button.msg.edit(embed=emb)
+            button.confirmed = False
+            view.stop()
+        button.callback = callback
+        view.add_item(button)
+        emb = discord.Embed(title="Attempting to dm the following users",description=dmlist,colour=self.bot.colour)
+        confirm = button.msg = await reply.reply(embed = emb,view=view)
+        await view.wait()
+        await confirm.edit(view=None)
+        if button.confirmed:
+            for user in member:
+                try:
+                    await user.send(f"**You have a message from a Bot Dev - {ctx.author.name}**:\n{message}")
+                except:
+                    error.append(user)
+            emb.description += "\n\n**Dmed All Users Successfully**" if not error else ""
+            if error:
+                emb.add_field(name="\n\nI was unable to dm the following users:",value="\n".join([f"{botemojis('parrow')} **{who}**" for who in error]))
+            await confirm.edit(embed=emb)
 
     @commands.group(invoke_without_command=True)
     async def foo(self, ctx):

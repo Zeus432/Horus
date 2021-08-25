@@ -169,24 +169,24 @@ class Fun(commands.Cog):
                 super().__init__()
                 self.value = None
 
-            @discord.ui.button(label= "Green Button", style=discord.ButtonStyle.green, emoji = "<a:prickler:819942044838920233>")
+            @discord.ui.button(label= "Green Button", style=discord.ButtonStyle.green, emoji = "<a:prickler:819942044838920233>", ephemeral=True)
             async def button1(self, button: discord.ui.Button, interaction: discord.Interaction):
                 if interaction.user.id == ctx.author.id:
-                    await interaction.response.send_message(content="You pressed the green button <a:prickler:819942044838920233>")
+                    await interaction.response.send_message(content="You pressed the green button <a:prickler:819942044838920233>", ephemeral=True)
                 else:
                     await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
 
-            @discord.ui.button(label= "Red Button", style=discord.ButtonStyle.red, emoji = "<:CozyBlanket:847491897622134795>")
+            @discord.ui.button(label= "Red Button", style=discord.ButtonStyle.red, emoji = "<:CozyBlanket:847491897622134795>", ephemeral=True)
             async def button2(self, button: discord.ui.Button, interaction: discord.Interaction):
                 if interaction.user.id == ctx.author.id:
-                    await interaction.response.send_message(content="You pressed the red button <:CozyBlanket:847491897622134795>")
+                    await interaction.response.send_message(content="You pressed the red button <:CozyBlanket:847491897622134795>", ephemeral=True)
                 else:
                     await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
 
-            @discord.ui.button(label= "Grey Button", style=discord.ButtonStyle.grey, emoji = "<:Shinobu:847464133003575306>")
+            @discord.ui.button(label= "Grey Button", style=discord.ButtonStyle.grey, emoji = "<:Shinobu:847464133003575306>", ephemeral=True)
             async def button3(self, button: discord.ui.Button, interaction: discord.Interaction):
                 if interaction.user.id == ctx.author.id:
-                    await interaction.response.send_message(content="You pressed the grey button <:Shinobu:847464133003575306>")
+                    await interaction.response.send_message(content="You pressed the grey button <:Shinobu:847464133003575306>", ephemeral=True)
                 else:
                     await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
         
