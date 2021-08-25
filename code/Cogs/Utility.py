@@ -119,7 +119,7 @@ class Utility(commands.Cog):
     @commands.guild_only()
     async def uptime(self, ctx: commands.Context):
         """Gets the uptime of the bot"""
-        uptime_string = self.get_uptime()
+        uptime_string = get_uptime(self.bot)
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
     
     @commands.command()
