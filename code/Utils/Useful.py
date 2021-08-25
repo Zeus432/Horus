@@ -22,7 +22,7 @@ def botemojis(emoji = None):
     try:
         return listemoji[emoji]
     except:
-        return "<:Error:873859732044136469>"
+        return listemoji['error']
 
 class HelpButtons(discord.ui.View):
     def __init__(self, timeout:int, **kwargs):

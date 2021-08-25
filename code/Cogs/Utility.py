@@ -3,6 +3,7 @@ from discord.ext import commands
 import discord
 from Core.settings import *
 import unicodedata
+import time
 
 
 class Utility(commands.Cog):
@@ -36,8 +37,17 @@ class Utility(commands.Cog):
     @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
     @commands.guild_only()
     async def ping(self, ctx):
-        await ctx.author.trigger_typing() 
-        await ctx.reply(f"Pong {round(self.bot.latency*1000)}ms")
+        start = time.perf_counter()
+        msg = await ctx.send(f"{botemojis('loading')} Pinging")
+        await ctx.author.trigger_typing()
+        end = time.perf_counter()
+        typing_ping = (end - start) * 1000
+
+        start = time.perf_counter()
+        await self.bot.db.execute('SELECT 1')
+        end = time.perf_counter()
+        sql_ping = (end - start) * 1000
+        await msg.edit(content=f"Pong {botemojis('catpong')}\n**Typing**: `{round(typing_ping, 1)} ms`\n**Websocket**: `{round(self.bot.latency*1000)} ms`\n**Database**: `{round(sql_ping, 1)} ms`")
     
     
     @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info", ignore_extra = True)
