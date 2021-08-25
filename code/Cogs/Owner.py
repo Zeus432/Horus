@@ -277,7 +277,7 @@ class Owner(commands.Cog):
         await ctx.reply(f"No prefix has been {state}")
     
     @commands.command()
-    async def dm(self, ctx, member: Greedy[discord.User], message: Greedy[str] = None):
+    async def dm(self, ctx, member: Greedy[discord.User], *, message: str = None):
         reply,error = ctx,[]
         def check(m: discord.Message):
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
