@@ -88,10 +88,11 @@ class FaqButtons(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         #embed1
-        emb1 = discord.Embed(colour = self.bot.colour,title="About Gt Mun")
+        emb1 = discord.Embed(colour =discord.Colour(0xf5d376),title="About Gt Mun")
 
         #embed2
-        emb2 = discord.Embed(colour = self.bot.colour,title="Server Rules")
+        emb2 = discord.Embed(colour=discord.Colour(0xf5d376),description="**1)** **No Cross-talk**\n> Only discussions related to the MUN will be allowed. Kindly refrain from making irrelevant comments during your respective committee sessions.\n\n**2)** **No Toxicity, Vulgarity or Obscene language**\n> Maintain decency. Toxicity, vulgarity and the usage of Obscene language is not allowed. When addressing a delegate do so formally.\n\n**3)** **Questions**\n> Contact the tech head or a volunteer for any questions you may have related to the functioning of this server. For Mun related doubts, please contact the respective chairs.\n \n**Other:**\nFollow [**Discord Terms of Service**](https://discord.com/terms) and [**Community Guidelines**](https://discord.com/guidelines)\nRun `h!faq` and if you have any other questions feel free to ask a <@&876700774082695198>",title = "Code of Conduct")
+        emb2.set_author(name="Gt Model United Nations",icon_url="https://cdn.discordapp.com/icons/876044372460838922/d9870f417e49bc16a43e5a08b19aceeb.png?size=1024")
 
         #embed3
         who = self.bot.get_user(760823877034573864)
@@ -131,7 +132,7 @@ class FaqButtons(discord.ui.Select):
 class Mun(commands.Cog): 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.chairs = {876703407551938580:[],876703436048044092:[],876703447083253770:[],True:[760823877034573864,401717120918093846]}
+        self.chairs =  {876703407551938580:[401717120918093846,768423375286435900],876703436048044092:[740246853563449404,699461820578136084],876703447083253770:[796060531081216070],True:[760823877034573864,401717120918093846]} 
         self.channel = {876703407551938580:877031734485581954,876703436048044092:877031755792662618,876703447083253770:877031787182841866,True:877854960090513438}
 
     async def cog_check(self, ctx):

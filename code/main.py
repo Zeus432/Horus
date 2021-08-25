@@ -75,6 +75,8 @@ class Load(discord.ui.Select):
         super().__init__(placeholder='Choose Cogs to Load', min_values=1, max_values=length, options=options)
 
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.ctx.author.id:
+            return
         async with self.ctx.typing():
             unload = rload = fload = ""
             for cog in self.values:
@@ -158,6 +160,8 @@ class Unload(discord.ui.Select):
         super().__init__(placeholder='Choose Cogs to Unload', min_values=1, max_values=length, options=options)
 
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.ctx.author.id:
+            return
         async with self.ctx.typing():
             unload = aload = fload = ""
             for cog in self.values:
