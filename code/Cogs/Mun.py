@@ -143,7 +143,7 @@ class Mun(commands.Cog):
 
     @commands.command(cooldown_after_parsing=True, name = "send", help = "Send a message to your fellow delegates via dms", brief = "Send a message")
     @commands.cooldown(2, 5, commands.BucketType.user)
-    async def send(self, ctx, *, member: discord.Member):
+    async def send(self, ctx, member: discord.Member):
         def check(m: discord.Message):
             return m.author.id == ctx.author.id and m.channel.id == ctx.author.dm_channel.id
         async def getattach(msg):
@@ -155,10 +155,12 @@ class Mun(commands.Cog):
         member = guild.get_member(member.id)
         user = guild.get_member(ctx.author.id)
         chk,match = False,False
-        #if member == user:
-            #await ctx.send(f'Why are you trying to dm yourself {botemojis("yikes")}')
-            #await reply(what='yikes')
-            #return
+        if member == user:
+            await ctx.send(f'Why are you trying to dm yourself {botemojis("yikes")}')
+            return
+        if member.bot:
+            await ctx.send(f"You'll have better luck trying to get a response from a wall {botemojis('yikes')}")
+            return
         if member:
             for i in [876703407551938580,876703436048044092,876703447083253770]:
                 if i in [r.id for r in user.roles]:
