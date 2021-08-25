@@ -55,189 +55,167 @@ bot.owner_ids = frozenset(BotOwners)
 bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
 bot.colour = discord.Colour(0x9c9cff)
+bot.cogslist = WorkingCogs
+bot.emojislist = botemojis
 
-def cogstate(cog_name):
-    if cog_name == 'jishaku':
-        return "Jishaku Cog"
-    elif bot.get_cog(cog_name) == None:
-        return "State: Unloaded"
-    else:
-        return "State: Loaded"
+#Load Dropdown Menu
+class Load(discord.ui.Select):
+    def __init__(self, coglist, ctx):
+        self.ctx = ctx
+        def loadcheck(cog):
+            if cog in bot.extensions:
+                return 'Loaded'
+            return 'Unloaded'
+        length = len(coglist)
+        lemoji = {'Cogs':botemojis('cogs'),'Core':botemojis('core'),'jishaku':botemojis('staff')}
+        ldesc = {'Cogs':'Cog','Core':'Core Module','jishaku':'Extenision'}
+        options = []
+        for i in coglist:
+            options.append(discord.SelectOption(label=i.split('.')[-1], description=f"{ldesc[i.split('.')[0]]}: {loadcheck(i)}",emoji=f"{lemoji[i.split('.')[0]]}"))
+        super().__init__(placeholder='Choose Cogs to Load', min_values=1, max_values=length, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        async with self.ctx.typing():
+            unload = rload = fload = ""
+            for cog in self.values:
+                cog = [c for c in bot.cogslist if cog in c][0]
+                try:
+                    bot.load_extension(cog)
+                    unload += f", `{cog}`"
+                except commands.ExtensionAlreadyLoaded:
+                    bot.unload_extension(cog)
+                    bot.load_extension(cog)
+                    rload += f", `{cog}`"
+                except commands.ExtensionNotFound:
+                    fload += f", `{cog}`"
+            message = ""
+            message += '\U0001f4e5 **Loaded:**\n'+f"{unload[1:]}\n\n" if unload else ""
+            message += "\U0001f501 **Reloaded:**\n"+f"{rload[1:]}\n\n" if rload else ""
+            message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
+            await interaction.response.send_message(message)
 
 @bot.command(name="load", aliases = ['l'], help = "Load Cogs onto the bot", brief = "Load Cogs")
 @commands.is_owner()
-async def load(ctx, cog_name = None):
-    coglist = WorkingCogs
-    if cog_name != None:
-        try:
-            if cog_name == 'jishaku':
-                bot.load_extension(cog_name)
-            bot.load_extension(f"Cogs.{cog_name}")
-            await ctx.send(f"Loaded `{cog_name}`")
-        except commands.ExtensionAlreadyLoaded:
-            if cog_name == 'jishaku':
-                bot.unload_extension(cog_name)
-                bot.load_extension(cog_name)
-            else:
-                bot.unload_extension(f"Cogs.{cog_name}")
-                bot.load_extension(f"Cogs.{cog_name}")
-            await ctx.send(f"Reloaded `{cog_name}`")
-        except commands.ExtensionNotFound:
-            await ctx.send(f"Cog `{cog_name}` not found")
-    else:
-        class Dropdown(discord.ui.Select):
-            def __init__(self):
-                length = len(coglist)
-                if length >= 20:
-                    length = 20
-                options = []
-                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Load Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Load Custom Help Menu'}}
-                def getemoji(cog):
-                    try:
-                        return cogdetails[cog]
-                    except:
-                        return {'emoji':botemojis("cogs"),'msg':cogstate(cog_name=cog)}
-                for i in coglist:
-                    options.append(discord.SelectOption(label=i, description=getemoji(i)['msg'], emoji=getemoji(i)['emoji']))
-                super().__init__(placeholder='Choose Cogs to Load', min_values=1, max_values=length, options=options)
+async def load(ctx, cog = None):
+    load = rload = fload = ""
+    coglist = bot.cogslist
 
-            async def callback(self, interaction: discord.Interaction):
-                if interaction.user.id == ctx.author.id:
-                    async with ctx.typing():
-                        Loaded = ""
-                        Reloaded = ""
-                        for cog in self.values:
-                            try:
-                                if cog == 'jishaku':
-                                    bot.load_extension(cog)
-                                else:
-                                    bot.load_extension(f"Cogs.{cog}")
-                                Loaded += f", `{cog}`"
-                                for opt in view.children:
-                                    for item in opt.options:
-                                        print(item.value)
-                                        if item.value == cog:
-                                            item.description = "State: Loaded"
-                                            await msg.edit(view = view)
-                                            break
-                                        
-                            except commands.ExtensionAlreadyLoaded:
-                                if cog == 'jishaku':
-                                    bot.unload_extension(cog)
-                                    bot.load_extension(cog)
-                                else:
-                                    bot.unload_extension(f"Cogs.{cog}")
-                                    bot.load_extension(f"Cogs.{cog}")
-                                Reloaded += f", `{cog}`"
-                        if Loaded != "":
-                            Loaded = f"**Loaded Cogs:**\n{Loaded[2:]}\n\n"
-                        if Reloaded != "":
-                            Reloaded = f"**Reloaded Cogs:**\n{Reloaded[2:]}"
-                        await interaction.response.send_message(f'{Loaded}{Reloaded}', ephemeral=False)
-                else:
-                    await interaction.response.send_message("This select isn't for you to use", ephemeral=True)
-
-        class DropdownView(discord.ui.View):
-            def __init__(self):
-                super().__init__()
-
-                # Adds the dropdown to our view object.
-                self.add_item(Dropdown())
-
-        view = DropdownView()
-        msg = await ctx.send('Select to Load Cogs', view=view)
-        await asyncio.sleep(30)
+    if cog == None:
+        view = discord.ui.View()
+        while len(coglist) > 20:
+            coglist = coglist[20:]
+            view.add_item(Load(coglist=coglist[:20],ctx=ctx))
+        if coglist:
+            view.add_item(Load(coglist=coglist,ctx=ctx))
+        message = await ctx.reply(f"Load Cogs",view=view)
+        await view.wait()
         for item in view.children:
             item.disabled = True
-        await msg.edit("Select to Load Cogs. This message is no longer active", view = view)
+        await message.edit(view=view)
+        return
+
+    cog = "" if cog.lower() == "all" else cog
+    coglist = [c for c in bot.cogslist if cog.lower() in c.lower()]
+    if coglist:
+        for x in coglist:
+            try:
+                bot.load_extension(x)
+                load += f", `{x}`"
+            except commands.ExtensionAlreadyLoaded:
+                bot.unload_extension(x)
+                bot.load_extension(x)
+                rload += f", `{x}`"
+            except commands.ExtensionNotFound:
+                fload += f", `{x}`"
+        message = ""
+        message += '\U0001f4e5 **Loaded:**\n'+f"{load[1:]}\n\n" if load else ""
+        message += "\U0001f501 **Reloaded:**\n"+f"{rload[1:]}\n\n" if rload else ""
+        message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
+        await ctx.send(message)
 
 @load.error
 async def load_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        await ctx.reply("Only the Bot Owner can run this command!", delete_after = 5)
+        await ctx.reply("Only the Bot Owner can load Modules", delete_after = 5)
     else:
         await senderror(bot,ctx,error)
 
+
+#Unload Dropdown Menu
+class Unload(discord.ui.Select):
+    def __init__(self, coglist, ctx):
+        self.ctx = ctx
+        def loadcheck(cog):
+            if cog in bot.extensions:
+                return 'Loaded'
+            return 'Unloaded'
+        length = len(coglist)
+        lemoji = {'Cogs':botemojis('cogs'),'Core':botemojis('core'),'jishaku':botemojis('staff')}
+        ldesc = {'Cogs':'Cog','Core':'Core Module','jishaku':'Extenision'}
+        options = []
+        for i in coglist:
+            options.append(discord.SelectOption(label=i.split('.')[-1], description=f"{ldesc[i.split('.')[0]]}: {loadcheck(i)}",emoji=f"{lemoji[i.split('.')[0]]}"))
+        super().__init__(placeholder='Choose Cogs to Unload', min_values=1, max_values=length, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        async with self.ctx.typing():
+            unload = aload = fload = ""
+            for cog in self.values:
+                cog = [c for c in bot.cogslist if cog in c][0]
+                try:
+                    bot.unload_extension(cog)
+                    unload += f", `{cog}`"
+                except commands.ExtensionNotFound:
+                    fload += f", `{cog}`"
+                except commands.ExtensionNotLoaded:
+                    aload += f", `{cog}`"
+            message = ""
+            message += '\U0001f4e4 **Unloaded:**\n'+f"{unload[1:]}\n\n" if unload else ""
+            message += f"{botemojis('cross')} **Already Unloaded:**\n"+f"{aload[1:]}\n\n" if aload else ""
+            message += f"{botemojis('error')} **Failed to Unload:**\n"+f"{fload[1:]}\n\n" if fload else ""
+            await interaction.response.send_message(message)
+
 @bot.command(name="unload", aliases = ['ul'], help = "Unload loaded Cogs", brief = "Unload Cogs")
 @commands.is_owner()
-async def unload(ctx, cog_name = None):
-    coglist = WorkingCogs
-    if cog_name != None:
-        try:
-            if cog_name == 'jishaku':
-                bot.unload_extension(cog_name)
-            else:
-                bot.unload_extension(f"Cogs.{cog_name}")
-            await ctx.send(f"Unloaded `{cog_name}`")
-        except commands.ExtensionNotFound:
-            await ctx.send(f"Cog `{cog_name}` not found")
-        except commands.ExtensionNotLoaded:
-            await ctx.send("Cog is already unloaded")
+async def unload(ctx, cog = None):
+    unload = aload = fload = ""
+    coglist = bot.cogslist
 
-    else:
-        class Dropdown(discord.ui.Select):
-            def __init__(self):
-                length = len(coglist)
-                if length >= 20:
-                    length = 20
-                options = []
-                cogdetails = {'ErrorHandler':{'emoji':botemojis("error"),'msg':'Unload Global Error Handler'},'CustomHelp':{'emoji':botemojis("menu"),'msg':'Unload  Custom Help Menu and use the default one'}}
-                def getemoji(cog):
-                    try:
-                        return cogdetails[cog]
-                    except:
-                        return {'emoji':botemojis("cogs"),'msg':cogstate(cog_name=cog)}
-                for i in coglist:
-                    options.append(discord.SelectOption(label=i, description=getemoji(i)['msg'], emoji=getemoji(i)['emoji']))
-                super().__init__(placeholder='Choose Cogs to Unload', min_values=1, max_values=length, options=options)
-
-            async def callback(self, interaction: discord.Interaction):
-                if interaction.user.id == ctx.author.id:
-                    async with ctx.typing():
-                        Unloaded = ""
-                        Failed = ""
-                        for cog in self.values:
-                            try:
-                                if cog == 'jishaku':
-                                    bot.unload_extension(cog)
-                                else:
-                                    bot.unload_extension(f"Cogs.{cog}")
-                                Unloaded += f", `{cog}`"
-                                for opt in view.children:
-                                    for item in opt.options:
-                                        print(item.value)
-                                        if item.value == cog:
-                                            item.description = "State: Unloaded"
-                                            await msg.edit(view = view)
-                                            break
-                            except commands.ExtensionNotLoaded:
-                                Failed += f", `{cog}`"
-                        if Unloaded != "":
-                            Unloaded = f"**Unloaded Cogs:**\n{Unloaded[2:]}\n\n"
-                        if Failed != "":
-                            Failed = f"**Failed to Unload - Already Unloaded:**\n{Failed[2:]}"
-                        await interaction.response.send_message(f'{Unloaded}{Failed}', ephemeral=False)
-                else:
-                    await interaction.response.send_message("This select menu isn't for you to use, run `h!unload` to use this command", ephemeral=True)
-
-        class DropdownView(discord.ui.View):
-            def __init__(self):
-                super().__init__()
-
-                # Adds the dropdown to our view object.
-                self.add_item(Dropdown())
-
-        view = DropdownView()
-        msg = await ctx.send('Select Menu to Unload Cogs', view=view)
-        await asyncio.sleep(30)
+    if cog == None:
+        view = discord.ui.View()
+        while len(coglist) > 20:
+            coglist = coglist[20:]
+            view.add_item(Unload(coglist=coglist[:20],ctx=ctx))
+        if coglist:
+            view.add_item(Unload(coglist=coglist,ctx=ctx))
+        message = await ctx.reply(f"Unload Cogs",view=view)
+        await view.wait()
         for item in view.children:
             item.disabled = True
-        await msg.edit("Select Menu to Unload Cogs. This message is no longer active", view = view)
+        await message.edit(view=view)
+        return
+
+    cog = "" if cog.lower() == "all" else cog
+    coglist = [c for c in coglist if cog.lower() in c.lower()]
+    if coglist:
+        for x in coglist:
+            try:
+                bot.unload_extension(x)
+                unload += f", `{x}`"
+            except commands.ExtensionNotFound:
+                fload += f", `{x}`"
+            except commands.ExtensionNotLoaded:
+                aload += f", `{x}`"
+        message = ""
+        message += '\U0001f4e4 **Unloaded:**\n'+f"{unload[1:]}\n\n" if unload else ""
+        message += f"{botemojis('cross')} **Already Unloaded:**\n"+f"{aload[1:]}\n\n" if aload else ""
+        message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
+        await ctx.send(message)
 
 @unload.error
 async def unload_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        await ctx.reply("Only the Bot Owner can run this command!", delete_after = 5)
+        await ctx.reply("Only the Bot Owner can unload Modules", delete_after = 5)
     else:
         await senderror(bot,ctx,error)
 
