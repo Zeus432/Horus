@@ -78,10 +78,11 @@ class FaqButtons(discord.ui.Select):
         self.ctx = ctx
         self.bot = bot
         options = [
-                        discord.SelectOption(label='About Gt Mun', description='Important Information about the event'),
-                        discord.SelectOption(label='Server Rules', description='Follow the server rules'),
-                        discord.SelectOption(label='About Horus', description='Wanna know about the bot?'),
-                        discord.SelectOption(label='Usage of the h!send command', description='Learn more about the h!send used for chit passing')
+                        discord.SelectOption(label='About Gt Mun', description='Important Information about the event',emoji=botemojis('UNSC')),
+                        discord.SelectOption(label='Server Rules', description='Follow the server rules',emoji=botemojis('rules')),
+                        discord.SelectOption(label='About Horus', description='Wanna know about the bot?',emoji=botemojis('tokitosip')),
+                        discord.SelectOption(label='Usage of the h!send command', description='Learn more about the h!send used for chit passing',emoji=botemojis('staff')),
+                        discord.SelectOption(label='Other Horus Commands', description='Other commands that might be useful',emoji=botemojis('cogs'))
                     ]
         super().__init__(placeholder='About GT Mun and How to use Horus', min_values=1, max_values=1, options=options)
 
@@ -107,13 +108,18 @@ class FaqButtons(discord.ui.Select):
         #embed4
         emb4 = discord.Embed(colour = self.bot.colour,title="How to use h!send",timestamp=interaction.message.created_at)
         emb4.description = "`h!send` is a command used for chit-passing during committee sessions.\n```yaml\nUsage: h!send <member>```\nWhere `<member>` is the user you wish to send a message to.\nThis command can be run in a channel in this server or in your dms with <@858335663571992618>"
-        emb4.add_field(name="Proper Usage",value=f"h!send <@760823877034573864>\nh!send Zeuѕ#0002\nh!send 760823877034573864\n\nThe last one is done by using the user's id (`760823877034573864` for example)\nThis can be done by enabling **Developer Mode** in your `User Settings`",inline=False)
+        emb4.add_field(name="Proper Usage",value=f"h!send <@760823877034573864>\nh!send Zeuѕ#0002\nh!send 760823877034573864\n\nThe last one is done by using the user's id (`760823877034573864` for example)\nThis can be done by enabling [**Developer Mode**](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-) in your `User Settings`",inline=False)
         emb4.add_field(name="Requirements",value=f"{botemojis('parrow')} You need to be a part of a council to be able to use this command\n{botemojis('parrow')} You can only message users who are a part of the same council as you",inline=False)
-        emb4.add_field(name="Walkthrough",value="After you run the command and if all the requirements are met then the bot will ask you to send the message you wish to sent to the other user.\n\nYou have 5 minutes to send your message, after which the bot will ask whether you wish to send your message via Eb or privately. Here is an [**example**](https://tenor.com/view/the-mandalorian-enters-dramatically-mando-din-djarin-dramatic-entrance-gif-20585249) of how it looks\n\nIf you chose either Send via Eb or Send privately then the bot will dm the user with the message. Look below for some examples on the usage of this command\n\n**Note:** You are required to follow [**Discord's Terms of Service**](https://discord.com/terms) and [**Community Guidelines**](https://discord.com/guidelines). This includes but is not limited to - no hate speech and discrimination.")
+        emb4.add_field(name="Walkthrough",value="After you run the command and if all the requirements are met then the bot will ask you to send the message you wish to sent to the other user.\n\nYou have 5 minutes to send your message, after which the bot will ask whether you wish to send your message via Eb or privately. Here is an [**example**](https://imgur.com/8D711qf) of how it looks\n\nIf you chose either Send via Eb or Send privately then the bot will dm the user with the message. Look below for some examples on the usage of this command\n\n**Note:** You are required to follow [**Discord's Terms of Service**](https://discord.com/terms) and [**Community Guidelines**](https://discord.com/guidelines). This includes but is not limited to - no hate speech and discrimination.")
         emb4.set_footer(text=f"Requested by {interaction.user}",icon_url=f"{interaction.user.avatar}")
+
+        #embed5
+        emb5 = discord.Embed(colour = self.bot.colour,title="Horus Commands",timestamp=interaction.message.created_at)
+        emb5.description = f"Another command which could be useful is `h!ui`, so this command essentially just shows all the discord related information about the mentioned user.\n\nThere are also some 'Gt Mun Badges' which shows which Committee a user belongs to or whether they're the Committee Chair etc.\n\nHere is a list of all currently present Badges:\n{botemojis('mod')} [**Organiser**]({interaction.user.avatar})\n{botemojis('judge')} [**Council Chair**]({interaction.user.avatar})\n{botemojis('staff')} [**Volunteer**]({interaction.user.avatar})\n{botemojis('UNSC')} [**UNSC**](https://discord.gg/GYqqjQeZKs)\n{botemojis('UNHRC')} [**UNHRC**](https://discord.gg/GYqqjQeZKs)\n{botemojis('WHO')} [**WHO**](https://discord.gg/GYqqjQeZKs)\n\nHorus does have other commands that can be used, but not really relevant to this event but feel free to test them out. You can run `h!help` to view a list of all the commands"
+        emb5.set_footer(text=f"GT Model United Nations",icon_url=self.bot.get_user(858335663571992618).avatar)
         
 
-        faq = {'About Gt Mun':emb1,'Server Rules':emb2,'About Horus':emb3,'Usage of the h!send command':emb4}
+        faq = {'About Gt Mun':emb1,'Server Rules':emb2,'About Horus':emb3,'Usage of the h!send command':emb4,'Other Horus Commands':emb5}
         view = discord.ui.View()
         if self.values[0] == 'Usage of the h!send command':
             view = discord.ui.View()
