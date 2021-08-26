@@ -68,7 +68,7 @@ class Examples(discord.ui.Select):
         super().__init__(placeholder='Examples', min_values=1, max_values=1, options=options)
     
     async def callback(self, interaction: discord.Interaction):
-        example = {'Send via Eb':'**[Send Via Eb](https://cdn.discordapp.com/attachments/873251816102584330/879812848975491122/send_via_Eb.mov)**','Send Privately':'**[Send Privately](https://cdn.discordapp.com/attachments/873251816102584330/879812845984964618/send_private.mov)**','Cancel':'**[Cancel](https://cdn.discordapp.com/attachments/873251816102584330/879812825369968670/send_cancel.mov)**'}
+        example = {'Send via Eb':'**[Send Via Eb]( https://cdn.discordapp.com/attachments/873251816102584330/879812848975491122/send_via_Eb.mov )**','Send Privately':'**[Send Privately]( https://cdn.discordapp.com/attachments/873251816102584330/879812845984964618/send_private.mov )**','Cancel':'**[Cancel]( https://cdn.discordapp.com/attachments/873251816102584330/879812825369968670/send_cancel.mov )**'}
         for i in self.values:
             await interaction.response.send_message(content=f"**Example:** {example[i]}",ephemeral=True)
 
@@ -220,15 +220,18 @@ class Mun(commands.Cog):
                         embed2 = discord.Embed(title="Message:",description=f"{reply.content}" or "No Message Content",color= 0x2F3136)
                         await member.send(embeds=[embed,embed2])
                         embed = discord.Embed(title="New Message Sent!",description=f"**From:** {ctx.author.mention} (`{ctx.author.id}`)\n**To:** {member.mention} (`{member.id}`)", color=self.bot.colour)
+                        success = []
                         try:
                             for i in self.chairs[council]:
                                 if user.id != i and member.id != i:
                                     try:
                                         chair = self.bot.get_user(i)
                                         await chair.send(embeds=[embed,embed2])
+                                        success.append(f"**{chair}**")
                                     except: pass
                         except: pass
                         try:
+                            embed.add_field(name="Sent via Eb:", value="\n".join(success))
                             await guild.get_channel(self.channel[council]).send(embeds=[embed,embed2])
                         except: pass
                         msg2embed.add_field(name="Success!",value=f"Message has been sent via EB to {member.mention}")

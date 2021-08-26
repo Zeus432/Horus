@@ -203,6 +203,13 @@ class Fun(commands.Cog):
         if opponent.bot:
             await ctx.send(f"You can't play with bots nab, they'll never respond {botemojis('yikes')}")
             return
+        if ctx.author.id == opponent.id:
+            if ctx.guild.id == 876044372460838922:
+                await ctx.send(f"You can't play against yourself {botemojis('yikes')}")
+                return
+            await ctx.send(f"You can't play with yourself here {botemojis('yikes')}")
+            await ctx.send("https://tenor.com/view/we-dont-do-that-here-black-panther-tchalla-bruce-gif-16558003")
+            return
         class View(discord.ui.View):
             def __init__(self, *args, **kwargs):
                 self.ctx_answer = None
@@ -258,7 +265,7 @@ class Fun(commands.Cog):
             @discord.ui.button(style=discord.ButtonStyle.primary, label="Scissors", emoji = "\U00002702")
             async def scissors(self, button, interaction):
                 await self.button_pressed(button, interaction)
-        view = View(timeout=45)
+        view = View(timeout=30)
         view.msg = await ctx.send(content=f"{ctx.author.mention} vs {opponent.mention}", view = view)
         await view.wait()
 
