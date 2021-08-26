@@ -279,12 +279,15 @@ class Owner(commands.Cog):
     @commands.command()
     async def dm(self, ctx, member: Greedy[discord.User], *, message: str = None):
         reply,error = ctx,[]
+        if not member:
+            return await ctx.send_help(ctx.command)
         def check(m: discord.Message):
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
         if not message:
-            msg = await ctx.reply("Enter the message you want to send")
+            await ctx.reply("Enter the message you want to send")
             try:
-                reply = await self.bot.wait_for(event='message', check=check, timeout=60)
+                message = await self.bot.wait_for(event='message', check=check, timeout=60)
+                message = message.content
             except asyncio.TimeoutError:
                 await ctx.reply(f"Can't send them a blank message dumbass {botemojis('kermitslap')}")
                 return
