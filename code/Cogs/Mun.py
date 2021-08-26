@@ -88,7 +88,21 @@ class FaqButtons(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         #embed1
-        emb1 = discord.Embed(colour =discord.Colour(0xf5d376),title="About Gt Mun")
+        #sub embed 11
+        emb11 = discord.Embed(colour=discord.Colour(0xf5d376),description="GTMUN is a student forward event conducted by GTA Vidhya Mandir, Neelankarai. The main goal of the event is to foster a culture of debate and diplomacy among students and strengthen the budding MUN circuit of Chennai.\n\nThis is the official server for GT Model United Nations 2021. Chit passing and all other communications (including Unmoderated caucus) during the days of the event will happen here. Kindly check <#876089163454218290> before you start texting.",title = "Gt Model United Nations")
+        emb11.set_thumbnail(url="https://cdn.discordapp.com/attachments/873251816102584330/880351261701062686/Screenshot_2021-08-26_at_12.48.22_PM.png")
+
+        #sub embed 12
+        emb12 = discord.Embed(colour=discord.Colour(0xf5d376),description = "Presenting the Secretariat and Executive Board for the 3rd edition of GT MUN 2021  \u200b")
+        emb12.set_author(name="Executive Board",icon_url="https://cdn.discordapp.com/attachments/873251816102584330/880388939146493983/imageedit_2_6113823624.png")
+        emb12.add_field(name="Secretary General",value="Rajnandan ~ <@401717120918093846>\n\u200b")
+        emb12.add_field(name="Director General",value="Shaman ~ <@880355695600488478>\n\u200b")
+        emb12.add_field(name="United Nations Security Council",value="Rajnandan ~ <@401717120918093846>\nShaina ~ <@768423375286435900>\n\u200b",inline = False)
+        emb12.add_field(name="United Nations Human Rights Council",value="Raghav ~ <@699461820578136084>\nAbhinav ~ <@740246853563449404>\n\u200b",inline = False)
+        emb12.add_field(name="World Health Organisation",value="Shaman ~ <@880355695600488478>\nPavan ~ <@796060531081216070>",inline = False)
+
+        #sub embed 13
+        emb13 = discord.Embed(colour=discord.Colour(0xf5d376),description="Click below for the links to the Mun's Instagram Page and Official Website. Please refer to the Oficial Website for the Country Matrix and Background Guides for all the Committees")
 
         #embed2
         emb2 = discord.Embed(colour=discord.Colour(0xf5d376),description="**1)** **No Cross-talk**\n> Only discussions related to the MUN will be allowed. Kindly refrain from making irrelevant comments during your respective committee sessions.\n\n**2)** **No Toxicity, Vulgarity or Obscene language**\n> Maintain decency. Toxicity, vulgarity and the usage of Obscene language is not allowed. When addressing a delegate do so formally.\n\n**3)** **Questions**\n> Contact the tech head or a volunteer for any questions you may have related to the functioning of this server. For Mun related doubts, please contact the respective chairs.\n \n**Other:**\nFollow **[Discord Terms of Service](https://discord.com/terms)** and **[Community Guidelines](https://discord.com/guidelines)**\nRun `h!faq` and if you have any other questions feel free to ask a <@&876700774082695198>",title = "Code of Conduct")
@@ -120,19 +134,21 @@ class FaqButtons(discord.ui.Select):
         emb5.set_footer(text=f"GT Model United Nations",icon_url=self.bot.get_user(858335663571992618).avatar)
         
 
-        faq = {'About Gt Mun':emb1,'Server Rules':emb2,'About Horus':emb3,'Usage of the h!send command':emb4,'Other Horus Commands':emb5}
+        faq = {'About Gt Mun':[emb11,emb12,emb13],'Server Rules':[emb2],'About Horus':[emb3],'Usage of the h!send command':[emb4],'Other Horus Commands':[emb5]}
         view = discord.ui.View()
         if self.values[0] == 'Usage of the h!send command':
-            view = discord.ui.View()
             view.add_item(Examples())
-        await interaction.response.send_message(embed=faq[f'{self.values[0]}'],view=view,ephemeral=True)
+        elif self.values[0] == 'About Gt Mun':
+            view.add_item(discord.ui.Button(label= "Instagram Page", style=discord.ButtonStyle.link, url="https://www.instagram.com/gtmun2021/"))
+            view.add_item(discord.ui.Button(label= "Official Website", style=discord.ButtonStyle.link, url="http://gtvm.school/Mun/"))
+        await interaction.response.send_message(embeds=faq[f'{self.values[0]}'],view=view,ephemeral=True)
 
 
 
 class Mun(commands.Cog): 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.chairs =  {876703407551938580:[401717120918093846,768423375286435900],876703436048044092:[740246853563449404,699461820578136084],876703447083253770:[796060531081216070],True:[760823877034573864,401717120918093846]} 
+        self.chairs =  {876703407551938580:[401717120918093846,768423375286435900],876703436048044092:[740246853563449404,699461820578136084],876703447083253770:[796060531081216070,880355695600488478],True:[760823877034573864,401717120918093846]} 
         self.channel = {876703407551938580:877031734485581954,876703436048044092:877031755792662618,876703447083253770:877031787182841866,True:877854960090513438}
 
     async def cog_check(self, ctx):
