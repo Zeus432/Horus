@@ -5,6 +5,7 @@ import pathlib
 import json
 import datetime
 from dateutil.relativedelta import relativedelta
+import aiohttp
 
 def print_exception(text: str, error: Exception, *, _print: bool = False) -> str:
         """Prints the exception with proper traceback."""
@@ -133,3 +134,11 @@ def get_uptime(bot):
             for k, v in uptimes.items()
         )
         return uptime_string
+
+async def mystbin(data):
+      data = bytes(data, 'utf-8')
+      async with aiohttp.ClientSession() as cs:
+        async with cs.post('https://mystb.in/documents', data = data) as r:
+          res = await r.json()
+          key = res["key"]
+          return f"https://mystb.in/{key}"

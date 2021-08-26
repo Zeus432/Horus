@@ -239,6 +239,19 @@ async def on_guild_remove(guild):
     bot.log_channel = channel
     await bot.log_channel.send(embed=embed)
 
+@bot.event
+async def on_message(message: discord.Message):
+    channel = bot.get_channel(880294858600894494)
+    if message.guild is None and not message.author.bot:
+        final = message.content
+        view = discord.ui.View()
+        if len(message.content) > 1900:
+            fl = await mystbin(data = message.content)
+            final = f"Message too long to Display"
+            view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
+        await channel.send(f"**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view)
+    await bot.process_commands(message)
+
 #load Cogs on turning on
 error = "Error with loading cogs:"
 for i in coglist:
