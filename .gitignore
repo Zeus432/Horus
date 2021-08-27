@@ -1,6 +1,6 @@
 .DS_Store
-code/testing.py
 __pycache__
 code/Core/settings.py
 horus.log
 Assets
+code/testing.py
