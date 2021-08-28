@@ -1,4 +1,4 @@
-from discord import embeds
+from discord import embeds, message
 from discord.ext import commands
 import discord
 from discord.ext.commands import bot
@@ -96,10 +96,10 @@ class FaqButtons(discord.ui.Select):
         emb12 = discord.Embed(colour=discord.Colour(0xf5d376),description = "Presenting the Secretariat and Executive Board for the 3rd edition of GT MUN 2021  \u200b")
         emb12.set_author(name="Executive Board",icon_url="https://cdn.discordapp.com/attachments/873251816102584330/880388939146493983/imageedit_2_6113823624.png")
         emb12.add_field(name="Secretary General",value="Rajnandan ~ <@401717120918093846>\n\u200b")
-        emb12.add_field(name="Director General",value="Shaman ~ <@880355695600488478>\n\u200b")
+        emb12.add_field(name="Director General",value="Shaman ~ <@772701276735668245>\n\u200b")
         emb12.add_field(name="United Nations Security Council",value="Rajnandan ~ <@401717120918093846>\nShaina ~ <@768423375286435900>\n\u200b",inline = False)
         emb12.add_field(name="United Nations Human Rights Council",value="Raghav ~ <@699461820578136084>\nAbhinav ~ <@740246853563449404>\n\u200b",inline = False)
-        emb12.add_field(name="World Health Organisation",value="Shaman ~ <@880355695600488478>\nPavan ~ <@796060531081216070>",inline = False)
+        emb12.add_field(name="World Health Organisation",value="Shaman ~ <@772701276735668245>\nPavan ~ <@796060531081216070>",inline = False)
 
         #sub embed 13
         emb13 = discord.Embed(colour=discord.Colour(0xf5d376),description="Click below for the links to the Mun's Instagram Page and Official Website. Please refer to the Oficial Website for the Country Matrix and Background Guides for all the Committees")
@@ -126,7 +126,10 @@ class FaqButtons(discord.ui.Select):
         emb4.add_field(name="Proper Usage",value=f"h!send <@760823877034573864>\nh!send Zeuѕ#0002\nh!send 760823877034573864\n\nThe last one is done by using the user's id (`760823877034573864` for example)\nThis can be done by enabling **[Developer Mode](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)** in your `User Settings`",inline=False)
         emb4.add_field(name="Requirements",value=f"{botemojis('parrow')} You need to be a part of a council to be able to use this command\n{botemojis('parrow')} You can only message users who are a part of the same council as you",inline=False)
         emb4.add_field(name="Walkthrough",value="After you run the command and if all the requirements are met then the bot will ask you to send the message you wish to sent to the other user.\n\nYou have 5 minutes to send your message, after which the bot will ask whether you wish to send your message via Eb or privately. Here is an **[example](https://imgur.com/8D711qf)** of how it looks\n\nIf you chose either Send via Eb or Send privately then the bot will dm the user with the message. Look below for some examples on the usage of this command\n\n**Note:** You are required to follow **[Discord's Terms of Service](https://discord.com/terms)** and **[Community Guidelines](https://discord.com/guidelines)**. This includes but is not limited to - no hate speech and discrimination.")
-        emb4.set_footer(text=f"Requested by {interaction.user}",icon_url=f"{interaction.user.avatar}")
+        if interaction.user.avatar:
+            emb4.set_footer(text=f"Requested by {interaction.user}",icon_url=f"{interaction.user.avatar}")
+        else:
+            emb4.set_footer(text=f"Requested by {interaction.user}")
 
         #embed5
         emb5 = discord.Embed(colour = self.bot.colour,title="Horus Commands",timestamp=interaction.message.created_at)
@@ -142,13 +145,16 @@ class FaqButtons(discord.ui.Select):
             view.add_item(discord.ui.Button(label= "Instagram Page", style=discord.ButtonStyle.link, url="https://www.instagram.com/gtmun2021/"))
             view.add_item(discord.ui.Button(label= "Official Website", style=discord.ButtonStyle.link, url="http://gtvm.school/Mun/"))
         await interaction.response.send_message(embeds=faq[f'{self.values[0]}'],view=view,ephemeral=True)
+        if self.values[0] == 'Usage of the h!send command':
+            await view.wait()
+            await interaction.message.edit(view=view)
 
 
 
 class Mun(commands.Cog): 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.chairs =  {876703407551938580:[401717120918093846,768423375286435900],876703436048044092:[740246853563449404,699461820578136084],876703447083253770:[796060531081216070,880355695600488478],True:[760823877034573864,401717120918093846]} 
+        self.chairs =  {876703407551938580:[401717120918093846,768423375286435900],876703436048044092:[740246853563449404,699461820578136084],876703447083253770:[796060531081216070,880355695600488478],True:[760823877034573864]} 
         self.channel = {876703407551938580:877031734485581954,876703436048044092:877031755792662618,876703447083253770:877031787182841866,True:877854960090513438}
 
     async def cog_check(self, ctx):
@@ -160,18 +166,16 @@ class Mun(commands.Cog):
     @commands.command(cooldown_after_parsing=True, name = "send", help = "Send a message to your fellow delegates via dms", brief = "Send a message")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def send(self, ctx, member: discord.Member):
+        if ctx.author.id in self.bot.usingsend:
+            await ctx.reply('This command can only be used once per user at the same time')
+            return
         def check(m: discord.Message):
             return m.author.id == ctx.author.id and m.channel.id == ctx.author.dm_channel.id
-        async def getattach(msg):
-            fp = []
-            for attachment in msg.attachments:
-                fp.append(await attachment.to_file())
-            return fp or None
         guild = self.bot.get_guild(876044372460838922)
         member = guild.get_member(member.id)
         user = guild.get_member(ctx.author.id)
         chk,match = False,False
-        if member == user:
+        if member == user and user.id != 760823877034573864:
             await ctx.send(f'Why are you trying to dm yourself {botemojis("yikes")}')
             return
         if member.bot:
@@ -187,7 +191,7 @@ class Mun(commands.Cog):
             for i in [876704912149475378,876700774082695198]:
                 if i in [r.id for r in user.roles] and not match:
                     council = chk = match = True
-            if user.id in [760823877034573864,401717120918093846] and not match:
+            if user.id in [401717120918093846] and not match:
                 council = chk = match = True
             if not chk:
                 await ctx.reply("You need to be a part of the council to use this command!")
@@ -197,17 +201,33 @@ class Mun(commands.Cog):
         else:
             await ctx.reply(f'You can only dm users who are a part of the councils in **{guild}**')
             return
+        if self.bot.usingsendchk[council] == False:
+            await ctx.send('Chit passing has been disabled for this committee')
+            return
         if council and member:
-            if ctx.guild:
-                await ctx.message.add_reaction('\U0001f4e5')
-            msg = await user.send(f"Enter the message you want to send to {member.mention}")
+            try:
+                self.bot.usingsend.append(ctx.author.id)
+                msg = await user.send(f"Enter the message you want to send to {member.mention}")
+                if ctx.guild:
+                    await ctx.message.add_reaction('\U0001f4e5')
+                    await ctx.reply(embed = discord.Embed(description = f'**[Click here]({msg.jump_url})**'))
+            except:
+                self.bot.usingsend.remove(ctx.author.id)
+                await ctx.reply('You need to keep your dms open to use this command!')
+                await ctx.message.add_reaction(f'{botemojis("error")}')
+                return
             try:
                 reply = await self.bot.wait_for(event='message', check=check, timeout=300)
+                if reply == None:
+                    await msg.reply('Timed out')
+                    return
             except asyncio.TimeoutError:
+                self.bot.usingsend.remove(ctx.author.id)
                 await msg.reply("Response Timed Out!")
             else:
-                if len(reply.content) > 4000:
-                    await ctx.send(f"Your message can't have more than **4000** charecters! Your message had **{len(reply.content)}** charecters, if required send multiple messages consecutively rather than in one big message")
+                if len(reply.content) > 2000:
+                    self.bot.usingsend.remove(ctx.author.id)
+                    await ctx.send(f"Your message can't have more than **2000** charecters! Your message had **{len(reply.content)}** charecters, if required send multiple messages consecutively rather than in one big message")
                     return
                 msg2embed = discord.Embed(title="GT Model United Nations",description=f'`Send via Eb` to send your message to {member.mention} (`{member}`) via the EB\n`Send Private` to send your message to {member.mention} (`{member}`) only\n`Cancel` to cancel this process',color=self.bot.colour,timestamp=ctx.message.created_at)
                 view = Choose()
@@ -216,23 +236,22 @@ class Mun(commands.Cog):
                 await view.wait()
                 if view.value == 1:
                     try:
-                        embed = discord.Embed(title="New Message recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color=self.bot.colour)
-                        embed2 = discord.Embed(title="Message:",description=f"{reply.content}" or "No Message Content",color= 0x2F3136)
-                        await member.send(embeds=[embed,embed2])
-                        embed = discord.Embed(title="New Message Sent!",description=f"**From:** {ctx.author.mention} (`{ctx.author.id}`)\n**To:** {member.mention} (`{member.id}`)", color=self.bot.colour)
+                        embed = discord.Embed(title="New Message recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color=self.bot.colour, timestamp=reply.created_at)
+                        await member.send(f"{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
+                        embed = discord.Embed(title="New Message Sent!",description=f"**From:** {ctx.author.mention} (`{ctx.author.id}`)\n**To:** {member.mention} (`{member.id}`)", color=self.bot.colour, timestamp=reply.created_at)
                         success = []
                         try:
                             for i in self.chairs[council]:
                                 if user.id != i and member.id != i:
                                     try:
                                         chair = self.bot.get_user(i)
-                                        await chair.send(embeds=[embed,embed2])
+                                        await chair.send(f"{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
                                         success.append(f"**{chair}**")
                                     except: pass
                         except: pass
                         try:
-                            embed.add_field(name="Sent via Eb:", value="\n".join(success))
-                            await guild.get_channel(self.channel[council]).send(embeds=[embed,embed2])
+                            embed.add_field(name="Sent via Eb:", value="\n".join(success) or "No other Eb found")
+                            await guild.get_channel(self.channel[council]).send(f"{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
                         except: pass
                         msg2embed.add_field(name="Success!",value=f"Message has been sent via EB to {member.mention}")
                         msg2embed.color = discord.Color.green()
@@ -244,9 +263,8 @@ class Mun(commands.Cog):
                         await msg2.edit(view=view,embed = msg2embed)
                 if view.value == 2:
                     try:
-                        embed = discord.Embed(title="New Message recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color=self.bot.colour)
-                        embed2 = discord.Embed(title="Message:",description=f"{reply.content}" or "No Message Content",color= 0x2F3136)
-                        await member.send(embeds=[embed,embed2])
+                        embed = discord.Embed(title="New Message recieved!",description=f"You've been sent a new dm by {ctx.author.mention} (`{ctx.author.id}`)", color=self.bot.colour, timestamp=reply.created_at)
+                        await member.send(f"{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
                         msg2embed.add_field(name="Success!",value=f"Message has been sent privately to {member.mention}")
                         msg2embed.color = discord.Color.green()
                         await msg2.edit(view=view,embed = msg2embed)
@@ -255,10 +273,11 @@ class Mun(commands.Cog):
                         msg2embed.color = discord.Color.red()
                         view.children[1].style = discord.ButtonStyle.red
                         await msg2.edit(view=view,embed = msg2embed)
-                if view.value in [3,4]:
+                elif view.value in [3,4]:
                     msg2embed.color = discord.Color.red()
                     msg2embed.description += "\n\n**Process Cancelled**" if view.value == 3 else "\n\n**You Took too Long to Respond**"
                     await msg2.edit(embed=msg2embed)
+                self.bot.usingsend.remove(ctx.author.id)
     
     @commands.command(name = "faq", help = "Here are answers to some Frequently Asked Questions", brief = "Event and Bot FAQs",  aliases = ['usage'])
     @commands.guild_only()
@@ -270,7 +289,58 @@ class Mun(commands.Cog):
         for item in view.children:
             item.disabled = True
         await msg.edit(view=view)
+    
+    @commands.command(name = "enablechit", help = "Enable Chit passing for your respective committee", brief = "Enable Chit passing",  aliases = ['enchit','ec'])
+    @commands.guild_only()
+    async def enablechit(self, ctx, committee: str):
+        chk = False
+        guild = self.bot.get_guild(876044372460838922)
+        user = guild.get_member(ctx.author.id)
+        for i in [876086016333717505,880020873489317920,876700774082695198]:
+            if i in [r.id for r in user.roles]:
+                chk = True
+                break
+        if not chk:
+            return
+        try:
+            committeerole = {'unsc':876703407551938580,'unhrc':876703436048044092,'hrc':876703436048044092,'who':876703447083253770}[committee.lower()]
+        except: 
+            committeerole = None
+        if committeerole not in self.bot.usingsendchk:
+            await ctx.reply(f'Could not find committee: {committee}')
+            return
+        if self.bot.usingsendchk[committeerole] == True:
+            await ctx.reply(f'Chit passing has already been enabled for {committee.upper()}')
+            return
+        self.bot.usingsendchk[committeerole] = True
+        await ctx.reply(f'Chit passing has been enabled for {committee.upper()}')
 
+    
+    @commands.command(name = "disablechit", help = "Disbale Chit passing for your respective committee", brief = "Disable Chit passing",  aliases = ['diechit','dc'])
+    @commands.guild_only()
+    async def disablechit(self, ctx, committee: str):
+        chk = False
+        guild = self.bot.get_guild(876044372460838922)
+        user = guild.get_member(ctx.author.id)
+        for i in [876086016333717505,880020873489317920,876700774082695198]:
+            if i in [r.id for r in user.roles]:
+                chk = True
+                break
+        if not chk:
+            return
+        try:
+            committeerole = {'unsc':876703407551938580,'unhrc':876703436048044092,'hrc':876703436048044092,'who':876703447083253770}[committee.lower()]
+        except: 
+            committeerole = None
+        if committeerole not in self.bot.usingsendchk:
+            await ctx.reply(f'Could not find committee: {committee}')
+            return
+        if self.bot.usingsendchk[committeerole] == False:
+            await ctx.reply(f'Chit passing has already been disabled for {committee.upper()}')
+            return
+        self.bot.usingsendchk[committeerole] = False
+        await ctx.reply(f'Chit passing has been disabled for {committee.upper()}')
+    
     async def cog_command_error(self, ctx, error):
         """This method will be called if a command in this cog raises an error.""" 
         if isinstance(error, commands.CheckFailure):
@@ -281,6 +351,8 @@ class Mun(commands.Cog):
             await ctx.reply(f'I was unable to find this user')
         elif isinstance(error, commands.errors.CommandOnCooldown):
             await ctx.reply(f'Command is on cooldown, Try again in {round(error.retry_after, 1)} seconds')
+        elif isinstance(error, commands.DisabledCommand):
+            await ctx.reply(f'This command is disabled.')
         else:
             await senderror(bot=self.bot,ctx=ctx,error=error)
 

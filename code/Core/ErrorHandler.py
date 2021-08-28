@@ -44,7 +44,7 @@ class CommandErrorHandler(commands.Cog):
                     await ctx.reply(f"Missing Permissions!")
                 else: pass
             else:
-                await ctx.reply(f'This command is not available here', delete_after = 10)
+                await ctx.reply(f'This command is not available currently', delete_after = 10)
         
         elif isinstance(error, commands.GuildNotFound):
             await ctx.send(f'Could not find guild: {error.argument}')

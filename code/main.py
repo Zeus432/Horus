@@ -26,7 +26,7 @@ class Bot(commands.Bot):
         super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
     
     async def noprefix(self, bot, message):
-        prefix_return = ["h!"]
+        prefix_return = ["h!","H!"]
         if await bot.is_owner(message.author):
             try:
                 if bot.prefixstate == True:
@@ -57,6 +57,9 @@ bot.launch_ts = time.time()
 bot.colour = discord.Colour(0x9c9cff)
 bot.cogslist = WorkingCogs
 bot.emojislist = botemojis
+bot.case_insensitive = True
+bot.usingsend = []
+bot.usingsendchk = {876703407551938580:True,876703436048044092:True,876703447083253770:True,True:True}
 
 #Load Dropdown Menu
 class Load(discord.ui.Select):
@@ -96,7 +99,7 @@ class Load(discord.ui.Select):
             message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
             await interaction.response.send_message(message)
 
-@bot.command(name="load", aliases = ['l'], help = "Load Cogs onto the bot", brief = "Load Cogs")
+@bot.command(name="load", aliases = ['l','reload','rl'], help = "Load Cogs onto the bot", brief = "Load Cogs")
 @commands.is_owner()
 async def load(ctx, cog = None):
     load = rload = fload = ""
@@ -249,7 +252,7 @@ async def on_message(message: discord.Message):
             fl = await mystbin(data = message.content)
             final = f"Message too long to Display"
             view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
-        await channel.send(f"**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view)
+        await channel.send(f".\n\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
     await bot.process_commands(message)
 
 #load Cogs on turning on
