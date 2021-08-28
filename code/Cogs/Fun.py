@@ -68,7 +68,7 @@ class Fun(commands.Cog):
         await ctx.send('Cool Servers List', view=view)
 
 
-    @commands.command(name = "guessthenumber", aliases = ['guess','gtn'], help = "Play a fun game of guess the correct number", brief = "Guess the Number")
+    @commands.command(name = "gtn", aliases = ['guess','guessthenumber'], help = "Play a fun game of guess the correct number", brief = "Guess the Number")
     @commands.guild_only()
     async def gtn(self, ctx: commands.Context):
 
@@ -160,7 +160,7 @@ class Fun(commands.Cog):
         await ctx.reply('Guess the Number!', view=view)
         await asyncio.sleep(30)
 
-    @commands.command(name = "testbuttons", aliases = ['button','buttons','tb'], help = "View Different Buttons that can be made", brief = "Test Some Buttons")
+    @commands.command(name = "tb", aliases = ['button','buttons','testbuttons'], help = "View Different Buttons that can be made", brief = "Test Some Buttons")
     @commands.guild_only()
     async def testbuttons(self, ctx: commands.Context):
         class somebutton(discord.ui.View):
@@ -169,21 +169,21 @@ class Fun(commands.Cog):
                 super().__init__()
                 self.value = None
 
-            @discord.ui.button(label= "Green Button", style=discord.ButtonStyle.green, emoji = "<a:prickler:819942044838920233>", ephemeral=True)
+            @discord.ui.button(label= "Green Button", style=discord.ButtonStyle.green, emoji = "<a:prickler:819942044838920233>")
             async def button1(self, button: discord.ui.Button, interaction: discord.Interaction):
                 if interaction.user.id == ctx.author.id:
                     await interaction.response.send_message(content="You pressed the green button <a:prickler:819942044838920233>", ephemeral=True)
                 else:
                     await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
 
-            @discord.ui.button(label= "Red Button", style=discord.ButtonStyle.red, emoji = "<:CozyBlanket:847491897622134795>", ephemeral=True)
+            @discord.ui.button(label= "Red Button", style=discord.ButtonStyle.red, emoji = "<:CozyBlanket:847491897622134795>")
             async def button2(self, button: discord.ui.Button, interaction: discord.Interaction):
                 if interaction.user.id == ctx.author.id:
                     await interaction.response.send_message(content="You pressed the red button <:CozyBlanket:847491897622134795>", ephemeral=True)
                 else:
                     await interaction.response.send_message(content="This is not your button to press", ephemeral=True)
 
-            @discord.ui.button(label= "Grey Button", style=discord.ButtonStyle.grey, emoji = "<:Shinobu:847464133003575306>", ephemeral=True)
+            @discord.ui.button(label= "Grey Button", style=discord.ButtonStyle.grey, emoji = "<:Shinobu:847464133003575306>")
             async def button3(self, button: discord.ui.Button, interaction: discord.Interaction):
                 if interaction.user.id == ctx.author.id:
                     await interaction.response.send_message(content="You pressed the grey button <:Shinobu:847464133003575306>", ephemeral=True)

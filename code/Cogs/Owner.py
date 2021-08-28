@@ -9,6 +9,8 @@ from typing import Union
 import io
 from contextlib import redirect_stdout
 import textwrap
+import sys
+import os
 
 class Owner(commands.Cog):
 
@@ -319,6 +321,18 @@ class Owner(commands.Cog):
             if error:
                 emb.add_field(name="\n\nI was unable to dm the following users:",value="\n".join([f"{botemojis('parrow')} **{who}**" for who in error]))
             await confirm.edit(embed=emb)
+
+    @commands.command()
+    async def restart(self, ctx):
+        def restart_program():
+            python = sys.executable
+            os.execl(python, python, * sys.argv)
+        message = await ctx.send(f"Horus is Restarting {botemojis('loading')}")
+        try:
+            restart_program()
+        except:
+            await ctx.message.add_reaction(botemojis('warning'))
+            await message.edit('Error I was unable to restart')
 
     @commands.group(invoke_without_command=True)
     async def foo(self, ctx):
