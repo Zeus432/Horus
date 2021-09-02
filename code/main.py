@@ -11,10 +11,9 @@ from Utils.Menus import *
 
 coglist = WorkingCogs
 logger.remove()
-logger.add("/Users/siddharthm/Desktop/Horus/code/Core/horus.log",level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
+pathway = pathway + "/Horus/code/Core/horus.log"
+logger.add(pathway,level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
 logger.info("Logged into Horus succesfully")
-
-#/usr/local/bin/python3 /Users/siddharthm/Desktop/mine/Horus/main.py
 
 async def run():
     credentials = {"user": dbuser, "database": dbdb, "host": dbhost}
@@ -252,7 +251,7 @@ async def on_message(message: discord.Message):
             fl = await mystbin(data = message.content)
             final = f"Message too long to Display"
             view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
-        await channel.send(f".\n\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
+        await channel.send(f"\u200b\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
     await bot.process_commands(message)
 
 #load Cogs on turning on

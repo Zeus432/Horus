@@ -96,7 +96,10 @@ class BaseEmbed(discord.Embed):
     @classmethod
     def default(cls, ctx: commands.Context,color: Union[discord.Color, int] = discord.Color.red(), **kwargs) -> "BaseEmbed":
         instance = cls(color=color,**kwargs)
-        instance.set_footer(text=f"User: {ctx.author}", icon_url=ctx.author.avatar)
+        if ctx.author.avatar:
+            instance.set_footer(text=f"User: {ctx.author}", icon_url=ctx.author.avatar)
+        else:
+            instance.set_footer(text=f"User: {ctx.author}", icon_url="https://cdn.discordapp.com/emojis/837015478799040533.png?v=1")
         return instance
 
     @classmethod

@@ -1,3 +1,4 @@
+from os import path
 import discord
 import traceback
 import sys
@@ -18,7 +19,7 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
         return "".join(lines)
 
 def botemojis(emoji = None):
-    with open("/Users/siddharthm/Desktop/Horus/Assets/emojis.json","r") as emojis:
+    with open(f"/Users/siddharthm/Desktop/discord-bot/Horus/Assets/emojis.json","r") as emojis:
         listemoji = json.loads(emojis.read())
     try:
         return listemoji[emoji]
