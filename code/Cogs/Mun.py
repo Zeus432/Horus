@@ -154,7 +154,7 @@ class FaqButtons(discord.ui.Select):
 class Mun(commands.Cog): 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.chairs =  {876703407551938580:[401717120918093846,768423375286435900],876703436048044092:[740246853563449404,699461820578136084],876703447083253770:[796060531081216070,880355695600488478],True:[760823877034573864]} 
+        self.chairs =  {876703407551938580:[None],876703436048044092:[None],876703447083253770:[None],True:[None]} 
         self.channel = {876703407551938580:877031734485581954,876703436048044092:877031755792662618,876703447083253770:877031787182841866,True:877854960090513438}
 
     async def cog_check(self, ctx):
@@ -245,13 +245,13 @@ class Mun(commands.Cog):
                                 if user.id != i and member.id != i:
                                     try:
                                         chair = self.bot.get_user(i)
-                                        await chair.send(f"{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
+                                        await chair.send(f"\u200b\n{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
                                         success.append(f"**{chair}**")
                                     except: pass
                         except: pass
                         try:
                             embed.add_field(name="Sent via Eb:", value="\n".join(success) or "No other Eb found")
-                            await guild.get_channel(self.channel[council]).send(f"{reply.content}" or "[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
+                            await guild.get_channel(self.channel[council]).send(f"\u200b\n{reply.content}" or "\u200b\n[No Message Content]",embed=embed,files=[await attachment.to_file() for attachment in reply.attachments])
                         except: pass
                         msg2embed.add_field(name="Success!",value=f"Message has been sent via EB to {member.mention}")
                         msg2embed.color = discord.Color.green()
@@ -296,7 +296,7 @@ class Mun(commands.Cog):
         chk = False
         guild = self.bot.get_guild(876044372460838922)
         user = guild.get_member(ctx.author.id)
-        for i in [876086016333717505,880020873489317920,876700774082695198]:
+        for i in [876086016333717505,880020873489317920,876700774082695198,876704912149475378]:
             if i in [r.id for r in user.roles]:
                 chk = True
                 break
@@ -322,7 +322,7 @@ class Mun(commands.Cog):
         chk = False
         guild = self.bot.get_guild(876044372460838922)
         user = guild.get_member(ctx.author.id)
-        for i in [876086016333717505,880020873489317920,876700774082695198]:
+        for i in [876086016333717505,880020873489317920,876700774082695198,876704912149475378]:
             if i in [r.id for r in user.roles]:
                 chk = True
                 break
