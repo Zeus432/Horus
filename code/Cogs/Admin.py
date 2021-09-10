@@ -9,7 +9,8 @@ class AdminCogs(commands.Cog, name = "Admin"):
         self.bot = bot 
 
     async def cog_check(self, ctx):
-        return ctx.author.guild_permissions.administrator
+        user = ctx.guild.get_member(ctx.author.id)
+        return user.guild_permissions.administrator
 
     @commands.group(pass_context=True, name='permissions', aliases = ['perms'], invoke_without_command = True)
     async def permissions(self, ctx):
