@@ -63,7 +63,7 @@ class NewHelp(commands.HelpCommand):
             if filtered:
                 if cog is None:
                     continue
-                if cog.qualified_name is 'CustomHelp':
+                if cog.qualified_name == 'CustomHelp':
                     continue
                 name,desc = cog.qualified_name, f"{cog.description}" if cog.description else ""
                 options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.em(name)))
@@ -97,7 +97,7 @@ class NewHelp(commands.HelpCommand):
             if filtered:
                 if cogs is None:
                     continue
-                if cogs.qualified_name is 'CustomHelp':
+                if cogs.qualified_name == 'CustomHelp':
                     continue
                 name,desc = cogs.qualified_name, f"{cogs.description}" if cogs.description else ""
                 options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.em(name)))
