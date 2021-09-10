@@ -3,25 +3,36 @@ import discord
 from Utils.Useful import HelpButtons
 import asyncio
 
-class EmbedHelpCommand(commands.HelpCommand):
-    """This is an example of a HelpCommand that utilizes embeds.
-    It's pretty basic but it lacks some nuances that people might expect.
-    1. It breaks if you have more than 25 cogs or more than 25 subcommands. (Most people don't reach this)
-    2. It doesn't DM users. To do this, you have to override `get_destination`. It's simple.
-    Other than those two things this is a basic skeleton to get you started. It should
-    be simple to modify if you desire some other behaviour.
+class HelpMenu(discord.ui.Select):
+    def __init__(self, bot, getself, user,options=None):
+        self.bot = bot
+        self.getself = getself
+        self.user = user
+
+        super().__init__(placeholder="Help Menu Dropdown",min_values=1, max_values=1, options=options)
     
-    To use this, pass it to the bot constructor e.g.:
-       
-    bot = commands.Bot(help_command=EmbedHelpCommand())
-    """
-    # Set the embed colour here
-    COLOUR = discord.Colour(0x9c9cff)
-    hidden = ["CustomEmbed","Owner"]
-    def nodms(self):
-        if not self.context.guild:
-            raise commands.NoPrivateMessage
+    async def callback(self, interaction: discord.Interaction):
+        try:
+            cog = self.bot.get_cog(self.values[0])
+            embed = await self.getself.send_cog_help(cog, ifreturn = True)
+        except:
+            embed = await self.getself.send_bot_help(mapping = self.getself.get_bot_mapping(), ifreturn = True)
+            embed = embed[0]
+        if interaction.user.id == self.user.id:
+            await interaction.response.edit_message(embed=embed)
+            return
+
+        #ephermal help for new user
+        newview = discord.ui.View()
+        newself = self.getself
+        newself.context.author = self.bot.get_user(interaction.user.id)
+        val = await newself.send_bot_help(mapping = newself.get_bot_mapping(), ifreturn = True, changeuser = interaction.user.id)
+        embed,newview = val[0],val[1]
+        await interaction.response.send_message(embed=embed,view=newview, ephemeral=True)
         
+
+class NewHelp(commands.HelpCommand):
+    colour = discord.Colour(0x9c9cff)
 
     def get_ending_note(self):
         return f'Use {self.context.clean_prefix}{self.invoked_with} [command] for more info on a command.'
@@ -29,58 +40,69 @@ class EmbedHelpCommand(commands.HelpCommand):
     def get_command_signature(self, command):
         return f'{command.qualified_name} {command.signature}'
 
-    async def send_bot_help(self, mapping):
-        self.nodms()
-        embed = discord.Embed(title='Bot Commands', colour=self.COLOUR)
-        description = self.context.bot.description
+    async def send_bot_help(self, mapping, ifreturn = False, changeuser = None):
+        embed = discord.Embed(title='Horus Help Menu', colour=self.colour)
+        embed.set_thumbnail(url=self.context.bot.get_user(858335663571992618).avatar)
+        if changeuser:
+            self.context.author = self.context.guild.get_member(changeuser)
+        description = "Whorus is a private bot made for fun, has simple moderation, fun commands. If the commands break a lot while using it's probably just me testing new commands, fixing stuff or just breaking shit\n\u200b"
         if description:
             embed.description = description
 
+        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page", emoji=self.context.bot.emojislist('core'))]
         for cog, commands in mapping.items():
-            name = 'Miscellaneous' if cog is None else cog.qualified_name
             filtered = await self.filter_commands(commands, sort=True)
             if filtered:
-                value = '`\n・`'.join(c.name for c in filtered)
-                value = f"・`{value}`"
-                if cog and cog.description:
-                    value = f'{cog.description}\n{value}'
-                    
-                if name not in self.hidden:
-                    embed.add_field(name=name, value=value, inline=False)
+                if cog is None:
+                    continue
+                if cog.qualified_name is 'CustomHelp':
+                    continue
+                name,desc = cog.qualified_name, f"{cog.description}" if cog.description else ""
+                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.context.bot.emojislist(f'{name}')))
+                value = f'{cog.description}' if cog and cog.description else "..."
+                value += "\n\u200b"
+                 
+                embed.add_field(name=name, value=value, inline=True)
+            
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons(30)
-        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
-        try:
-            await asyncio.wait_for(view.wait(), timeout=30)
-        except asyncio.TimeoutError:
-            try:
-                await msg.edit(view=None)
-            except:
-                pass
+        view=discord.ui.View(timeout=None)
+        view.add_item(HelpMenu(bot=self.context.bot, options=options, getself = self, user = self.context.author))
+        if not ifreturn:
+            await self.context.reply(view = view, embed = embed, mention_author = False)
+        else:
+            return [embed,view]
 
-    async def send_cog_help(self, cog):
-        self.nodms()
-        embed = discord.Embed(title=f'{cog.qualified_name} Commands', colour=self.COLOUR)
+    async def send_cog_help(self, cog, ifreturn = False):
+        mapping = self.get_bot_mapping()
+        embed = discord.Embed(title=f'{cog.qualified_name} Commands', colour=self.colour)
         if cog.description:
             embed.description = cog.description
 
         filtered = await self.filter_commands(cog.get_commands(), sort=True)
         for command in filtered:
             embed.add_field(name=command.qualified_name, value= command.short_doc or 'No documentation provided', inline=False)
-
+        
+        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page",emoji=self.context.bot.emojislist('core'))]
+        for cogs, commands in mapping.items():
+            filtered = await self.filter_commands(commands, sort=True)
+            if filtered:
+                if cogs is None:
+                    continue
+                if cogs.qualified_name is 'CustomHelp':
+                    continue
+                name,desc = cogs.qualified_name, f"{cogs.description}" if cogs.description else ""
+                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.context.bot.emojislist(f'{name}')))
+        
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons(30)
-        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
-        try:
-            await asyncio.wait_for(view.wait(), timeout=30)
-        except asyncio.TimeoutError:
-            try:
-                await msg.edit(view=None)
-            except:
-                pass
+        view=discord.ui.View(timeout=None)
+        view.add_item(HelpMenu(bot=self.context.bot, options=options, getself = self, user = self.context.author))
+        if not ifreturn:
+            await self.context.reply(view = view, embed = embed, mention_author = False)
+        else:
+            return embed
 
     async def send_group_help(self, group):
-        self.nodms()
+        #self.nodms()
         embed = discord.Embed(colour=self.COLOUR, description=group.help or 'No documentation provided')
         embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in group.aliases)
@@ -127,19 +149,16 @@ class EmbedHelpCommand(commands.HelpCommand):
             except:
                 pass
 
-class CustomEmbed(commands.Cog):
+class CustomHelp(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._original_help_command = bot.help_command
-        # Focus here
-        # Setting the cog for the help
-        help_command = EmbedHelpCommand()
-        help_command.cog = self # Instance of YourCog class
+        help_command = NewHelp()
+        help_command.cog = self
         bot.help_command = help_command
 
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
 
-
 def setup(bot):
-    bot.add_cog(CustomEmbed(bot))
+    bot.add_cog(CustomHelp(bot))

@@ -22,7 +22,7 @@ async def run():
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle)
+        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for fun and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>")
     
     async def noprefix(self, bot, message):
         prefix_return = ["h!","H!"]
