@@ -32,7 +32,7 @@ vc_regions = {
             "london": "London " + "\U0001F1EC\U0001F1E7",
             "frankfurt": "Frankfurt " + "\U0001F1E9\U0001F1EA",
             "amsterdam": "Amsterdam " + "\U0001F1F3\U0001F1F1",
-            "us-west": "US West " + "\U0001F1FA\U0001F1F8",
+            "us_west": "US West " + "\U0001F1FA\U0001F1F8",
             "us-east": "US East " + "\U0001F1FA\U0001F1F8",
             "us-south": "US South " + "\U0001F1FA\U0001F1F8",
             "us-central": "US Central " + "\U0001F1FA\U0001F1F8",
@@ -79,7 +79,8 @@ features = {
             "VERIFIED": "Verified",
             "VIP_REGIONS": "VIP Voice Servers",
             "WELCOME_SCREEN_ENABLED": "Welcome Screen enabled",
-            "THREADS_ENABLED":"Threads Enabled"
+            "THREADS_ENABLED":"Threads Enabled",
+            "NEW_THREAD_PERMISSIONS":"New Thread Permissions Enabled"
         }
 
 
@@ -197,11 +198,12 @@ class Confirm(discord.ui.View):
 # Guild Embed Buttons
 
 class GuildButtons(discord.ui.View):
-    def __init__(self,guild,ctx,bot):
+    def __init__(self,guild,ctx,bot,user):
         super().__init__(timeout=90)
         self.guild = guild
         self.ctx = ctx
         self.bot = bot
+        self.user = user
     
     @discord.ui.button(label= "Join Guild", style=discord.ButtonStyle.green)
     async def joinguild(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -226,8 +228,8 @@ class GuildButtons(discord.ui.View):
             return
         embed = discord.Embed(description=f"Are you sure you want to leave **[{self.guild}]({self.guild.icon})**?",colour=self.bot.colour)
         confview = Confirm()
-        msg = await self.ctx.send(embed=embed,view=confview)
-        confview.msg,confview.guild = msg,self.guild
+        confview.msg = await self.ctx.send(embed=embed,view=confview)
+        confview.user,confview.guild = self.user,self.guild
     
     @discord.ui.button(emoji = botemojis("trash"), style=discord.ButtonStyle.blurple)
     async def delete(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -260,10 +262,11 @@ def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
         threadinfo = ""
         if "THREADS_ENABLED" in  guild.features:
             threadinfo = f"\n{botemojis('parrow')} Threads Enabled"
+            threadinfo = f"\nㅤㅤ{botemojis('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
             threadinfo += f"\nㅤㅤ{botemojis('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
             threadinfo += f"\nㅤㅤ{botemojis('replyend')} Archive time limit: "
             threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
-        featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Threads")]) + threadinfo
+        featurend = "\n".join([c for c in gfl if not c.startswith(f"{botemojis('parrow')} Thread") or not c.startswith(f"{botemojis('parrow')} New Thread")]) + threadinfo
             
     if ifnsfw > 0:
         ifnsfw = f"\nㅤㅤ{botemojis('replyend')} Nsfw ⤏ **{ifnsfw}**"

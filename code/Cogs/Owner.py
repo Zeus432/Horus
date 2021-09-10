@@ -260,9 +260,8 @@ class Owner(commands.Cog):
     async def getguild(self, ctx, guild: discord.Guild):
         async with ctx.typing():
             emb = guildanalytics(bot = self.bot, join=None, guild = guild)
-            view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot)
-            msg = await ctx.reply(embed = emb,view = view)
-            view.message,view.user = msg,ctx.author
+            view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot,user=ctx.author)
+            view.message = await ctx.reply(embed = emb,view = view)
 
     @commands.command()
     async def noprefix(self, ctx):
