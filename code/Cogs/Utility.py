@@ -7,6 +7,7 @@ import time
 
 
 class Utility(commands.Cog):
+    """ Utility Commands that contain general information """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
         self.bot.launch_time = bot.launch_time

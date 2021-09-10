@@ -34,6 +34,14 @@ class HelpMenu(discord.ui.Select):
 class NewHelp(commands.HelpCommand):
     colour = discord.Colour(0x9c9cff)
 
+    def em(self, emoji):
+        lst = {"Admin": "mod","Fun": "games","Utility": "staff","Owner": "dev"}
+        try:
+            emoji = lst[emoji]
+        except: pass
+        return self.context.bot.emojislist(emoji)
+
+
     def get_ending_note(self):
         return f'Use {self.context.clean_prefix}{self.invoked_with} [command] for more info on a command.'
 
@@ -49,7 +57,7 @@ class NewHelp(commands.HelpCommand):
         if description:
             embed.description = description
 
-        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page", emoji=self.context.bot.emojislist('core'))]
+        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page", emoji=self.em('core'))]
         for cog, commands in mapping.items():
             filtered = await self.filter_commands(commands, sort=True)
             if filtered:
@@ -58,7 +66,8 @@ class NewHelp(commands.HelpCommand):
                 if cog.qualified_name is 'CustomHelp':
                     continue
                 name,desc = cog.qualified_name, f"{cog.description}" if cog.description else ""
-                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.context.bot.emojislist(f'{name}')))
+                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.em(name)))
+                name = f"{self.em(f'{name}')} {name}"
                 value = f'{cog.description}' if cog and cog.description else "..."
                 value += "\n\u200b"
                  
@@ -82,7 +91,7 @@ class NewHelp(commands.HelpCommand):
         for command in filtered:
             embed.add_field(name=command.qualified_name, value= command.short_doc or 'No documentation provided', inline=False)
         
-        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page",emoji=self.context.bot.emojislist('core'))]
+        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page",emoji=self.em('core'))]
         for cogs, commands in mapping.items():
             filtered = await self.filter_commands(commands, sort=True)
             if filtered:
@@ -91,7 +100,7 @@ class NewHelp(commands.HelpCommand):
                 if cogs.qualified_name is 'CustomHelp':
                     continue
                 name,desc = cogs.qualified_name, f"{cogs.description}" if cogs.description else ""
-                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.context.bot.emojislist(f'{name}')))
+                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.em(name)))
         
         embed.set_footer(text=self.get_ending_note())
         view=discord.ui.View(timeout=None)

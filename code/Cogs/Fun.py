@@ -22,7 +22,8 @@ class PPfight(discord.ui.View):
             self.value = "Small"
             print()
 
-class Fun(commands.Cog): 
+class Fun(commands.Cog, name = "Fun"):
+    """ Fun commands for everyone to use """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot 
 
