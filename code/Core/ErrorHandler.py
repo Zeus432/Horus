@@ -3,7 +3,8 @@ from typing import Any
 from Utils.Useful import *
 from Utils.Menus import senderror as senderr
 
-class CommandErrorHandler(commands.Cog):
+class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
+    """ Global Handler and Management for Errors"""
 
     def __init__(self, bot):
         self.bot = bot

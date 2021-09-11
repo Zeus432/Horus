@@ -13,7 +13,7 @@ import sys
 import os
 
 class Owner(commands.Cog):
-    """ Overall bot management (or just for abooz) commands """
+    """ Overall bot management, or just for abooz, commands """
 
     def __init__(self, bot):
         self.bot = bot
