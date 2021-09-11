@@ -59,6 +59,19 @@ class CommandErrorHandler(commands.Cog):
             senderror = True
         if senderror == True:
             await senderr(bot=self.bot,ctx=ctx,error=error)
+    
+    @commands.group(invoke_without_command = True)
+    @commands.is_owner()
+    async def errors(self, ctx):
+        errors = self.bot.latesterrors[::-1]
+        msg = await ctx.reply(f"Looking for Errors {self.bot.emojislist('loading')}",mention_author = False)
+        if len(errors) == 0:
+            await msg.edit("No errors found to view!")
+            return
+        embed = errors[0]['embed']
+        embed.title = f"Error #1"
+        await msg.edit(content=f"```py\n{errors[0]['error']}```",embed=embed,view=errors[0]['view'])
+
 
 def setup(bot):
     bot.add_cog(CommandErrorHandler(bot))

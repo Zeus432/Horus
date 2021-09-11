@@ -55,6 +55,7 @@ bot.launch_time = datetime.datetime.utcnow()
 bot.launch_ts = time.time()
 bot.colour = discord.Colour(0x9c9cff)
 bot.cogslist = WorkingCogs
+bot.latesterrors = []
 bot.emojislist = botemojis
 bot.case_insensitive = True
 bot.usingsend = []

@@ -136,17 +136,32 @@ async def senderror(bot, ctx, error):
     else:
         embed.add_field(name="Dm Channel:", value=f"<#{ctx.channel.id}>\n (`{ctx.channel.id}`)")
     embed.add_field(name="Message ID:", value=f"`{ctx.message.id}`")
-    embed.add_field(name="Jump to Error", value=f"**[Message Link \U0001f517]({ctx.message.jump_url})**")
+
     channel = bot.get_channel(873252901726863441)
     bot.error_channel = channel
-    await bot.error_channel.send(embed=embed)
-    serror = ""
+
+    serror,skip,lines,error_ = "",False,0,""
     for i in traceback_error.split('\n'):
-        if len(serror + i) > 1900:
-            await bot.error_channel.send(f"```py\n{serror}```")
-            serror = ""
+        if skip:
+            lines += 1
+
+        elif len(serror + i) > 1900:
+            skip = True
+            error_ = serror
+            lines += 1
+
         serror += f"\n{i}"
-    await bot.error_channel.send(f"```py\n{serror}```")
+    #await bot.error_channel.send(f"```py\n{serror}```")
+    error_ += serror if not error_ else f"\n\n... ({lines} lines left)"
+    
+    view = discord.ui.View()
+    view.add_item(discord.ui.Button(label= "Jump to Error", style=discord.ButtonStyle.link, url=f"{ctx.message.jump_url}", emoji = "\U0001f517"))
+    if lines > 0:
+        view.add_item(discord.ui.Button(label= "Full Traceback", style=discord.ButtonStyle.link, url=f"{await mystbin(serror)}.python", emoji = bot.emojislist('inspect')))
+
+    await bot.error_channel.send(f"```py\n{error_}```", embed = embed, view = view)
+
+    bot.latesterrors.append({"embed":embed,"error":error_,"view":view})
     logger.opt(exception=error).error(f"Ignoring exception in command {ctx.command}\nCommand Used - {ctx.message.content}\n")
 
 
@@ -285,3 +300,5 @@ def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
     if guild.banner:
         embed.set_image(url=guild.banner)
     return embed
+
+# Errors Pagination
