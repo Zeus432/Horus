@@ -13,7 +13,7 @@ class AdminCogs(commands.Cog, name = "Admin"):
         user = ctx.guild.get_member(ctx.author.id)
         return user.guild_permissions.administrator
 
-    @commands.group(pass_context=True, name='permissions', aliases = ['perms'], invoke_without_command = True)
+    @commands.group(name='permissions', aliases = ['perms'], invoke_without_command = True)
     async def permissions(self, ctx):
         await ctx.send_help('permissions')
     @permissions.command()
