@@ -112,7 +112,7 @@ class NewHelp(commands.HelpCommand):
 
     async def send_group_help(self, group):
         #self.nodms()
-        embed = discord.Embed(colour=self.COLOUR, description=group.help or 'No documentation provided')
+        embed = discord.Embed(colour=self.colour, description=group.help or 'No documentation provided')
         embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in group.aliases)
         if aliases != '':
@@ -134,7 +134,7 @@ class NewHelp(commands.HelpCommand):
                 pass
 
     async def send_command_help(self, command):
-        embed = discord.Embed(colour=self.COLOUR, description=f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n")
+        embed = discord.Embed(colour=self.colour, description=f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n")
         embed.add_field(name="Description:", value= command.help or 'No documentation provided')
         embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in command.aliases)
