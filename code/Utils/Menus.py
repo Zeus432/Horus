@@ -2,7 +2,6 @@ from typing import Union, Tuple, Optional, Any
 import discord
 from discord.ext import commands
 import datetime
-from discord.ui import view
 
 from discord.ui.view import View
 from Utils.Useful import *
@@ -307,7 +306,7 @@ def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
 # Errors Pagination
 
 class ErrorsPagination(discord.ui.View):
-    def __init__(self, pages, oldview: discord.ui.View, lastmsg):
+    def __init__(self, start, pages, oldview: discord.ui.View, lastmsg):
         super().__init__(timeout=300)
         for item in oldview.children:
             item.disabled = False
@@ -315,7 +314,7 @@ class ErrorsPagination(discord.ui.View):
         self.pages = pages
         self.tpage = len(pages)
         self.cpage = pages[0]
-        self.page = 1
+        self.page = start
         self.add_item(discord.ui.Button(label= "Error Logs Channel", style=discord.ButtonStyle.link, url=f"{lastmsg}", emoji = "<:channel:869062202131382292>"))
         self.children[2].label = f'{self.page}/{self.tpage}'
 

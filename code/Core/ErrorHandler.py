@@ -63,19 +63,20 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
     
     @commands.group(invoke_without_command = True)
     @commands.is_owner()
-    async def errors(self, ctx):
+    async def errors(self, ctx, start:int = 1):
         errors = self.bot.latesterrors[::-1]
         msg = await ctx.reply(f"Looking for Errors {self.bot.emojislist('loading')}",mention_author = False)
         if len(errors) == 0:
             await msg.edit("No errors found to view!")
             return
-        view = errors[0]['view']
-        embed = errors[0]['embed'].copy()
-        embed.title = f"Error #1"
+        start = start if len(errors) >= start else 1
+        view = errors[start - 1]['view']
+        embed = errors[start - 1]['embed'].copy()
+        embed.title = f"Error #{start}"
         channel = self.bot.get_channel(873252901726863441)
         messages = await channel.history(limit=1).flatten()
         lastmsg = messages[0].jump_url
-        view = ErrorsPagination(pages = errors, oldview = view, lastmsg = lastmsg)
+        view = ErrorsPagination(start = start, pages = errors, oldview = view, lastmsg = lastmsg)
         view.user,view.bot = ctx.author,self.bot
         view.message = msg
         await msg.edit(content=f"```py\n{errors[0]['error']}```",embed=embed,view=view)
