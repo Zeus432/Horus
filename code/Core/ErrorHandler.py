@@ -1,7 +1,7 @@
 from discord.ext import commands
 from typing import Any
 from Utils.Useful import *
-from Utils.Menus import senderror as senderr
+from Utils.Menus import senderror as senderr, ErrorsPagination
 
 class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
     """ Global Handler and Management for Errors"""
@@ -69,9 +69,15 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
         if len(errors) == 0:
             await msg.edit("No errors found to view!")
             return
-        embed = errors[0]['embed']
+        view = errors[0]['view']
+        embed = errors[0]['embed'].copy()
         embed.title = f"Error #1"
-        await msg.edit(content=f"```py\n{errors[0]['error']}```",embed=embed,view=errors[0]['view'])
+        channel = self.bot.get_channel(873252901726863441)
+        messages = await channel.history(limit=1).flatten()
+        lastmsg = messages[0].jump_url
+        view = ErrorsPagination(pages = errors, oldview = view, lastmsg = lastmsg)
+        view.user,view.bot = ctx.author,self.bot
+        await msg.edit(content=f"```py\n{errors[0]['error']}```",embed=embed,view=view)
 
 
 def setup(bot):
