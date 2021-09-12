@@ -2,6 +2,9 @@ from typing import Union, Tuple, Optional, Any
 import discord
 from discord.ext import commands
 import datetime
+from discord.ui import view
+
+from discord.ui.view import View
 from Utils.Useful import *
 from loguru import logger
 import traceback
@@ -302,3 +305,79 @@ def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
     return embed
 
 # Errors Pagination
+
+class ErrorsPagination(discord.ui.View):
+    def __init__(self, pages, oldview: discord.ui.View, lastmsg):
+        super().__init__(timeout=300)
+        for item in oldview.children:
+            item.disabled = False
+            self.add_item(item)
+        self.pages = pages
+        self.tpage = len(pages)
+        self.cpage = pages[0]
+        self.page = 1
+        self.add_item(discord.ui.Button(label= "Error Logs Channel", style=discord.ButtonStyle.link, url=f"{lastmsg}", emoji = "<:channel:869062202131382292>"))
+        self.children[2].label = f'{self.page}/{self.tpage}'
+
+        if self.page <= 1:
+            for item in self.children:
+                if "\N{BLACK LEFT-POINTING TRIANGLE}" in item.label:
+                    item.disabled = True
+        
+        if self.page >= self.tpage:
+            for item in self.children:
+                if "\N{BLACK RIGHT-POINTING TRIANGLE}" in item.label:
+                    item.disabled = True
+        
+            
+    
+    async def button_pressed(self, button, interaction: discord.Interaction, change: int = 0):
+        if interaction.user != self.user:
+            return
+        
+        self.page += change
+        current = self.pages[self.page - 1]
+        embed = current['embed'].copy()
+        embed.title = f"Error #{self.page}"
+
+        for item in self.children:
+            item.disabled = False
+
+        if self.page <= 1:
+            for item in self.children:
+                if "\N{BLACK LEFT-POINTING TRIANGLE}" in item.label:
+                    item.disabled = True
+        
+        if self.page >= self.tpage:
+            for item in self.children:
+                if "\N{BLACK RIGHT-POINTING TRIANGLE}" in item.label:
+                    item.disabled = True
+        
+        for item in self.children:
+            if "/" in item.label:
+                item.label = f'{self.page}/{self.tpage}'
+
+        await interaction.message.edit(f"```py\n{current['error']}```", embed = embed, view = self)
+
+
+    @discord.ui.button(label='\N{BLACK LEFT-POINTING TRIANGLE}\N{BLACK LEFT-POINTING TRIANGLE}', style=discord.ButtonStyle.gray, row=1)
+    async def start(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await self.button_pressed(button, interaction, change=int(f"{1-self.page}"))
+    
+    @discord.ui.button(label='\N{BLACK LEFT-POINTING TRIANGLE}', style=discord.ButtonStyle.gray, row=1)
+    async def left(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await self.button_pressed(button, interaction, change=-1)
+    
+    @discord.ui.button(label=f'1/1', style=discord.ButtonStyle.blurple, row=1)
+    async def cpage(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user != self.user:
+            return
+        await interaction.message.delete()
+    
+    @discord.ui.button(label='\N{BLACK RIGHT-POINTING TRIANGLE}', style=discord.ButtonStyle.gray, row=1)
+    async def right(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await self.button_pressed(button, interaction, change=+1)
+    
+    @discord.ui.button(label='\N{BLACK RIGHT-POINTING TRIANGLE}\N{BLACK RIGHT-POINTING TRIANGLE}', style=discord.ButtonStyle.gray, row=1)
+    async def end(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await self.button_pressed(button, interaction, change=+int(f"{self.tpage-self.page}"))
