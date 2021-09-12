@@ -381,3 +381,8 @@ class ErrorsPagination(discord.ui.View):
     @discord.ui.button(label='\N{BLACK RIGHT-POINTING TRIANGLE}\N{BLACK RIGHT-POINTING TRIANGLE}', style=discord.ButtonStyle.gray, row=1)
     async def end(self, button: discord.ui.Button, interaction: discord.Interaction):
         await self.button_pressed(button, interaction, change=+int(f"{self.tpage-self.page}"))
+    
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(view=self)

@@ -77,6 +77,7 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
         lastmsg = messages[0].jump_url
         view = ErrorsPagination(pages = errors, oldview = view, lastmsg = lastmsg)
         view.user,view.bot = ctx.author,self.bot
+        view.message = msg
         await msg.edit(content=f"```py\n{errors[0]['error']}```",embed=embed,view=view)
 
 
