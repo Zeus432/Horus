@@ -40,6 +40,10 @@ class NewHelp(commands.HelpCommand):
             emoji = lst[emoji]
         except: pass
         return self.context.bot.emojislist(emoji)
+    
+    def stopdms(self):
+        if not self.context.guild:
+            raise commands.NoPrivateMessage
 
 
     def get_ending_note(self):
@@ -49,6 +53,7 @@ class NewHelp(commands.HelpCommand):
         return f'{command.qualified_name} {command.signature}'
 
     async def send_bot_help(self, mapping, ifreturn = False, changeuser = None):
+        self.stopdms()
         embed = discord.Embed(title='Horus Help Menu', colour=self.colour)
         embed.set_thumbnail(url=self.context.bot.get_user(858335663571992618).avatar)
         if changeuser:
@@ -82,6 +87,7 @@ class NewHelp(commands.HelpCommand):
             return [embed,view]
 
     async def send_cog_help(self, cog, ifreturn = False):
+        self.stopdms()
         mapping = self.get_bot_mapping()
         embed = discord.Embed(title=f'{cog.qualified_name} Commands', colour=self.colour)
         if cog.description:
@@ -111,7 +117,7 @@ class NewHelp(commands.HelpCommand):
             return embed
 
     async def send_group_help(self, group):
-        #self.nodms()
+        self.nodms()
         embed = discord.Embed(colour=self.colour, description=group.help or 'No documentation provided')
         embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in group.aliases)
@@ -134,6 +140,7 @@ class NewHelp(commands.HelpCommand):
                 pass
 
     async def send_command_help(self, command):
+        self.stopdms()
         embed = discord.Embed(colour=self.colour, description=f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n")
         embed.add_field(name="Description:", value= command.help or 'No documentation provided')
         embed.set_author(name="Horus Help Menu")
