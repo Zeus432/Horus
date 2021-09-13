@@ -8,6 +8,7 @@ import asyncpg
 from Utils.Useful import *
 from Core.settings import *
 from Utils.Menus import *
+import aiohttp
 
 coglist = WorkingCogs
 logger.remove()
@@ -22,8 +23,15 @@ async def run():
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for fun and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>")
+        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for fun and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>", case_insensitive=True)
         self.persview = False
+        self.owner_ids = frozenset(BotOwners)
+        self.launch_time = datetime.datetime.utcnow()
+        self.launch_ts = time.time()
+        self.colour = discord.Colour(0x9c9cff)
+        self.cogslist = WorkingCogs
+        self.latesterrors = []
+        self.emojislist = botemojis
     
     async def noprefix(self, bot, message):
         prefix_return = ["h!","H!"]
@@ -53,18 +61,9 @@ class Bot(commands.Bot):
             self.add_view(PersistentView())
             self.persview = True
         self.persistent_views_added = True
+        self.session = aiohttp.ClientSession()
 
 bot = Bot()
-bot.owner_ids = frozenset(BotOwners)
-bot.launch_time = datetime.datetime.utcnow()
-bot.launch_ts = time.time()
-bot.colour = discord.Colour(0x9c9cff)
-bot.cogslist = WorkingCogs
-bot.latesterrors = []
-bot.emojislist = botemojis
-bot.case_insensitive = True
-bot.usingsend = []
-bot.usingsendchk = {876703407551938580:True,876703436048044092:True,876703447083253770:True,True:True}
 
 #Load Dropdown Menu
 class Load(discord.ui.Select):
