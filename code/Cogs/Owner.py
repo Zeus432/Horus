@@ -102,7 +102,7 @@ class Owner(commands.Cog):
         else:
             print(error)
     
-    @commands.command(name="shutdown", aliases = ['stop','gotosleepwhorus'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown ")
+    @commands.command(name="shutdown", aliases = ['gotosleepwhorus','die','sleb'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown ")
     async def shutdown(self, ctx):
         """Put Horus to sleep <a:Frogsleb:849663487080792085> """
         msg = await ctx.reply("Shutting down")
@@ -113,7 +113,12 @@ class Owner(commands.Cog):
         await asyncio.sleep(0.5)
         await msg.edit("Shutting down . . .")
         await asyncio.sleep(0.5)
-        await msg.edit("Goodbye <a:Frogsleb:849663487080792085>")
+        if ctx.invoked_with.lower() == "die":
+            await msg.edit('https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502')
+        elif ctx.invoked_with.lower() in ["sleb",'stop']:
+            await msg.edit('https://tenor.com/view/yelena-belova-black-widow-mcu-much-less-cool-way-to-die-this-is-a-much-less-cool-way-to-die-gif-22417558')
+        else:
+            await msg.edit("Goodbye <a:Frogsleb:849663487080792085>")
         try:
             await ctx.message.add_reaction(botemojis('tick'))
         except:

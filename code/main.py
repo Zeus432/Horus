@@ -8,7 +8,6 @@ import asyncpg
 from Utils.Useful import *
 from Core.settings import *
 from Utils.Menus import *
-import aiohttp
 
 coglist = WorkingCogs
 logger.remove()
@@ -32,6 +31,7 @@ class Bot(commands.Bot):
         self.cogslist = WorkingCogs
         self.latesterrors = []
         self.emojislist = botemojis
+        self._BotBase__cogs = commands.core._CaseInsensitiveDict()
     
     async def noprefix(self, bot, message):
         prefix_return = ["h!","H!"]
@@ -61,7 +61,6 @@ class Bot(commands.Bot):
             self.add_view(PersistentView())
             self.persview = True
         self.persistent_views_added = True
-        self.session = aiohttp.ClientSession()
 
 bot = Bot()
 
