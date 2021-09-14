@@ -117,7 +117,7 @@ class NewHelp(commands.HelpCommand):
             return embed
 
     async def send_group_help(self, group):
-        self.nodms()
+        self.stopdms()
         embed = discord.Embed(colour=self.colour, description=group.help or 'No documentation provided')
         embed.set_author(name="Horus Help Menu")
         aliases = '`, `'.join(c for c in group.aliases)
