@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+from Utils.Menus import senderror
 from Utils.Useful import HelpButtons
 import asyncio
 
@@ -14,24 +15,42 @@ class HelpMenu(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         try:
             cog = self.bot.get_cog(self.values[0])
-            embed = await self.getself.send_cog_help(cog, ifreturn = True)
+            embed = await self.getself.send_cog_help(cog, returnshit = True)
         except:
-            embed = await self.getself.send_bot_help(mapping = self.getself.get_bot_mapping(), ifreturn = True)
+            embed = await self.getself.send_bot_help(mapping = self.getself.get_bot_mapping(), returnshit = True)
             embed = embed[0]
         if interaction.user.id == self.user.id:
-            await interaction.response.edit_message(embed=embed)
+            for i in self.options:
+                i.default = False
+            for i in self.options:
+                if i.label == self.values[0]:
+                    i.default = True
+                    break
+            await self.message.edit(embed=embed,view = self.view)
             return
-
-        #ephermal help for new user
-        newview = discord.ui.View()
-        newself = self.getself
-        newself.context.author = self.bot.get_user(interaction.user.id)
-        val = await newself.send_bot_help(mapping = newself.get_bot_mapping(), ifreturn = True, changeuser = interaction.user.id)
-        embed,newview = val[0],val[1]
-        await interaction.response.send_message(embed=embed,view=newview, ephemeral=True)
+        await interaction.response.send_message(f"This isn't your help message to interact with. Run `{self.getself.context.clean_prefix}help` to get your own", ephemeral=True)
         
 
 class NewHelp(commands.HelpCommand):
+    def __init__(self):
+        super().__init__(
+            command_attrs={
+                'cooldown': commands.CooldownMapping.from_cooldown(1, 3.0, commands.BucketType.member),
+                'help': 'Shows help about the bot, a command, or a category',
+            }
+        )
+    
+    async def on_help_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            # Ignore missing permission errors
+            if isinstance(error.original, discord.HTTPException) and error.original.code == 50013:
+                return
+
+            await ctx.send(str(error.original))
+        else:
+            senderror(bot=self.context.bot,ctx=ctx,error=error)
+
+    
     colour = discord.Colour(0x9c9cff)
 
     def em(self, emoji):
@@ -52,17 +71,15 @@ class NewHelp(commands.HelpCommand):
     def get_command_signature(self, command):
         return f'{command.qualified_name} {command.signature}'
 
-    async def send_bot_help(self, mapping, ifreturn = False, changeuser = None):
+    async def send_bot_help(self, mapping, returnshit = False):
         self.stopdms()
         embed = discord.Embed(title='Horus Help Menu', colour=self.colour)
         embed.set_thumbnail(url=self.context.bot.get_user(858335663571992618).avatar)
-        if changeuser:
-            self.context.author = self.context.guild.get_member(changeuser)
         description = "Whorus is a private bot made for fun, has simple moderation, fun commands. If the commands break a lot while using it's probably just me testing new commands, fixing stuff or just breaking shit\n\u200b"
         if description:
             embed.description = description
 
-        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page", emoji=self.em('core'))]
+        options = [discord.SelectOption(label=f'Bot Help',description=f"View the main help page", default=True, emoji=self.em('core'))]
         for cog, commands in mapping.items():
             filtered = await self.filter_commands(commands, sort=True)
             if filtered:
@@ -80,13 +97,14 @@ class NewHelp(commands.HelpCommand):
             
         embed.set_footer(text=self.get_ending_note())
         view=discord.ui.View(timeout=None)
-        view.add_item(HelpMenu(bot=self.context.bot, options=options, getself = self, user = self.context.author))
-        if not ifreturn:
-            await self.context.reply(view = view, embed = embed, mention_author = False)
+        select = HelpMenu(bot=self.context.bot, options=options, getself = self, user = self.context.author)
+        view.add_item(select)
+        if not returnshit:
+            select.message = await self.context.reply(view = view, embed = embed, mention_author = False)
         else:
             return [embed,view]
 
-    async def send_cog_help(self, cog, ifreturn = False):
+    async def send_cog_help(self, cog, returnshit = False):
         self.stopdms()
         mapping = self.get_bot_mapping()
         embed = discord.Embed(title=f'{cog.qualified_name} Commands', colour=self.colour)
@@ -106,13 +124,14 @@ class NewHelp(commands.HelpCommand):
                 if cogs.qualified_name == 'CustomHelp':
                     continue
                 name,desc = cogs.qualified_name, f"{cogs.description}" if cogs.description else ""
-                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.em(name)))
+                options.append(discord.SelectOption(label=f'{name}',description=f"{desc}", emoji=self.em(name), default = True if cog.qualified_name == name else False))
         
         embed.set_footer(text=self.get_ending_note())
         view=discord.ui.View(timeout=None)
-        view.add_item(HelpMenu(bot=self.context.bot, options=options, getself = self, user = self.context.author))
-        if not ifreturn:
-            await self.context.reply(view = view, embed = embed, mention_author = False)
+        select = HelpMenu(bot=self.context.bot, options=options, getself = self, user = self.context.author)
+        view.add_item(select)
+        if not returnshit:
+            select.message = await self.context.reply(view = view, embed = embed, mention_author = False)
         else:
             return embed
 
