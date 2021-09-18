@@ -3,7 +3,8 @@ import discord
 from discord.ext import commands
 import datetime
 
-from discord.ui.view import View
+from discord.ui.button import button
+
 from Utils.Useful import *
 from loguru import logger
 import traceback
@@ -385,3 +386,68 @@ class ErrorsPagination(discord.ui.View):
         for item in self.children:
             item.disabled = True
         await self.message.edit(view=self)
+
+class PollButton(discord.ui.Button):
+    def __init__(self, number:int):
+        self.num = number
+        self.em = botemojis(str(number+1))
+        super().__init__(style=discord.ButtonStyle.gray, emoji=self.em)
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user.id in self.view.lst:
+            self.view.count[self.view.lst[interaction.user.id]-1] -= 1
+            if self.view.lst[interaction.user.id] == self.num + 1:
+                del self.view.lst[interaction.user.id]
+                await interaction.response.send_message(f"Your vote for option:{self.em} has been removed", ephemeral = True)
+                content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[self.num]}` " for i in range(1,self.view.num + 1)])
+                await interaction.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
+                return
+            await interaction.response.send_message(f"Your vote has been changed from option:{botemojis(str(self.view.lst[interaction.user.id]))} to option:{self.em}", ephemeral = True)
+        else:
+            await interaction.response.send_message(f"Your vote for option:{self.em} has been counted", ephemeral = True)
+        self.view.count[self.num] += 1
+        self.view.lst[interaction.user.id] = self.num + 1
+        content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[i-1]}` " for i in range(1,self.view.num + 1)])
+        if self.view.webhook:
+            self.view.webhook.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
+            return
+        await self.view.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
+
+class PollMenu(discord.ui.View):
+    def __init__(self, amount:int ,bot:commands.Bot, message:discord.Message, author, webhook = None, timeout: Optional[float] = 180):
+        super().__init__(timeout=timeout)
+        print(self.__dir__)
+        self.num = amount
+        self.count = []
+        self.webhook = webhook
+        self.message = message
+        self.user = author
+        self.originalmessage = message.content
+        for c in range(amount):
+            self.count.append(0)
+        self.bot = bot
+        self.lst = {}
+        for i in range(amount):
+            self.add_item(PollButton(number = i))
+    
+    @discord.ui.button(label= "Close Poll", style=discord.ButtonStyle.red, row = 3)
+    async def ClosePoll(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            print(f"{interaction.user.id} != {self.user.id}")
+            await interaction.response.send_message(f"Only the owner of this poll ({self.user.mention}) can close this poll", ephemeral = True)
+            return
+        for item in self.children:
+            item.disabled = True
+        if self.webhook:
+            self.webhook.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
+            return
+        await self.message.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
+
+    
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+        if self.webhook:
+            self.webhook.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
+            return
+        await self.message.edit(view = self, allowed_mentions = discord.AllowedMentions.none())

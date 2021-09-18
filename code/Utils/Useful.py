@@ -7,6 +7,10 @@ import json
 import datetime
 from dateutil.relativedelta import relativedelta
 import aiohttp
+from discord.ext import commands
+import re
+
+from discord.ext.commands.flags import FlagsMeta
 
 def print_exception(text: str, error: Exception, *, _print: bool = False) -> str:
         """Prints the exception with proper traceback."""
@@ -18,9 +22,17 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
         lines = traceback.format_exception(etype, error, trace)
         return "".join(lines)
 
-def botemojis(emoji = None):
+def botemojis(emoji = "None"):
+    if type(emoji) == int:
+        emoji = str(emoji)
     with open(f"/Users/siddharthm/Desktop/discord-bot/Horus/Assets/emojis.json","r") as emojis:
         listemoji = json.loads(emojis.read())
+
+    # Replacing emotes with aliases
+    aliases = {"1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight","9":"nine","10":"ten"}
+    emoji = aliases[emoji] if emoji in aliases else emoji
+
+    emoji = emoji.lower()
     try:
         return listemoji[emoji]
     except:
@@ -143,3 +155,22 @@ async def mystbin(data):
           res = await r.json()
           key = res["key"]
           return f"https://mystb.in/{key}"
+
+time_regex = re.compile(r"(\d{1,5}(?:[.,]?\d{1,5})?)([smhd])")
+time_dict = {"h":3600, "s":1, "m":60, "d":86400}
+
+class TimeConverter(commands.Converter):
+    async def convert(self, ctx, argument) -> datetime.datetime:
+        matches = time_regex.findall(argument.lower())
+        time = 0
+        for v, k in matches:
+            try:
+                time += time_dict[k]*float(v)
+            except KeyError:
+                raise commands.BadArgument(f"{k} is an invalid time-key! h/m/s/d are valid!")
+            except ValueError:
+                raise commands.BadArgument(f"{v} is not a number!")
+        try:
+            return float(argument)
+        except: 
+            return time
