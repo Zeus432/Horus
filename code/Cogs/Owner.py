@@ -348,7 +348,28 @@ class Owner(commands.Cog):
         await ctx.send("2")
     @sub.command()
     async def meee(self, ctx):
-        await ctx.send("3")      
+        await ctx.send("3")   
+
+    @commands.command(aliases=["ss"])
+    async def screenshot(self, ctx, website):
+        """Take a website screenshot."""
+
+        website = website.replace("<", "").replace(">", "")
+        website = website.replace(".html", "")
+
+        if not website.startswith("http"):
+            return await ctx.send("Not a valid website. Use http or https.")
+
+        embed = discord.Embed(color=self.bot.colour)
+        embed.description = "Source: `{}`".format(website)
+        embed.set_image(
+            url="https://image.thum.io/get/width/2000/crop/1200/png/{}".format(
+                website
+            )
+        )
+
+        await ctx.send("Please wait...", delete_after=3.0)
+        await ctx.send(embed=embed)   
 
 #errorhandler
 
