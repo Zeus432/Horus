@@ -400,7 +400,7 @@ class PollButton(discord.ui.Button):
                 del self.view.lst[interaction.user.id]
                 await interaction.response.send_message(f"Your vote for option:{self.em} has been removed", ephemeral = True)
                 content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[self.num]}` " for i in range(1,self.view.num + 1)])
-                await interaction.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
+                await self.view.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
                 return
             await interaction.response.send_message(f"Your vote has been changed from option:{botemojis(str(self.view.lst[interaction.user.id]))} to option:{self.em}", ephemeral = True)
         else:
@@ -408,13 +408,10 @@ class PollButton(discord.ui.Button):
         self.view.count[self.num] += 1
         self.view.lst[interaction.user.id] = self.num + 1
         content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[i-1]}` " for i in range(1,self.view.num + 1)])
-        if self.view.webhook:
-            self.view.webhook.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
-            return
         await self.view.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
 
 class PollMenu(discord.ui.View):
-    def __init__(self, amount:int ,bot:commands.Bot, message:discord.Message, author, webhook = None, timeout: Optional[float] = 180):
+    def __init__(self, amount:int ,bot:commands.Bot, message:discord.Message, author, webhook:discord.Webhook = None, timeout: Optional[float] = 180):
         super().__init__(timeout=timeout)
         print(self.__dir__)
         self.num = amount
@@ -438,16 +435,10 @@ class PollMenu(discord.ui.View):
             return
         for item in self.children:
             item.disabled = True
-        if self.webhook:
-            self.webhook.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
-            return
         await self.message.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
 
     
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
-        if self.webhook:
-            self.webhook.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
-            return
         await self.message.edit(view = self, allowed_mentions = discord.AllowedMentions.none())
