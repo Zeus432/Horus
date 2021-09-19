@@ -396,7 +396,7 @@ class PollButton(discord.ui.Button):
             if self.view.lst[interaction.user.id] == self.num + 1:
                 del self.view.lst[interaction.user.id]
                 await interaction.response.send_message(f"Your vote for option:{self.em} has been removed", ephemeral = True)
-                content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[self.num]}` " for i in range(1,self.view.num + 1)]) + f"\n\nPoll ends on <t:{self.view.tm}:F> (<t:{self.view.tm}:R>)"
+                content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[i-1]}` " for i in range(1,self.view.num + 1)]) + f"\n\nPoll ends on <t:{self.view.tm}:F> (<t:{self.view.tm}:R>)"
                 await self.view.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
                 return
             await interaction.response.send_message(f"Your vote has been changed from option:{botemojis(str(self.view.lst[interaction.user.id]))} to option:{self.em}", ephemeral = True)
@@ -419,26 +419,30 @@ class PollMenu(discord.ui.View):
         self.originalmessage = message.content
         for c in range(amount):
             self.count.append(0)
+        self.disable = False
         self.bot = bot
         self.lst = {}
         for i in range(amount):
             self.add_item(PollButton(number = i))
+    
+    async def endpoll(self):
+        for item in self.children:
+            item.disabled = True
+        i = int(datetime.datetime.timestamp(datetime.datetime.now()))
+        content = self.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.count[i-1]}` " for i in range(1,self.num + 1)]) + f"\n\nPoll closed on <t:{i}:F> (<t:{i}:R>)"
+        await self.message.edit(content = content, view = self, allowed_mentions = discord.AllowedMentions.none())
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, url = f"{self.message.jump_url}", label = "Jump to Poll"))
+        await self.message.reply(f"Poll closed on <t:{i}:F> (<t:{i}:R>)\n\n**Final Results:**\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.count[i-1]}` " for i in range(1,self.num + 1)]) + "\n\u200b", view = view) 
     
     @discord.ui.button(label= "Close Poll", style=discord.ButtonStyle.red, row = 3)
     async def ClosePoll(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message(f"Only the owner of this poll ({self.user.mention}) can close this poll", ephemeral = True)
             return
-        for item in self.children:
-            item.disabled = True
-        i = int(datetime.datetime.timestamp(datetime.datetime.now()))
-        content = self.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.count[i-1]}` " for i in range(1,self.num + 1)]) + f"\n\nPoll closed on <t:{i}:F> (<t:{i}:R>)"
-        await self.message.edit(content = content, view = self, allowed_mentions = discord.AllowedMentions.none())
+        self.disable = True
+        await self.endpoll()
 
-    
     async def on_timeout(self):
-        for item in self.children:
-            item.disabled = True
-        i = int(datetime.datetime.timestamp(datetime.datetime.now()))
-        content = self.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.count[i-1]}` " for i in range(1,self.num + 1)]) + f"\n\nPoll closed on <t:{i}:F> (<t:{i}:R>)"
-        await self.message.edit(content = content, view = self, allowed_mentions = discord.AllowedMentions.none())
+        if not self.disable:
+            await self.endpoll()
