@@ -16,7 +16,7 @@ class Utility(commands.Cog):
         self.bot.launch_time = bot.launch_time
 
 
-    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info'])
+    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"])
     @commands.guild_only()
     async def info(self, ctx):
         who = self.bot.get_user(760823877034573864)
@@ -26,8 +26,8 @@ class Utility(commands.Cog):
         emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
         emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
         emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
-        emb.add_field(name="On Discord Since:",value=f"<t:{round(self.bot.get_user(858335663571992618).created_at.timestamp())}:D>")
-        emb.set_thumbnail(url=self.bot.get_user(858335663571992618).avatar)
+        emb.add_field(name="On Discord Since:",value=f"<t:{round(ctx.me.created_at.timestamp())}:D>")
+        emb.set_thumbnail(url=ctx.me.avatar)
         view = discord.ui.View()
         button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.blurple)
         async def callback(interaction):
@@ -198,6 +198,9 @@ class Utility(commands.Cog):
         elif len(options) > 10:
             await ctx.reply("You can only have a maximum of 10 options!")
             return
+        elif time > 3600:
+            await ctx.reply("Maximum duration for a poll has been set to 1 hour due to hosting limits")
+            return
         sendem,count = f"{question}",1
         for opt in options:
             sendem += f"\n\n{self.bot.emojislist(str(count))} {opt}"
@@ -218,8 +221,10 @@ class Utility(commands.Cog):
             )
         else:
             message = await ctx.send(f"{ctx.author.mention} asks:\n{sendem}", allowed_mentions = discord.AllowedMentions.none())
-        view = PollMenu(amount=len(options), bot=self.bot, timeout = time, webhook = webhook, message = message, author = ctx.author)
-        await message.edit(content = message.content + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `0` " for i in range(1,len(options)+ 1)]), view = view, allowed_mentions = discord.AllowedMentions.none())
+        tm = int(datetime.datetime.timestamp(datetime.datetime.now()) + time)
+        view = PollMenu(amount=len(options), bot=self.bot, timeout = time, timestring = f"{tm}", webhook = webhook, message = message, author = ctx.author)
+        msg = message.content + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `0` " for i in range(1,len(options)+ 1)]) + f"\n\nPoll ends on <t:{tm}:F> (<t:{tm}:R>)"
+        await message.edit(content = msg, view = view, allowed_mentions = discord.AllowedMentions.none())
 
 
     @poll.error
