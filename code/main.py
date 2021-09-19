@@ -102,7 +102,7 @@ class Load(discord.ui.Select):
             message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
             await interaction.response.send_message(message)
 
-@bot.command(name="load", aliases = ['l','reload','rl'], help = "Load Cogs onto the bot", brief = "Load Cogs")
+@bot.command(name="load", aliases = ['l','reload','rl','r'], help = "Load Cogs onto the bot", brief = "Load Cogs")
 @commands.is_owner()
 async def load(ctx, cog = None):
     load = rload = fload = ""
