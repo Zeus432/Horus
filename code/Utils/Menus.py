@@ -113,6 +113,8 @@ class BaseEmbed(discord.Embed):
 
 async def senderror(bot, ctx, error):
     async def send_del(*args: Any, **kwargs: Any) -> None:
+        if bot.devmode and ctx.author.id != 760823877034573864:
+                return
         if embed := kwargs.get("embed"):
             text = f"Spamming errored commands will result in a blacklist"
             embed.set_footer(icon_url=bot.user.avatar, text=text)

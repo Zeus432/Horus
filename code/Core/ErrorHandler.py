@@ -40,6 +40,8 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.send_help(ctx.command)
 
         elif isinstance(error, commands.CheckFailure):
+            if self.bot.devmode and ctx.author.id != 760823877034573864:
+                return
             if ctx.command.qualified_name != 'coolservers':
                 if ctx.command.qualified_name != 'whoasked':
                     await ctx.reply(f"Missing Permissions!")

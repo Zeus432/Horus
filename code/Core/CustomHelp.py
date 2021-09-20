@@ -48,7 +48,7 @@ class NewHelp(commands.HelpCommand):
 
             await ctx.send(str(error.original))
         else:
-            senderror(bot=self.context.bot,ctx=ctx,error=error)
+            await senderror(bot=self.context.bot,ctx=ctx,error=error)
 
     
     colour = discord.Colour(0x9c9cff)

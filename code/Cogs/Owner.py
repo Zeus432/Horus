@@ -338,6 +338,20 @@ class Owner(commands.Cog):
         except:
             await ctx.message.add_reaction(botemojis('warning'))
             await message.edit('Error I was unable to restart')
+    
+    #bot.devmode
+    @commands.command()
+    async def devmode(self, ctx):
+        if self.bot.devmode:
+            self.bot.devmode = False
+            await ctx.reply("Dev Mode has been disabled!")
+            self.bot.prefixstate = False
+            await self.bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+            return
+        self.bot.devmode = True
+        await ctx.reply("Dev Mode has been enabled!")
+        self.bot.prefixstate = True
+        await self.bot.change_presence(status=discord.Status.invisible)
 
     @commands.group(invoke_without_command=True)
     async def foo(self, ctx):

@@ -31,6 +31,8 @@ class Bot(commands.Bot):
         self.cogslist = WorkingCogs
         self.latesterrors = []
         self.emojislist = botemojis
+        self.devmode = False
+        self.prefixstate = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
     
     async def noprefix(self, bot, message):
@@ -229,34 +231,13 @@ async def unload_error(ctx, error):
     else:
         await senderror(bot,ctx,error)
 
-
-#guild listeners
-@bot.event
-async def on_guild_join(guild):
-    channel = bot.get_channel(874212184828297297)
-    bot.log_channel = channel
-    embed = guildanalytics(bot = bot, join=True, guild = guild)
-    await bot.log_channel.send(embed=embed)
-
-@bot.event
-async def on_guild_remove(guild):
-    embed = guildanalytics(bot = bot, join=False, guild = guild)
-    channel = bot.get_channel(874212184828297297)
-    bot.log_channel = channel
-    await bot.log_channel.send(embed=embed)
-
-@bot.event
-async def on_message(message: discord.Message):
-    channel = bot.get_channel(880294858600894494)
-    if message.guild is None and not message.author.bot:
-        final = message.content
-        view = discord.ui.View()
-        if len(message.content) > 1900:
-            fl = await mystbin(data = message.content)
-            final = f"Message too long to Display"
-            view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
-        await channel.send(f"\u200b\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
-    await bot.process_commands(message)
+# Bot checks
+@bot.check
+async def owner_only(ctx: commands.Context) -> bool:
+  """ Owner only commands globally. """
+  if not bot.devmode:
+      return True
+  return ctx.author.id == 760823877034573864
 
 # Persistent View
 class PersistentButtons(discord.ui.Button):
