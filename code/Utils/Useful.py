@@ -1,4 +1,3 @@
-from os import path
 import discord
 import traceback
 import sys
@@ -9,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 import aiohttp
 from discord.ext import commands
 import re
+from Core.settings import pathway
 
 from discord.ext.commands.flags import FlagsMeta
 
@@ -25,7 +25,7 @@ def print_exception(text: str, error: Exception, *, _print: bool = False) -> str
 def botemojis(emoji = "None"):
     if type(emoji) == int:
         emoji = str(emoji)
-    with open(f"/Users/siddharthm/Desktop/discord-bot/Horus/Assets/emojis.json","r") as emojis:
+    with open(f"{pathway}/Assets/emojis.json","r") as emojis:
         listemoji = json.loads(emojis.read())
 
     # Replacing emotes with aliases

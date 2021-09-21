@@ -22,7 +22,7 @@ class Utility(commands.Cog):
         who = self.bot.get_user(760823877034573864)
         emb = discord.Embed(colour = discord.Colour(10263807))
         emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
-        emb.add_field(name="Coded in:",value=f"**Language:** **[`python 3.8.5`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0`](https://github.com/Rapptz/discord.py)**\nㅤㅤㅤㅤ{botemojis('replyend')} Master Branch")
+        emb.add_field(name="Coded in:",value=f"**Language:** **[`python 3.8.5`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0`](https://github.com/Rapptz/discord.py)**\nㅤㅤㅤㅤ{self.bot.emojislist('replyend')} Master Branch")
         emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
         emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
         emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
@@ -42,7 +42,7 @@ class Utility(commands.Cog):
     @commands.guild_only()
     async def ping(self, ctx):
         start = time.perf_counter()
-        msg = await ctx.send(f"{botemojis('loading')} Pinging")
+        msg = await ctx.send(f"{self.bot.emojislist('loading')} Pinging")
         await ctx.author.trigger_typing()
         end = time.perf_counter()
         typing_ping = (end - start) * 1000
@@ -51,7 +51,7 @@ class Utility(commands.Cog):
         await self.bot.db.execute('SELECT 1')
         end = time.perf_counter()
         sql_ping = (end - start) * 1000
-        await msg.edit(content=f"Pong {botemojis('catpong')}\n**Typing**: `{round(typing_ping, 1)} ms`\n**Websocket**: `{round(self.bot.latency*1000)} ms`\n**Database**: `{round(sql_ping, 1)} ms`")
+        await msg.edit(content=f"Pong {self.bot.emojislist('catpong')}\n**Typing**: `{round(typing_ping, 1)} ms`\n**Websocket**: `{round(self.bot.latency*1000)} ms`\n**Database**: `{round(sql_ping, 1)} ms`")
     
     
     @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info", ignore_extra = True)
@@ -80,24 +80,24 @@ class Utility(commands.Cog):
             mun = ""
             guild = self.bot.get_guild(876044372460838922)
             user = guild.get_member(member.id)
-            mun += f"{botemojis('mod')} **[Organiser]({user.avatar})**\n" if user.id in [760823877034573864,401717120918093846] else ""
-            mun += f"{botemojis('judge')} **[Council Chair]({user.avatar})**\n" if 876704912149475378 in [r.id for r in user.roles] else ""
-            mun += f"{botemojis('staff')} **[Volunteer]({user.avatar})**\n" if 876700774082695198 in [r.id for r in user.roles] else ""
+            mun += f"{self.bot.emojislist('mod')} **[Organiser]({user.avatar})**\n" if user.id in [760823877034573864,401717120918093846] else ""
+            mun += f"{self.bot.emojislist('judge')} **[Council Chair]({user.avatar})**\n" if 876704912149475378 in [r.id for r in user.roles] else ""
+            mun += f"{self.bot.emojislist('staff')} **[Volunteer]({user.avatar})**\n" if 876700774082695198 in [r.id for r in user.roles] else ""
             for i in [876703407551938580,876703436048044092,876703447083253770]:
                 if i in [r.id for r in user.roles]:
-                    mun += f"{botemojis(str(guild.get_role(i)))} **[{guild.get_role(i)}](https://discord.gg/GYqqjQeZKs)**\n"
+                    mun += f"{self.bot.emojislist(str(guild.get_role(i)))} **[{guild.get_role(i)}](https://discord.gg/GYqqjQeZKs)**\n"
             uiembed.add_field(name="GT Model United Nations", value=mun if mun != "" else "\U0001f465 **[Participant](https://discord.gg/GYqqjQeZKs)**",inline=False)
         badge = ""
         if member.id in BotOwners:
-            badge += f"{botemojis('dev')} **[{'H' if 876044372460838922 == ctx.guild.id else 'Wh'}orus Dev]({member.avatar})**\n"
+            badge += f"{self.bot.emojislist('dev')} **[{'H' if 876044372460838922 == ctx.guild.id else 'Wh'}orus Dev]({member.avatar})**\n"
 
         if member == ctx.guild.owner:
-            badge += f"{botemojis('owner')} **[Server Owner]({member.avatar})**\n"
+            badge += f"{self.bot.emojislist('owner')} **[Server Owner]({member.avatar})**\n"
 
         for role in member.roles:
             try:
                 if role.id == ctx.guild.premium_subscriber_role.id:
-                    badge += f"{botemojis('boost')} **[Server Booster](https://cdn.discordapp.com/emojis/782210035329138698.gif?v=1)**\n"
+                    badge += f"{self.bot.emojislist('boost')} **[Server Booster](https://cdn.discordapp.com/emojis/782210035329138698.gif?v=1)**\n"
             except:
                 break   
         if 809632911690039307 == ctx.guild.id:
@@ -105,7 +105,7 @@ class Utility(commands.Cog):
         if member.id in memberbadges:
             badge += memberbadges[member.id] + f"({member.avatar})\n"
         if member.bot:
-            badge = f"{botemojis('cogs')} **[Bots Supreme]({member.avatar})**\n"
+            badge = f"{self.bot.emojislist('cogs')} **[Bots Supreme]({member.avatar})**\n"
         if badge != "":
             uiembed.add_field(name="Special Badges:", value=badge)
         uiembed.add_field(name="Servers:", value=f"{len([g.id for g in self.bot.guilds if g.get_member(member.id)])} shared")
@@ -223,7 +223,7 @@ class Utility(commands.Cog):
             message = await ctx.send(f"{ctx.author.mention} asks:\n{sendem}", allowed_mentions = discord.AllowedMentions.none())
         tm = int(datetime.datetime.timestamp(datetime.datetime.now()) + time)
         view = PollMenu(amount=len(options), bot=self.bot, timeout = time, timestring = f"{tm}", webhook = webhook, message = message, author = ctx.author)
-        msg = message.content + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `0` " for i in range(1,len(options)+ 1)]) + f"\n\nPoll ends on <t:{tm}:F> (<t:{tm}:R>)"
+        msg = message.content + "\n\n" + "\U000030fb".join([f"{self.bot.emojislist(i)}: `0` " for i in range(1,len(options)+ 1)]) + f"\n\nPoll ends on <t:{tm}:F> (<t:{tm}:R>)"
         await message.edit(content = msg, view = view, allowed_mentions = discord.AllowedMentions.none())
 
 

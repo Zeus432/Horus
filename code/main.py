@@ -11,8 +11,8 @@ from Utils.Menus import *
 
 coglist = WorkingCogs
 logger.remove()
-pathway = pathway + "/Horus/code/Core/horus.log"
-logger.add(pathway,level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
+logpath = pathway + "/code/Core/horus.log"
+logger.add(logpath,level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
 logger.info("Logged into Horus succesfully")
 
 async def run():
