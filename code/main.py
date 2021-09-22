@@ -8,17 +8,19 @@ import asyncpg
 from Utils.Useful import *
 from Core.settings import *
 from Utils.Menus import *
+import argparse
+import sys
+
+#add parsers
+parser = argparse.ArgumentParser()
+parser.add_argument("--d","--devmode", help = "Enable Devmode on start",action = 'count',default = False)
+flags = parser.parse_args()
 
 coglist = WorkingCogs
 logger.remove()
 logpath = pathway + "/code/Core/horus.log"
 logger.add(logpath,level="DEBUG",format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
 logger.info("Logged into Horus succesfully")
-
-async def run():
-    credentials = {"user": dbuser, "database": dbdb, "host": dbhost}
-    db = await asyncpg.create_pool(**credentials)
-    bot.db = db
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
@@ -31,9 +33,13 @@ class Bot(commands.Bot):
         self.cogslist = WorkingCogs
         self.latesterrors = []
         self.emojislist = botemojis
-        self.devmode = False
+        self.devmode = True if flags.d else False
         self.prefixstate = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
+    
+    async def close(self):
+        # do stuff
+        await super().close()
     
     async def noprefix(self, bot, message):
         prefix_return = ["h!","H!"]
@@ -46,7 +52,7 @@ class Bot(commands.Bot):
         return prefix_return
     
     async def on_ready(self):
-        print(f'\n\nLogged in as {self.user} (ID: {self.user.id})')
+        print(f'\nLogged in as {self.user} (ID: {self.user.id})')
         total_members = list(bot.get_all_members())
         total_channels = sum(1 for x in bot.get_all_channels())
         print(f'Guilds: {len(bot.guilds)}')
@@ -56,7 +62,10 @@ class Bot(commands.Bot):
         print(f'Channels: {total_channels}')
         print(f'Message Cache Size: {len(bot.cached_messages)}\n')
         await asyncio.sleep(10)
-        await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+        if not bot.devmode:
+            await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+        else:
+            await bot.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))
         bot.launch_time = datetime.datetime.utcnow()
         bot.launch_ts = time.time()
         if not self.persview:
@@ -65,6 +74,17 @@ class Bot(commands.Bot):
         self.persistent_views_added = True
 
 bot = Bot()
+
+async def run():
+    print("\nAttempting to connect to postgresql server")
+    credentials = {"user": dbuser, "database": dbdb, "host": dbhost}
+    try:
+        db = await asyncpg.create_pool(**credentials)
+        bot.db = db
+        print("Connection Successful")
+    except:
+        print("Error! I was unable to connect to server\n")
+        sys.exit(1)
 
 #Load Dropdown Menu
 class Load(discord.ui.Select):
