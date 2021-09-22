@@ -40,6 +40,26 @@ class BotListeners(commands.Cog, name = "Listeners"):
                 view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
             await channel.send(f"\u200b\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
         #await self.bot.process_commands(message)
+    
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
+        if "zeus" in message.content.lower() or "sid" in message.content.lower():
+            user = self.bot.get_user(760823877034573864)
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(url = f"{message.jump_url}", label = "Jump to Source", emoji = "\U0001f517"))
+            embed = discord.Embed(title = "Global Highlight", description = f"You were mentioned in {message.guild}" if message.guild else f"You were mentioned in my private dms with {message.author}", colour = self.bot.colour)
+            embed.add_field(name="Author:", value=f"{message.author.mention}\n (`{message.author.id}`)")
+            if message.guild:
+                embed.add_field(name="Channel:", value=f"{message.channel.mention}\n (`{message.channel.id}`)")
+                embed.add_field(name="Guild:", value=f"**{message.guild}**\n (`{message.guild.id}`)")
+            else:
+                embed.add_field(name="Dm Channel:", value=f"<#{message.channel.id}>\n (`{message.channel.id}`)")
+            embed.add_field(name="Message ID:", value=f"`{message.id}`")
+
+            await user.send(f"{message.content}", files = [await attachment.to_file() for attachment in message.attachments], view = view, embed = embed)
+
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
