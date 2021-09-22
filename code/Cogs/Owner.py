@@ -102,7 +102,7 @@ class Owner(commands.Cog):
         else:
             print(error)
     
-    @commands.command(name="shutdown", aliases = ['gotosleepwhorus','die','sleb'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown ")
+    @commands.command(name="shutdown", aliases = ['gotosleepwhorus','die','sleb','stop'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown ")
     async def shutdown(self, ctx):
         """Put Horus to sleep <a:Frogsleb:849663487080792085> """
         msg = await ctx.reply("Shutting down")
@@ -116,7 +116,7 @@ class Owner(commands.Cog):
         if ctx.invoked_with.lower() == "die":
             await msg.edit('https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502')
         elif ctx.invoked_with.lower() in ["sleb",'stop']:
-            await msg.edit('https://tenor.com/view/yelena-belova-black-widow-mcu-much-less-cool-way-to-die-this-is-a-much-less-cool-way-to-die-gif-22417558')
+            await msg.edit('https://tenor.com/view/i-dont-feel-so-good-mr-stark-avengers-infinity-war-tony-stark-spiderman-gif-15541848')
         else:
             await msg.edit("Goodbye <a:Frogsleb:849663487080792085>")
         try:
