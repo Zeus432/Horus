@@ -14,12 +14,12 @@ class BotListeners(commands.Cog, name = "Listeners"):
             return
         embed = discord.Embed(colour = discord.Color.random())
         embed.add_field(name="Command Used:", value=f"`{ctx.message.content}`", inline=False)
-        embed.add_field(name="Author:", value=f"{ctx.author.mention}\n (`{ctx.author.id}`)")
+        embed.add_field(name="Author:", value=f"**{ctx.author}**\n (`{ctx.author.id}`)")
         if ctx.guild:
-            embed.add_field(name="Channel:", value=f"{ctx.channel.mention}\n (`{ctx.channel.id}`)")
+            embed.add_field(name="Channel:", value=f"**#{ctx.channel}**\n (`{ctx.channel.id}`)")
             embed.add_field(name="Guild:", value=f"**{ctx.guild}**\n (`{ctx.guild.id}`)")
         else:
-            embed.add_field(name="Dm Channel:", value=f"<#{ctx.channel.id}>\n (`{ctx.channel.id}`)")
+            embed.add_field(name="Dm Channel:", value=f"**#{ctx.channel}**\n (`{ctx.channel.id}`)")
         embed.add_field(name="Message ID:", value=f"`{ctx.message.id}`")
 
         channel = self.bot.get_channel(889515203891449877)
@@ -50,12 +50,12 @@ class BotListeners(commands.Cog, name = "Listeners"):
             view = discord.ui.View()
             view.add_item(discord.ui.Button(url = f"{message.jump_url}", label = "Jump to Source", emoji = "\U0001f517"))
             embed = discord.Embed(title = "Global Highlight", description = f"You were mentioned in {message.guild}" if message.guild else f"You were mentioned in my private dms with {message.author}", colour = self.bot.colour)
-            embed.add_field(name="Author:", value=f"{message.author.mention}\n (`{message.author.id}`)")
+            embed.add_field(name="Author:", value=f"**{message.author}**\n (`{message.author.id}`)")
             if message.guild:
-                embed.add_field(name="Channel:", value=f"{message.channel.mention}\n (`{message.channel.id}`)")
+                embed.add_field(name="Channel:", value=f"**#{message.channel}**\n (`{message.channel.id}`)")
                 embed.add_field(name="Guild:", value=f"**{message.guild}**\n (`{message.guild.id}`)")
             else:
-                embed.add_field(name="Dm Channel:", value=f"<#{message.channel.id}>\n (`{message.channel.id}`)")
+                embed.add_field(name="Dm Channel:", value=f"**#{message.channel}**\n (`{message.channel.id}`)")
             embed.add_field(name="Message ID:", value=f"`{message.id}`")
 
             await user.send(f"{message.content}", files = [await attachment.to_file() for attachment in message.attachments], view = view, embed = embed)
