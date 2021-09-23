@@ -45,8 +45,10 @@ class NewHelp(commands.HelpCommand):
             # Ignore missing permission errors
             if isinstance(error.original, discord.HTTPException) and error.original.code == 50013:
                 return
-
-            await ctx.send(str(error.original))
+            else:
+                await senderror(bot=self.context.bot,ctx=ctx,error=error)
+        elif isinstance(error, commands.errors.CommandOnCooldown):
+            await ctx.reply(f'Whoa Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds')
         else:
             await senderror(bot=self.context.bot,ctx=ctx,error=error)
 

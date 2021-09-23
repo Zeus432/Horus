@@ -78,12 +78,18 @@ bot = Bot()
 async def run():
     print("\nAttempting to connect to postgresql server")
     credentials = {"user": dbuser, "database": dbdb, "host": dbhost}
-    try:
-        db = await asyncpg.create_pool(**credentials)
-        bot.db = db
-        print("Connection Successful")
-    except:
-        print("Error! I was unable to connect to server\n")
+    closesys = True
+    for i in range(5):
+        try:
+            bot.db = await asyncpg.create_pool(**credentials)
+            print("Connection Successful")
+            closesys = False
+            break
+        except:
+            print("Error! I was unable to connect to server, Retrying in 5 seconds\n")
+            await asyncio.sleep(5)
+    if closesys:
+        print("Error! All attempts to connect to server have failed, closing program!\n")
         sys.exit(1)
 
 #Load Dropdown Menu
@@ -258,6 +264,19 @@ async def owner_only(ctx: commands.Context) -> bool:
   if not bot.devmode:
       return True
   return ctx.author.id == 760823877034573864
+
+#Global Cooldown
+_cd = commands.CooldownMapping.from_cooldown(1.0, 5.0, commands.BucketType.member)
+
+@bot.check
+async def cooldown_check(ctx):
+    if (ctx.invoked_with.startswith("help") or ctx.invoked_with.startswith("h")) and ctx.command.qualified_name != "help":
+        return True
+    bucket = _cd.get_bucket(ctx.message)
+    retry_after = bucket.update_rate_limit()
+    if retry_after:
+        raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.member)
+    return True
 
 # Persistent View
 class PersistentButtons(discord.ui.Button):
