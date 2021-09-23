@@ -19,6 +19,7 @@ class Utility(commands.Cog):
 
 
     @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"])
+    @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
     async def info(self, ctx):
         who = self.bot.get_user(760823877034573864)
@@ -41,6 +42,7 @@ class Utility(commands.Cog):
         await ctx.send(embed = emb, view=view)
     
     @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
+    @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
     async def ping(self, ctx):
         start = time.perf_counter()
@@ -57,6 +59,7 @@ class Utility(commands.Cog):
     
     
     @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info", ignore_extra = True)
+    @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
     async def userinfo(self, ctx, member: discord.Member = None):
         if type(member) != discord.Member:
@@ -114,6 +117,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=uiembed)
     
     @commands.command(name = "avatar", help = "Get a user's avatar", brief = "Get User Avatar", aliases = ['av'])
+    @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
     async def avatar(self, ctx, user: discord.Member = None):
         user = user or ctx.author
@@ -132,6 +136,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed,view=view)
 
     @commands.command(name='uptime')
+    @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
     async def uptime(self, ctx: commands.Context):
         """Gets the uptime of the bot"""
@@ -139,6 +144,7 @@ class Utility(commands.Cog):
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
     
     @commands.command()
+    @commands.cooldown(2, 5, commands.BucketType.user)
     async def charinfo(self, ctx, *, characters: str):
         """Shows you information about a number of characters.
         Only up to 25 characters at a time.
@@ -154,6 +160,7 @@ class Utility(commands.Cog):
         await ctx.send(msg)
 
     @commands.command(name = "pie-bot", hidden = True)
+    @commands.cooldown(2, 5, commands.BucketType.user)
     async def pie_bot(self, ctx):
         """Make a pie chart of server bots."""
 
