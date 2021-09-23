@@ -7,6 +7,8 @@ import discord
 from Core.settings import *
 import unicodedata
 import time
+import io
+import matplotlib.figure
 
 
 class Utility(commands.Cog):
@@ -150,6 +152,34 @@ class Utility(commands.Cog):
         if len(msg) > 2000:
             return await ctx.send('Output too long to display.')
         await ctx.send(msg)
+
+    @commands.command(name = "pie-bot", hidden = True)
+    async def pie_bot(self, ctx):
+        """Make a pie chart of server bots."""
+
+        async def pie_gen():
+            prc = round(sum(m.bot for m in ctx.guild.members) / len(ctx.guild.members) * 100, 3)
+
+            labels = ["Bots", "Non-Bots"]
+            sizes = [prc, 100 - prc]
+            colors = ["lightcoral", "lightskyblue"]
+
+            fig = matplotlib.figure.Figure(figsize=(5, 5))
+            ax = fig.add_subplot()
+            patches, _ = ax.pie(sizes, colors=colors, startangle=90)
+            ax.legend(patches, labels)
+
+            fp = io.BytesIO()
+            fig.savefig(fp)
+            fp.seek(0)
+
+            return [fp, prc]
+
+        fp, prc = await pie_gen()
+
+        fp = discord.File(fp, filename="piechart.png")
+
+        await ctx.send(f":white_check_mark: {prc}% of the server's members are bots.", file=fp)
     
     class PollFlags(commands.FlagConverter, prefix='--', delimiter=' ', case_insensitive=True):
         question: str = commands.flag(name='question', aliases=["q","ques"])
