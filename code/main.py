@@ -266,11 +266,11 @@ async def owner_only(ctx: commands.Context) -> bool:
   return ctx.author.id == 760823877034573864
 
 #Global Cooldown
-_cd = commands.CooldownMapping.from_cooldown(1.0, 5.0, commands.BucketType.member)
+_cd = commands.CooldownMapping.from_cooldown(1.0, 2.0, commands.BucketType.member)
 
-@bot.check
+@bot.check_once
 async def cooldown_check(ctx):
-    if (ctx.invoked_with.startswith("help") or ctx.invoked_with.startswith("h")) and ctx.command.qualified_name != "help":
+    if not ctx.guild:
         return True
     bucket = _cd.get_bucket(ctx.message)
     retry_after = bucket.update_rate_limit()
