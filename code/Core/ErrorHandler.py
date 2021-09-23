@@ -56,7 +56,7 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.send_help(ctx.command)
         
         elif isinstance(error, commands.errors.CommandOnCooldown):
-            await ctx.reply(f'Command is on cooldown, Try again in {round(error.retry_after, 2)} seconds')
+            await ctx.reply(f'Whoa Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds')
 
         else:
             senderror = True
