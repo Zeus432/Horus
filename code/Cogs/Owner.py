@@ -46,7 +46,7 @@ class Owner(commands.Cog):
             return f'```py\n{e.__class__.__name__}: {e}\n```'
         return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
-    @commands.command(pass_context=True, hidden=True, name='eval')
+    @commands.command(hidden=True, name='eval')
     async def _eval(self, ctx, *, body: str):
         """Evaluates a code"""
 
@@ -340,7 +340,7 @@ class Owner(commands.Cog):
             await message.edit('Error I was unable to restart')
     
     #bot.devmode
-    @commands.command()
+    @commands.command(aliases = ['invis'])
     async def devmode(self, ctx):
         if self.bot.devmode:
             self.bot.devmode = False
