@@ -13,8 +13,11 @@ import sys
 
 #add parsers
 parser = argparse.ArgumentParser()
-parser.add_argument("--d","--devmode", help = "Enable Devmode on start",action = 'count',default = False)
+parser.add_argument("--devmode","--d", help = "Enable Devmode on start",action = 'store_true',default = False)
+parser.add_argument("--token","--t", help = "Run Code With alternate Token", type = str,default = False)
 flags = parser.parse_args()
+print(flags.token)
+TOKEN = flags.token if flags.token else TOKEN
 
 coglist = WorkingCogs
 logger.remove()
@@ -33,7 +36,7 @@ class Bot(commands.Bot):
         self.cogslist = WorkingCogs
         self.latesterrors = []
         self.emojislist = botemojis
-        self.devmode = True if flags.d else False
+        self.devmode = True if flags.devmode else False
         self.prefixstate = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
     
@@ -65,6 +68,7 @@ class Bot(commands.Bot):
         if not bot.devmode:
             await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
         else:
+            print("Logging into Dev Mode\n")
             await bot.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))
         bot.launch_time = datetime.datetime.utcnow()
         bot.launch_ts = time.time()
@@ -331,7 +335,7 @@ for i in coglist:
 if error == "Error with loading cogs:":
     error = "No errors while Loading Cogs,"
 
-print(f"Attempted to Load Cogs - {coglist}\n\n{error[:-1]}")
+print(f"\nAttempted to Load Cogs - {coglist}\n\n{error[:-1]}")
 
 bot.loop.run_until_complete(run())
 bot.run(TOKEN)
