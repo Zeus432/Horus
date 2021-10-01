@@ -34,6 +34,7 @@ class Misc(commands.Cog):
             await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
         button.callback = callback
         view.add_item(button)
+        view.add_item(discord.ui.Button(label= "Horus Support", style=discord.ButtonStyle.link, url=f"https://discord.gg/8BQMHAbJWk", emoji = "<:hsupport:893556630820618251>"))
         await ctx.send(embed = emb, view=view)
 
 
