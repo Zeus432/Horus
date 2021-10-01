@@ -13,9 +13,12 @@ class Misc(commands.Cog):
         self.bot.launch_time = bot.launch_time
     
 
-    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"]) #misc
+    async def cog_check(self, ctx):
+        return ctx.guild
+ 
+
+    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"])
     @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.guild_only()
     async def info(self, ctx):
         who = self.bot.get_user(760823877034573864)
         emb = discord.Embed(colour = discord.Colour(10263807))
@@ -40,7 +43,6 @@ class Misc(commands.Cog):
 
     @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
     @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.guild_only()
     async def ping(self, ctx):
         start = time.perf_counter()
         msg = await ctx.send(f"{self.bot.emojislist('loading')} Pinging")
@@ -57,13 +59,12 @@ class Misc(commands.Cog):
 
     @commands.command(name='uptime', brief = "Bot Uptime")
     @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.guild_only()
     async def uptime(self, ctx: commands.Context):
         """Gets the uptime of the bot"""
         uptime_string = get_uptime(self.bot)
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
     
-    
+
     @commands.command(name='support', brief = "Bot Support")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def uptime(self, ctx: commands.Context):
