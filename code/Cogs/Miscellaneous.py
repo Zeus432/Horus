@@ -62,6 +62,14 @@ class Misc(commands.Cog):
         """Gets the uptime of the bot"""
         uptime_string = get_uptime(self.bot)
         await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
+    
+    
+    @commands.command(name='support', brief = "Bot Support")
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def uptime(self, ctx: commands.Context):
+        """ Get an Invite to Horus' Support Server """
+        msg = "<#892767470379749456>: For bot support and For reporting bugs" if ctx.guild.id == 873127663840137256 else "Here is an invite to my Support Server.\n**[ https://discord.gg/8BQMHAbJWk ]**"
+        await ctx.reply(msg)
 
 
     @commands.command(name = "pie-bot")
