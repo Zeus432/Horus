@@ -6,10 +6,6 @@ from discord.ext import commands
 import discord
 from Core.settings import *
 import unicodedata
-import time
-import io
-import matplotlib.figure
-
 
 class Utility(commands.Cog):
     """ Utility Commands that contain general information """ 
@@ -18,46 +14,6 @@ class Utility(commands.Cog):
         self.bot.launch_time = bot.launch_time
 
 
-    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"])
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.guild_only()
-    async def info(self, ctx):
-        who = self.bot.get_user(760823877034573864)
-        emb = discord.Embed(colour = discord.Colour(10263807))
-        emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
-        emb.add_field(name="Coded in:",value=f"**Language:** **[`python 3.8.5`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0`](https://github.com/Rapptz/discord.py)**\nㅤㅤㅤㅤ{self.bot.emojislist('replyend')} Master Branch")
-        emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
-        emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
-        emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
-        emb.add_field(name="On Discord Since:",value=f"<t:{round(ctx.me.created_at.timestamp())}:D>")
-        emb.set_thumbnail(url=ctx.me.avatar)
-        view = discord.ui.View()
-        button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.blurple)
-        async def callback(interaction):
-            em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
-            await ctx.reply(embed = em, mention_author = False)
-            await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
-        button.callback = callback
-        view.add_item(button)
-        await ctx.send(embed = emb, view=view)
-    
-    @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.guild_only()
-    async def ping(self, ctx):
-        start = time.perf_counter()
-        msg = await ctx.send(f"{self.bot.emojislist('loading')} Pinging")
-        await ctx.author.trigger_typing()
-        end = time.perf_counter()
-        typing_ping = (end - start) * 1000
-
-        start = time.perf_counter()
-        await self.bot.db.execute('SELECT 1')
-        end = time.perf_counter()
-        sql_ping = (end - start) * 1000
-        await msg.edit(content=f"Pong {self.bot.emojislist('catpong')}\n**Typing**: `{round(typing_ping, 1)} ms`\n**Websocket**: `{round(self.bot.latency*1000)} ms`\n**Database**: `{round(sql_ping, 1)} ms`")
-    
-    
     @commands.command(name = "userinfo", aliases = ['ui'], help = "Get information about a user", brief = "Get User Info", ignore_extra = True)
     @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
@@ -81,20 +37,9 @@ class Utility(commands.Cog):
         if roles == "":
             roles = "This user has no roles"
         uiembed.add_field(name="User Roles:", value=f"{roles}", inline=False)
-        if 876044372460838922 == ctx.guild.id:
-            mun = ""
-            guild = self.bot.get_guild(876044372460838922)
-            user = guild.get_member(member.id)
-            mun += f"{self.bot.emojislist('mod')} **[Organiser]({user.avatar})**\n" if user.id in [760823877034573864,401717120918093846] else ""
-            mun += f"{self.bot.emojislist('judge')} **[Council Chair]({user.avatar})**\n" if 876704912149475378 in [r.id for r in user.roles] else ""
-            mun += f"{self.bot.emojislist('staff')} **[Volunteer]({user.avatar})**\n" if 876700774082695198 in [r.id for r in user.roles] else ""
-            for i in [876703407551938580,876703436048044092,876703447083253770]:
-                if i in [r.id for r in user.roles]:
-                    mun += f"{self.bot.emojislist(str(guild.get_role(i)))} **[{guild.get_role(i)}](https://discord.gg/GYqqjQeZKs)**\n"
-            uiembed.add_field(name="GT Model United Nations", value=mun if mun != "" else "\U0001f465 **[Participant](https://discord.gg/GYqqjQeZKs)**",inline=False)
         badge = ""
         if member.id in BotOwners:
-            badge += f"{self.bot.emojislist('dev')} **[{'H' if 876044372460838922 == ctx.guild.id else 'Wh'}orus Dev]({member.avatar})**\n"
+            badge += f"{self.bot.emojislist('dev')} **[Horus Dev]({member.avatar})**\n"
 
         if member == ctx.guild.owner:
             badge += f"{self.bot.emojislist('owner')} **[Server Owner]({member.avatar})**\n"
@@ -106,16 +51,18 @@ class Utility(commands.Cog):
             except:
                 break   
         if 809632911690039307 == ctx.guild.id:
-            badge += f"<:begone_thot:865247289391841310> **[{self.bot.get_guild(809632911690039307)}]({self.bot.get_guild(809632911690039307).icon})**\n"
+            badge += f"<:BegoneThot:856517206543171604> **[{self.bot.get_guild(809632911690039307)}]({self.bot.get_guild(809632911690039307).icon})**\n"
         if member.id in memberbadges:
             badge += memberbadges[member.id] + f"({member.avatar})\n"
         if member.bot:
             badge = f"{self.bot.emojislist('cogs')} **[Bots Supreme]({member.avatar})**\n"
+
         if badge != "":
             uiembed.add_field(name="Special Badges:", value=badge)
         uiembed.add_field(name="Servers:", value=f"{len([g.id for g in self.bot.guilds if g.get_member(member.id)])} shared")
         await ctx.send(embed=uiembed)
-    
+
+
     @commands.command(name = "avatar", help = "Get a user's avatar", brief = "Get User Avatar", aliases = ['av'])
     @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.guild_only()
@@ -135,14 +82,7 @@ class Utility(commands.Cog):
         view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=f"{webpavatar}", label=".webp link"))
         await ctx.send(embed=embed,view=view)
 
-    @commands.command(name='uptime')
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.guild_only()
-    async def uptime(self, ctx: commands.Context):
-        """Gets the uptime of the bot"""
-        uptime_string = get_uptime(self.bot)
-        await ctx.channel.send(f'Whorus has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
-    
+
     @commands.command()
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def charinfo(self, ctx, *, characters: str):
@@ -158,42 +98,14 @@ class Utility(commands.Cog):
         if len(msg) > 2000:
             return await ctx.send('Output too long to display.')
         await ctx.send(msg)
-
-    @commands.command(name = "pie-bot", hidden = True)
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    async def pie_bot(self, ctx):
-        """Make a pie chart of server bots."""
-
-        async def pie_gen():
-            prc = round(sum(m.bot for m in ctx.guild.members) / len(ctx.guild.members) * 100, 3)
-
-            labels = ["Bots", "Non-Bots"]
-            sizes = [prc, 100 - prc]
-            colors = ["lightcoral", "lightskyblue"]
-
-            fig = matplotlib.figure.Figure(figsize=(5, 5))
-            ax = fig.add_subplot()
-            patches, _ = ax.pie(sizes, colors=colors, startangle=90)
-            ax.legend(patches, labels)
-
-            fp = io.BytesIO()
-            fig.savefig(fp)
-            fp.seek(0)
-
-            return [fp, prc]
-
-        fp, prc = await pie_gen()
-
-        fp = discord.File(fp, filename="piechart.png")
-
-        await ctx.send(f":white_check_mark: {prc}% of the server's members are bots.", file=fp)
     
     class PollFlags(commands.FlagConverter, prefix='--', delimiter=' ', case_insensitive=True):
         question: str = commands.flag(name='question', aliases=["q","ques"])
         time: TimeConverter = 600.0
         opt: List[str]  = commands.flag(name='option', aliases=["opt"])
         webhook: bool = False
-    
+
+
     @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(1, 10, commands.BucketType.guild)
     async def poll(self, ctx, *, flags: PollFlags):
@@ -275,11 +187,12 @@ class Utility(commands.Cog):
         elif isinstance(error, commands.errors.CommandOnCooldown):
             await ctx.reply(f'Command is on cooldown, Try again in {round(error.retry_after, 2)} seconds')
         
-        #elif isinstance(error, commands.CommandInvokeError):
-            #await ctx.reply(f"I need `Manage Webhooks` perms for you to use the `--webhook` flag\n{error}\n{error.__traceback__}")
+        elif isinstance(error, commands.CommandInvokeError):
+            await ctx.reply(f"I need `Manage Webhooks` perms for you to use the `--webhook` flag")
         
         else:
             await senderror(bot=self.bot,ctx=ctx,error=error)
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(Utility(bot))
