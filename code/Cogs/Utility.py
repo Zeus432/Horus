@@ -37,20 +37,9 @@ class Utility(commands.Cog):
         if roles == "":
             roles = "This user has no roles"
         uiembed.add_field(name="User Roles:", value=f"{roles}", inline=False)
-        if 876044372460838922 == ctx.guild.id:
-            mun = ""
-            guild = self.bot.get_guild(876044372460838922)
-            user = guild.get_member(member.id)
-            mun += f"{self.bot.emojislist('mod')} **[Organiser]({user.avatar})**\n" if user.id in [760823877034573864,401717120918093846] else ""
-            mun += f"{self.bot.emojislist('judge')} **[Council Chair]({user.avatar})**\n" if 876704912149475378 in [r.id for r in user.roles] else ""
-            mun += f"{self.bot.emojislist('staff')} **[Volunteer]({user.avatar})**\n" if 876700774082695198 in [r.id for r in user.roles] else ""
-            for i in [876703407551938580,876703436048044092,876703447083253770]:
-                if i in [r.id for r in user.roles]:
-                    mun += f"{self.bot.emojislist(str(guild.get_role(i)))} **[{guild.get_role(i)}](https://discord.gg/GYqqjQeZKs)**\n"
-            uiembed.add_field(name="GT Model United Nations", value=mun if mun != "" else "\U0001f465 **[Participant](https://discord.gg/GYqqjQeZKs)**",inline=False)
         badge = ""
         if member.id in BotOwners:
-            badge += f"{self.bot.emojislist('dev')} **[{'H' if 876044372460838922 == ctx.guild.id else 'Wh'}orus Dev]({member.avatar})**\n"
+            badge += f"{self.bot.emojislist('dev')} **[Horus Dev]({member.avatar})**\n"
 
         if member == ctx.guild.owner:
             badge += f"{self.bot.emojislist('owner')} **[Server Owner]({member.avatar})**\n"
@@ -62,11 +51,12 @@ class Utility(commands.Cog):
             except:
                 break   
         if 809632911690039307 == ctx.guild.id:
-            badge += f"<:begone_thot:865247289391841310> **[{self.bot.get_guild(809632911690039307)}]({self.bot.get_guild(809632911690039307).icon})**\n"
+            badge += f"<:BegoneThot:856517206543171604> **[{self.bot.get_guild(809632911690039307)}]({self.bot.get_guild(809632911690039307).icon})**\n"
         if member.id in memberbadges:
             badge += memberbadges[member.id] + f"({member.avatar})\n"
         if member.bot:
             badge = f"{self.bot.emojislist('cogs')} **[Bots Supreme]({member.avatar})**\n"
+
         if badge != "":
             uiembed.add_field(name="Special Badges:", value=badge)
         uiembed.add_field(name="Servers:", value=f"{len([g.id for g in self.bot.guilds if g.get_member(member.id)])} shared")
