@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--devmode","--d", help = "Enable Devmode on start",action = 'store_true',default = False)
 parser.add_argument("--token","--t", help = "Run Code With alternate Token", type = str,default = False)
 flags = parser.parse_args()
-print(flags.token)
+print("Running with default token" if not flags.token else f"Running with input token: {flags.token}")
 TOKEN = flags.token if flags.token else TOKEN
 
 coglist = WorkingCogs
