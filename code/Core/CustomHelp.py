@@ -43,11 +43,15 @@ class NewHelp(commands.HelpCommand):
     colour = discord.Colour(0x9c9cff)
 
     def em(self, emoji):
-        lst = {"Admin": "mod","Fun": "games","Utility": "staff","Owner": "dev","ErrorHandler":"error"}
+        lst = {"Admin": "mod","Fun": "games","Utility": "staff","Owner": "dev","ErrorHandler":"error","Misc":"\U0001f6e0"}
         try:
             emoji = lst[emoji]
         except: pass
-        return self.context.bot.emojislist(emoji)
+        if emoji == "\U0001f6e0":
+            return emoji
+        try:
+            return self.context.bot.emojislist(emoji)
+        except: return emoji
     
     def stopdms(self):
         if not self.context.guild:
