@@ -67,7 +67,7 @@ class Misc(commands.Cog):
 
     @commands.command(name='support', brief = "Bot Support")
     @commands.cooldown(2, 5, commands.BucketType.user)
-    async def uptime(self, ctx: commands.Context):
+    async def support(self, ctx: commands.Context):
         """ Get an Invite to Horus' Support Server """
         msg = "<#892767470379749456>: For bot support and For reporting bugs" if ctx.guild.id == 873127663840137256 else "Here is an invite to my Support Server.\n**[ https://discord.gg/8BQMHAbJWk ]**"
         await ctx.reply(msg)

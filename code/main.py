@@ -286,7 +286,7 @@ async def owner_only(ctx: commands.Context) -> bool:
 class PersistentButtons(discord.ui.Button):
     def __init__(self, x: int, y: int, role, emoji):
         super().__init__(style=discord.ButtonStyle.secondary, label=f'{role.name}', row=x, custom_id=f'per:{role.name}', emoji=f'{emoji}')
-        self.rlist = {"Edgy":810018752639795220,"Cherry":810018754582151199,"Pearl":810018758009421834,"Bubblegum":810018760869543936,"Aqua":810018764467732480,"Sunset":810018767555526677,"Sky":810018771385319514,"Sid's Role":810090688838107157,"Random Colour":813387935394562108}
+        self.rlist = {"Edgy":810018752639795220,"Cherry":810018754582151199,"Pearl":810018758009421834,"Bubblegum":810018760869543936,"Aqua":810018764467732480,"Sunset":810018767555526677,"Sky":810018771385319514,"Random Colour":813387935394562108}
         self.x = x
         self.y = y
         self.role = role
@@ -304,7 +304,7 @@ class PersistentView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         rlist = {"00":810018752639795220,"01":810018754582151199,"02":810018758009421834,"03":810018760869543936,"10":810018764467732480,"11":810018767555526677,"12":810018771385319514,"13":813387935394562108}
-        remoji = {"00":"\U000026ab","01":"\U0001f534","02":"\U000026aa","03":"<:pink_circle:886511143433166879>","10":"<:green:853998821663047710>","11":"\U0001f7e0","12":"\U0001f535","13":"<:rainbow_circle:886456317978484776>"}
+        remoji = {"00":"\U000026ab","01":"\U0001f534","02":"\U000026aa","03":"<:pink_circle:886511143433166879>","10":"<:green:853998821663047710>","11":"\U0001f7e0","12":"\U0001f535","13":f"{botemojis('rainbow')}"}
         for x in range(2):
             for y in range(4):
                 role = rlist[f'{x}{y}']
@@ -318,7 +318,7 @@ class PersistentView(discord.ui.View):
 @commands.is_owner()
 async def buttonroles(ctx: commands.Context):
     view = PersistentView()
-    embed = discord.Embed(title = "Colour Roles", colour = discord.Colour(0xFCAD69),description = "\U000026ab <@&810018752639795220>\n\U0001f534 <@&810018754582151199>\n\U000026aa <@&810018758009421834>\n<:pink_circle:886511143433166879> <@&810018760869543936>\n<:green:853998821663047710> <@&810018764467732480>\n\U0001f7e0 <@&810018767555526677>\n\U0001f535 <@&810018771385319514>\n<:rainbow_circle:886456317978484776> <@&813387935394562108>\n\nButton roles are an experimental feature to substitue reaction roles but they only work when <@858335663571992618> is online, so to get colour roles you can use the buttons when it is online and the reactions in <#809650375589625867> when it isn't")
+    embed = discord.Embed(title = "Colour Roles", colour = discord.Colour(0xFCAD69),description = f"\U000026ab <@&810018752639795220>\n\U0001f534 <@&810018754582151199>\n\U000026aa <@&810018758009421834>\n<:pink_circle:886511143433166879> <@&810018760869543936>\n<:green:853998821663047710> <@&810018764467732480>\n\U0001f7e0 <@&810018767555526677>\n\U0001f535 <@&810018771385319514>\n{botemojis('rainbow')} <@&813387935394562108>\n\nButton roles are an experimental feature to substitue reaction roles but they only work when <@858335663571992618> is online, so to get colour roles you can use the buttons when it is online and the reactions in <#809650375589625867> when it isn't")
     await ctx.send(embed = embed, view=view)
 
 #load Cogs on turning on
