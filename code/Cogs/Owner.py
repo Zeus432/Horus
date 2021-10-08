@@ -339,6 +339,10 @@ class Owner(commands.Cog):
             await ctx.message.add_reaction(botemojis('warning'))
             await message.edit('Error I was unable to restart')
     
+    @commands.command()
+    async def err(self, ctx):
+        raise commands.CommandError
+    
     #bot.devmode
     @commands.command(aliases = ['invis'])
     async def devmode(self, ctx):
