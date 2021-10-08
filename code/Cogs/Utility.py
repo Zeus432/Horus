@@ -71,9 +71,9 @@ class Utility(commands.Cog):
         colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour
         embed = discord.Embed(colour=colour,timestamp=ctx.message.created_at)
         embed.set_footer(text=f"{ctx.guild}", icon_url=ctx.guild.icon)
-        avatar = user.avatar.with_static_format('png') or user.default_avatar.with_static_format('png')
-        jpgavatar = user.avatar.with_static_format('jpg') or user.default_avatar.with_static_format('jpg')
-        webpavatar = user.avatar.with_static_format('webp') or user.default_avatar.with_static_format('webp')
+        avatar = user.avatar.with_static_format('png') if user.avatar else user.default_avatar.with_static_format('png')
+        jpgavatar = user.avatar.with_static_format('jpg') if user.avatar else user.default_avatar.with_static_format('jpg')
+        webpavatar = user.avatar.with_static_format('webp') if user.avatar else user.default_avatar.with_static_format('webp')
         embed.set_image(url = avatar)
         embed.title = f"Avatar for {user}"
         view = discord.ui.View()
