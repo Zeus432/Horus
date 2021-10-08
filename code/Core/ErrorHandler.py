@@ -12,11 +12,6 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         """The event triggered when an error is raised while invoking a command."""
-        async def send_del(*args: Any, **kwargs: Any) -> None:
-            if embed := kwargs.get("embed"):
-                text = f"Spamming errored commands will result in a blacklist"
-                embed.set_footer(icon_url=self.bot.user.avatar, text=text)
-            await ctx.reply(*args, **kwargs)
         if hasattr(ctx.command, 'on_error'):
             return
         senderror = None

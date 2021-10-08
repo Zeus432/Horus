@@ -1,3 +1,4 @@
+from operator import truediv
 from typing import Union, Tuple, Optional, Any
 import discord
 from discord.ext import commands
@@ -119,16 +120,52 @@ async def senderror(bot, ctx, error):
             text = f"Spamming errored commands will result in a blacklist"
             embed.set_footer(icon_url=bot.user.avatar, text=text)
         await ctx.reply(*args, **kwargs)
+    
+    traceback_error = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+    serror,skip,lines,error_ = "",False,0,""
+    for i in traceback_error.split('\n'):
+        if skip:
+            lines += 1
+
+        elif len(serror + i) > 1900:
+            skip = True
+            error_ = serror
+            lines += 1
+
+        serror += f"\n{i}"
+
+    error_ += serror if not error_ else f"\n\n... ({lines} lines left)"
+    fulltraceback = f"{await mystbin(serror)}.python" if lines > 0 else None
+
     if await bot.is_owner(ctx.message.author):
         try:
             await ctx.message.add_reaction(botemojis('warning'))
         except:
             pass
-        await ctx.reply("This command has errored, check your Error Logs to see what happened")
+        view0 = discord.ui.View(timeout = 600)
+        async def on_timeout(view = view0):
+            for item in view.children:
+                item.disabled = True
+            await msg.edit("This command has errored, check your Error Logs (<#873252901726863441>) to see what happened", view = view)
+        view0.on_timeout = on_timeout
+        button = discord.ui.Button(label = "Error Traceback", style = discord.ButtonStyle.gray)
+        async def callback(interaction: discord.Interaction):
+            if interaction.user != ctx.author:
+                await interaction.response.send_message(f"You can't use this button {interaction.user.mention}!", ephemeral = True)
+                return
+            errorview = discord.ui.View()
+            if fulltraceback:
+                errorview.add_item(discord.ui.Button(label= "Full Traceback", style=discord.ButtonStyle.link, url=f"{fulltraceback}", emoji = bot.emojislist('inspect')))
+            await interaction.response.send_message(f"```py\n{error_}```", view = errorview, ephemeral = True)
+            button.disabled = True
+            await msg.edit("This command has errored, check your Error Logs (<#873252901726863441>) to see what happened", view = view0)
+        button.callback = callback
+        view0.add_item(button)
+        msg = await ctx.reply("This command has errored, Click the button below to view traceback", view = view0)
     else:
         await bot.wait_until_ready()
         await send_del(embed=BaseEmbed.to_error("**Command Error!**",description=f"This error has been forwarded to the bot developer and will be fixed soon. Do not spam errored commands, doing so will get you blacklisted. If this isn't fixed feel free to dm me <@760823877034573864>\n\n**Error:**```py\n{error}```"), delete_after = 20)
-    traceback_error = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+
     embed = BaseEmbed.default(ctx, title = "**Command Error!**")
     embed.add_field(name="Command Used:", value=f"`{ctx.message.content}`", inline=False)
     embed.add_field(name="Author:", value=f"{ctx.author.mention}\n (`{ctx.author.id}`)")
@@ -141,25 +178,11 @@ async def senderror(bot, ctx, error):
 
     channel = bot.get_channel(873252901726863441)
     bot.error_channel = channel
-
-    serror,skip,lines,error_ = "",False,0,""
-    for i in traceback_error.split('\n'):
-        if skip:
-            lines += 1
-
-        elif len(serror + i) > 1900:
-            skip = True
-            error_ = serror
-            lines += 1
-
-        serror += f"\n{i}"
-    #await bot.error_channel.send(f"```py\n{serror}```")
-    error_ += serror if not error_ else f"\n\n... ({lines} lines left)"
     
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label= "Jump to Error", style=discord.ButtonStyle.link, url=f"{ctx.message.jump_url}", emoji = "\U0001f517"))
-    if lines > 0:
-        view.add_item(discord.ui.Button(label= "Full Traceback", style=discord.ButtonStyle.link, url=f"{await mystbin(serror)}.python", emoji = bot.emojislist('inspect')))
+    if fulltraceback:
+        view.add_item(discord.ui.Button(label= "Full Traceback", style=discord.ButtonStyle.link, url=f"{fulltraceback}", emoji = bot.emojislist('inspect')))
 
     await bot.error_channel.send(f"```py\n{error_}```", embed = embed, view = view)
 
