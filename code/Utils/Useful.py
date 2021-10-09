@@ -138,14 +138,17 @@ def get_uptime(bot):
         delta_uptime = relativedelta(datetime.datetime.utcnow(), bot.launch_time)
         days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
 
-        uptimes = {x[0]: x[1] for x in [('days, ' if days != 1 else 'day, ', days), ('hours, ' if hours != 1 else 'hour, ', hours),
-                                        ('minutes' if minutes != 1 else 'minute', minutes), ('seconds' if seconds != 1 else 'second', seconds)] if x[1]}
+        uptimes = {x[0]: x[1] for x in [('day', days), ('hour', hours), ('minute', minutes), ('second', seconds)] if x[1]}
+        l = len(uptimes) 
 
         last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes)-1)
-        uptime_string = "".join(
-            f"{v} {k}" if k != last else f" and {v} {k}" if len(uptimes) != 1 else f"{v} {k}"
-            for k, v in uptimes.items()
+
+        uptime_string = ", ".join(
+            f"{uptimes[value]} {value}{'s' if uptimes[value] > 1 else ''}" for index, value in enumerate(uptimes.keys()) if index != l-1
         )
+        uptime_string += f" and {uptimes[last]}" if l > 1 else f"{uptimes[last]}"
+        uptime_string += f" {last}{'s' if uptimes[last] > 1 else ''}"
+        
         return uptime_string
 
 async def mystbin(data):
