@@ -52,6 +52,11 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
         
         elif isinstance(error, commands.errors.CommandOnCooldown):
             await ctx.reply(f'Woah Woah chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds')
+        
+        elif isinstance(error, commands.MissingPermissions):
+            if isinstance(ctx.channel, discord.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
+                senderror = True
+            else: pass
 
         else:
             senderror = True
