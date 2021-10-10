@@ -147,7 +147,7 @@ class Utility(commands.Cog):
         elif len(options) > 10:
             await ctx.reply("You can only have a maximum of 10 options!")
             return
-        elif time > 3600:
+        elif time > 36000:
             await ctx.reply("Maximum duration for a poll has been set to 1 hour due to hosting limits")
             return
         sendem,count = f"{question}",1

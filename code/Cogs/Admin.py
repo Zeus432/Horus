@@ -13,8 +13,9 @@ class AdminCogs(commands.Cog, name = "Admin"):
         user = ctx.guild.get_member(ctx.author.id)
         return user.guild_permissions.administrator
 
-    @commands.group(name='permissions', aliases = ['perms'], invoke_without_command = True)
+    @commands.group(name='permissions', aliases = ['perms'], invoke_without_command = True, brief = "Set Guild Permissions")
     async def permissions(self, ctx):
+        """ Set up Bot Related Permissions for your guild (Unavailable at the moment)"""
         await ctx.send_help('permissions')
     @permissions.command()
     async def add(self, ctx):

@@ -73,7 +73,7 @@ class Misc(commands.Cog):
         await ctx.reply(msg)
 
 
-    @commands.command(name = "pie-bot")
+    @commands.command(name = "pie-bot", brief = "Bot/Member ratio")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def pie_bot(self, ctx):
         """Make a pie chart of server bots."""

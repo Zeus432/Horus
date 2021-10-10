@@ -63,9 +63,10 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
         if senderror == True:
             await senderr(bot=self.bot,ctx=ctx,error=error)
     
-    @commands.group(invoke_without_command = True)
+    @commands.group(invoke_without_command = True, brief = "View Bot Errors")
     @commands.is_owner()
     async def errors(self, ctx, start:int = 1):
+        """ View the latest bot errors that happened since the bot started up without having to visit the Error Logs every time """
         errors = self.bot.latesterrors[::-1]
         msg = await ctx.reply(f"Looking for Errors {self.bot.emojislist('loading')}",mention_author = False)
         if len(errors) == 0:
