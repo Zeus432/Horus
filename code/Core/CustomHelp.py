@@ -1,6 +1,5 @@
 from discord.ext import commands
 import discord
-from Utils.Menus import senderror
 from Utils.Useful import HelpButtons
 import asyncio
 
