@@ -11,11 +11,22 @@ from Utils.Menus import *
 import argparse
 import sys
 
+
 #add parsers
 parser = argparse.ArgumentParser()
 parser.add_argument("--devmode","--d", help = "Enable Devmode on start",action = 'store_true',default = False)
+parser.add_argument("--log","--l", help = "Enable Logging terminal output to terminal.log file",action = 'store_true',default = False)
 parser.add_argument("--token","--t", help = "Run Code With alternate Token", type = str,default = False)
 flags = parser.parse_args()
+
+if flags.log:
+    print("I will attempt to start logging the output in the log file instead of terminal!")
+    try:
+        sys.stdout = open(f'{pathway + "/code/Core/terminal.log"}', 'a')
+        print("I have begun logging the output in the log file instead of terminal!\n")
+    except:
+        print("I was unable to do this\n")
+
 print("Running with default token" if not flags.token else f"Running with input token: {flags.token}")
 TOKEN = flags.token if flags.token else TOKEN
 
