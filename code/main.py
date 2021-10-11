@@ -182,7 +182,11 @@ async def load(ctx, cog = None):
         message += '\U0001f4e5 **Loaded:**\n'+f"{load[1:]}\n\n" if load else ""
         message += "\U0001f501 **Reloaded:**\n"+f"{rload[1:]}\n\n" if rload else ""
         message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
-        await ctx.send(message)
+        return await ctx.send(message)
+    try:
+        bot.load_extension(f"{cog}")
+    except Exception as e:
+        await ctx.send(f"```py\n{e}```")
 
 @load.error
 async def load_error(ctx, error):
@@ -263,7 +267,12 @@ async def unload(ctx, cog = None):
         message += '\U0001f4e4 **Unloaded:**\n'+f"{unload[1:]}\n\n" if unload else ""
         message += f"{botemojis('cross')} **Already Unloaded:**\n"+f"{aload[1:]}\n\n" if aload else ""
         message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
-        await ctx.send(message)
+        return await ctx.send(message)
+    
+    try:
+        bot.unload_extension(f"{cog}")
+    except Exception as e:
+        await ctx.send(f"```py\n{e}```")
 
 @unload.error
 async def unload_error(ctx, error):
