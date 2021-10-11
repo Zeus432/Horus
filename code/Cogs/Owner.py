@@ -18,7 +18,6 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._last_result = None
-        self.sessions = set()
 
     def cleanup_code(self, content):
         """Automatically removes code blocks from the code."""
