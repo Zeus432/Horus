@@ -1,4 +1,3 @@
-from operator import truediv
 from typing import Union, Tuple, Optional, Any
 import discord
 from discord.ext import commands
@@ -7,7 +6,12 @@ from Utils.Useful import *
 from loguru import logger
 import traceback
 
-botemojis = botemojis
+# Index:
+# - minor stuff: _size, _bitsize, vc_regions, verif, features
+# - Embeds: BaseEmbed
+# - Errorhandler Senderror
+
+# minor stuff
 
 def _size(num):
     for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
@@ -267,7 +271,7 @@ class GuildButtons(discord.ui.View):
         if invite or None:
             await interaction.response.send_message(f"Invite Generated for **[{self.guild}]( {invite} )**", ephemeral=True)
         else:
-            await interaction.response.send_message(f"I was unable to generate an invite to this guild {botemojis('error')}")
+            await interaction.response.send_message(f"I was unable to generate an invite to this guild {botemojis('error')}", ephemeral=True)
     
     @discord.ui.button(label= "Leave Guild", style=discord.ButtonStyle.red)
     async def leaveguild(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -276,6 +280,7 @@ class GuildButtons(discord.ui.View):
         if not self.bot.get_guild(self.guild.id):
             await self.ctx.send(embed = discord.Embed(description=f"Error Bot is not in **[{self.guild}]({self.guild.icon})**",color=discord.Color.red()))
             return
+        await interaction.response.defer()
         embed = discord.Embed(description=f"Are you sure you want to leave **[{self.guild}]({self.guild.icon})**?",colour=self.bot.colour)
         confview = Confirm()
         confview.msg = await self.ctx.send(embed=embed,view=confview)
@@ -419,6 +424,8 @@ class ErrorsPagination(discord.ui.View):
             item.disabled = True
         await self.message.edit(view=self)
 
+# Poll Buttons for Menu
+
 class PollButton(discord.ui.Button):
     def __init__(self, number:int):
         self.num = number
@@ -441,6 +448,8 @@ class PollButton(discord.ui.Button):
         self.view.lst[interaction.user.id] = self.num + 1
         content = self.view.originalmessage + "\n\n" + "\U000030fb".join([f"{botemojis(i)}: `{self.view.count[i-1]}` " for i in range(1,self.view.num + 1)]) + f"\n\nPoll ends on <t:{self.view.tm}:F> (<t:{self.view.tm}:R>)"
         await self.view.message.edit(content = content, allowed_mentions = discord.AllowedMentions.none())
+
+# Poll Menu
 
 class PollMenu(discord.ui.View):
     def __init__(self, amount:int ,bot:commands.Bot, message:discord.Message, author, timestring:str, webhook:discord.Webhook = None, timeout: Optional[float] = 180):

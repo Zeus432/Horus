@@ -1,7 +1,7 @@
 from discord.ext import commands
 from typing import Any
 from Utils.Useful import *
-from Utils.Menus import senderror as senderr, ErrorsPagination
+from Utils.Menus import senderror, ErrorsPagination
 
 class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
     """ Global Handler and Management for Errors"""
@@ -14,7 +14,7 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
         """The event triggered when an error is raised while invoking a command."""
         if hasattr(ctx.command, 'on_error'):
             return
-        senderror = None
+        senderr = None
         cmd = self.bot.get_command(ctx.invoked_with)
 
         cog = ctx.cog
@@ -47,8 +47,7 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
                 await ctx.reply(f'This command is not available currently', delete_after = 10)
         
         elif isinstance(error, commands.GuildNotFound):
-            await ctx.send(f'Could not find guild: {error.argument}')
-
+            await ctx.send(f'Could not find guild: `{error.argument}`')
         elif isinstance(error, commands.BadArgument):
             return await ctx.send_help(ctx.command)
         
@@ -57,13 +56,13 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
         
         elif isinstance(error, commands.MissingPermissions):
             if isinstance(ctx.channel, discord.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
-                senderror = True
+                senderr = True
             else: pass
 
         else:
-            senderror = True
-        if senderror == True:
-            await senderr(bot=self.bot,ctx=ctx,error=error)
+            senderr = True
+        if senderr == True:
+            await senderror(bot=self.bot,ctx=ctx,error=error)
     
     @commands.group(invoke_without_command = True, brief = "View Bot Errors")
     @commands.is_owner()
