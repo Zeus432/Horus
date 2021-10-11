@@ -68,7 +68,9 @@ class BotListeners(commands.Cog, name = "Listeners"):
         self.bot.log_channel = channel
         await self.bot.log_channel.send(embed=embed)
     
+    @commands.Cog.listener()
     async def on_guild_join(self, guild):
+        print("Joined guild")
         channel = self.bot.get_channel(874212184828297297)
         self.bot.log_channel = channel
         embed = guildanalytics(bot = self.bot, join=True, guild = guild)
