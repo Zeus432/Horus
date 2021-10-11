@@ -22,7 +22,7 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-        ignored = (commands.CommandNotFound, commands.NoPrivateMessage)
+        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.errors.ExpectedClosingQuoteError)
         error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):
@@ -38,9 +38,11 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
             if self.bot.devmode and ctx.author.id != 760823877034573864:
                 return
             if ctx.command.qualified_name != 'coolservers':
-                if ctx.command.qualified_name != 'whoasked':
-                    await ctx.reply(f"Missing Permissions!")
-                else: pass
+                if ctx.command.qualified_name == 'whoasked':
+                    return
+                elif ctx.cog.qualified_name == "Owner":
+                    return await ctx.reply(f"These are Bot Owner only commands and I don't see you on the list {self.bot.emojislist('idrk')}", mention_author = False)
+                await ctx.reply(f"Missing Permissions!")
             else:
                 await ctx.reply(f'This command is not available currently', delete_after = 10)
         

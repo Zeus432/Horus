@@ -68,7 +68,6 @@ class Owner(commands.Cog):
         """
 
         env = {
-            'bot.http.token': "",
             'bot': self.bot,
             'ctx': ctx,
             'channel': ctx.channel,
@@ -280,8 +279,9 @@ class Owner(commands.Cog):
             await ctx.send(f"```glsl\n{guilds}```")
     
     @commands.command(brief = "Get Guild Info")
-    async def getguild(self, ctx, guild: discord.Guild):
+    async def getguild(self, ctx, guild: discord.Guild = None):
         """ Get all information and staistics about the specified guild """
+        guild = ctx.guild if not guild else guild
         async with ctx.typing():
             emb = guildanalytics(bot = self.bot, join=None, guild = guild)
             view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot,user=ctx.author)
