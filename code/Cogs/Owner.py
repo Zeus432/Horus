@@ -199,6 +199,18 @@ class Owner(commands.Cog):
             await msg.edit(view = view)
         except:
             pass
+    
+    @commands.command(aliases = ['en'], brief = "Enable Command")
+    async def enable(self, ctx, command):
+        """Enable a command."""
+
+        command = self.bot.get_command(command)
+        if command == None:
+            return await ctx.send("Could not find command")
+        if command.enabled:
+            return await ctx.send("This command is already enabled.")
+        command.enabled = True
+        await ctx.send(f"Enabled {command.name} command.")
 
     @commands.command(aliases = ['di'], brief = "Disable Command")
     async def disable(self, ctx, command):
@@ -211,18 +223,6 @@ class Owner(commands.Cog):
             return await ctx.send("This command is already disabled.")
         command.enabled = False
         await ctx.send(f"Disabled {command.name} command.")
-
-    @commands.command(aliases = ['en'], brief = "Enable Command")
-    async def enable(self, ctx, command):
-        """Enable a command."""
-
-        command = self.bot.get_command(command)
-        if command == None:
-            return await ctx.send("Could not find command")
-        if command.enabled:
-            return await ctx.send("This command is already enabled.")
-        command.enabled = True
-        await ctx.send(f"Enabled {command.name} command.")
     
     @commands.command()
     async def sql(self, ctx, *, query: str):
@@ -281,6 +281,8 @@ class Owner(commands.Cog):
     async def getguild(self, ctx, guild: discord.Guild = None):
         """ Get all information and staistics about the specified guild """
         guild = ctx.guild if not guild else guild
+        if not guild:
+            return await ctx.reply("You need to mention a guild to view!")
         async with ctx.typing():
             emb = guildanalytics(bot = self.bot, join=None, guild = guild)
             view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot,user=ctx.author)
@@ -382,7 +384,17 @@ class Owner(commands.Cog):
         await ctx.reply("Dev Mode has been enabled!")
         self.bot.prefixstate = True
         await self.bot.change_presence(status=discord.Status.invisible)
-
+    
+    @commands.command(name = "leave", brief = "Leave Guild")
+    async def leave(self, ctx, guild: discord.Guild = None):
+        guild = ctx.guild if not guild else guild
+        if not guild:
+            return await ctx.reply("You need to mention a guild to leave!")
+        
+        embed = discord.Embed(description=f"Are you sure you want to leave **[{guild}]({guild.icon})**?",colour=self.bot.colour)
+        view = Confirm()
+        view.msg = await ctx.reply(embed=embed,view=view)
+        view.user,view.guild = ctx.author, guild
 
     @commands.command(aliases=["ss"], brief = "Screenshot a website")
     async def screenshot(self, ctx, website):

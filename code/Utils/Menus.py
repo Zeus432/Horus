@@ -246,7 +246,7 @@ class Confirm(discord.ui.View):
             if item.label == "Cancel":
                 item.style = discord.ButtonStyle.red
             item.disabled = True
-        await self.msg.edit(view=self,embed=discord.Embed(description=f"You took too long to respond",color=discord.Colour.blurple()))
+        await self.msg.edit(view=self,embed=discord.Embed(description=f"You took too long to respond!",color=discord.Colour.blurple()))
         self.stop()
 
 # Guild Embed Buttons
