@@ -96,7 +96,15 @@ async def run():
     closesys = True
     for i in range(5):
         try:
-            bot.db = await asyncpg.create_pool(**credentials)
+            async def init_connection(conn):
+                await conn.set_type_codec(
+                        'jsonb',
+                        encoder=json.dumps,
+                        decoder=json.loads,
+                        schema='pg_catalog'
+                    )
+            db = await asyncpg.create_pool(init=init_connection, **credentials)
+            bot.db = db
             print("Connection Successful")
             closesys = False
             break
