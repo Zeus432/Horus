@@ -56,33 +56,33 @@ class Bot(commands.Bot):
         await super().close()
     
     async def noprefix(self, bot, message):
-        prefix_return = ["h!","H!"]
+        prefix = ["h!"]
         if await bot.is_owner(message.author):
             try:
                 if bot.prefixstate == True:
-                    prefix_return.append("")
+                    prefix.append("")
             except:
                 pass
-        return prefix_return
+        return commands.when_mentioned_or(*prefix)(bot, message)
     
     async def on_ready(self):
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
-        total_members = list(bot.get_all_members())
-        total_channels = sum(1 for x in bot.get_all_channels())
-        print(f'Guilds: {len(bot.guilds)}')
-        print(f'Large Guilds: {sum(g.large for g in bot.guilds)}')
-        print(f'Chunked Guilds: {sum(g.chunked for g in bot.guilds)}')
+        total_members = list(self.get_all_members())
+        total_channels = sum(1 for x in self.get_all_channels())
+        print(f'Guilds: {len(self.guilds)}')
+        print(f'Large Guilds: {sum(g.large for g in self.guilds)}')
+        print(f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}')
         print(f'Members: {len(total_members)}')
         print(f'Channels: {total_channels}')
-        print(f'Message Cache Size: {len(bot.cached_messages)}\n')
+        print(f'Message Cache Size: {len(self.cached_messages)}\n')
         await asyncio.sleep(10)
-        if not bot.devmode:
-            await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+        if not self.devmode:
+            await self.change_presence(status=discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name=f"over {len(self.guilds)} servers | h!help"))
         else:
             print("Logging into Dev Mode\n")
-            await bot.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))
-        bot.launch_time = datetime.datetime.utcnow()
-        bot.launch_ts = time.time()
+            await self.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))
+        self.launch_time = datetime.datetime.utcnow()
+        self.launch_ts = time.time()
         if not self.persview:
             self.add_view(PersistentView())
             self.persview = True
