@@ -284,12 +284,12 @@ class Utility(commands.Cog):
         except KeyError:
             result = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
         if id > len(result['data']) or id <= 0:
-            return await ctx.reply(f"You don't have a task with id: `{id}`")
+            return await ctx.reply(f"You don't have a task with ID:`{id}`")
         for index, dct in enumerate(result['data']):
             if index+1 == id:
                 del result['data'][dct]
                 await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.timestamp(datetime.now())), result['data'])
-                await ctx.reply(f'I have removed task with id: `{id}` from your todo list')
+                await ctx.reply(f'I have removed this task (ID:`{id}) from your todo list')
                 break
     
     @todo.command(name = "clear", brief = "Clear todo")
