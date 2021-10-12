@@ -249,13 +249,13 @@ class Utility(commands.Cog):
         for index, dct in enumerate(data):
             todostuff.append(f"**[{index+1})]({data[dct]['messagelink']})** {data[dct]['stuff']}") 
         
-        embed = discord.Embed(title = f"**{ctx.author.display_name}**'s todo list:",description = "\n".join(todostuff), color = self.bot.colour)
+        embed = discord.Embed(title = f"**{ctx.author.display_name}**'s To Do List",description = "\n".join(todostuff), color = self.bot.colour)
         await ctx.send(embed = embed)
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @todo.command(name = "add", brief = "Add todo task")
     async def todo_add(self, ctx, *, task: str):
-        if len(task) > 50:
+        if len(task) > 150:
             return await ctx.reply('Please reduce the number of letters in your task')
 
         try:
@@ -267,6 +267,9 @@ class Utility(commands.Cog):
         
         self.todo_cache[ctx.author.id] = result
 
+        if len(result['data']) >= 10:
+            return await ctx.reply('I was unable to add this task as Todo lists are currently limited to a maximum of `10` tasks.')
+
         result['data'][ctx.message.id] = {'messagelink':f'{ctx.message.jump_url}','stuff':f'{task}'}
         self.todo_cache[ctx.author.id] = result
 
@@ -274,7 +277,7 @@ class Utility(commands.Cog):
         await ctx.reply('Your todo list has been updated!')
 
     @todo.command(name = "remove", brief = "Remove todo task")
-    async def remove(self, ctx, id:int):
+    async def todo_remove(self, ctx, id:int):
         """ Remove a task from your todo list"""
         try:
             result = self.todo_cache[ctx.author.id]
@@ -290,7 +293,7 @@ class Utility(commands.Cog):
                 break
     
     @todo.command(name = "clear", brief = "Clear todo")
-    async def clear(self, ctx):
+    async def todo_clear(self, ctx):
         """ Clear your todo list completely """
         try:
             result = self.todo_cache[ctx.author.id]
