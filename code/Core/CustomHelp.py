@@ -137,7 +137,7 @@ class NewHelp(commands.HelpCommand):
 
         filtered = await self.filter_commands(group.commands, sort=True)
         for command in filtered:
-            embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No info', inline=False)
+            embed.add_field(name = command.qualified_name, value=command.short_doc or 'No info', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
         view=HelpButtons(30)
