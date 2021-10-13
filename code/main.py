@@ -38,7 +38,7 @@ logger.info("Logged into Horus succesfully")
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for fun and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>", case_insensitive=True)
+        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for testing, has simple Utility and Fun Commands", case_insensitive=True)
         self.persview = False
         self.owner_ids = frozenset(BotOwners)
         self.launch_time = datetime.datetime.utcnow()
@@ -49,21 +49,27 @@ class Bot(commands.Bot):
         self.emojislist = botemojis
         self.devmode = True if flags.devmode else False
         self.prefixstate = False
+        self.prefix_cache = {}
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
     
     async def close(self):
-        # do stuff
         await super().close()
     
-    async def noprefix(self, bot, message):
-        prefix = ["h!"]
-        if await bot.is_owner(message.author):
+    async def noprefix(self, bot, message: discord.Message):
+        # Check for prefix in cache, if not then get from db and build cache
+        prefix = ["h!"] # Default prefix
+        if message.guild:
             try:
-                if bot.prefixstate == True:
-                    prefix.append("")
-            except:
-                pass
-        return commands.when_mentioned_or(*prefix)(bot, message)
+                prefix = self.prefix_cache[message.guild.id]
+            except KeyError:
+                prefix = await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id)
+            if not prefix:
+                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) DO NOTHING RETURNING prefix',message.guild.id,['h!'])
+            self.prefix_cache[message.guild.id] = prefix # Update Cache
+
+        if await bot.is_owner(message.author) and bot.prefixstate == True:
+            prefix.append("")
+        return commands.when_mentioned_or(*prefix)(bot, message) # Return Prefix
     
     async def on_ready(self):
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
