@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import Greedy
 import discord
 from Core.settings import *
 from Core.CustomHelp import *
@@ -19,15 +20,30 @@ class AdminCogs(commands.Cog, name = "Admin"):
         await ctx.send_help('permissions')
     @permissions.command()
     async def add(self, ctx):
-        await self.bot.db.execute("INSERT INTO users (id, data) VALUES (1111,'This is nice')")
-        await ctx.send("Data Inserted!")
+        #await self.bot.db.execute("INSERT INTO users (id, data) VALUES (1111,'This is nice')")
+        await ctx.send("This isn't available rn")
 
     @permissions.command()
     async def getserver(self, ctx):
-        users = await self.bot.db.fetch("SELECT * FROM users")
-        users2 = await self.bot.db.fetchrow("SELECT * FROM users")
-        users3 = await self.bot.db.fetchval("SELECT * FROM users")
-        await ctx.send(f"Here users:\n{users}\n{users2}\n{users3}")
+        #users = await self.bot.db.fetch("SELECT * FROM users")
+        #users2 = await self.bot.db.fetchrow("SELECT * FROM users")
+        #users3 = await self.bot.db.fetchval("SELECT * FROM users")
+        await ctx.send("This isn't available rn")
+    
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @commands.command(name = "setprefix", brief = "Set Server prefix")
+    async def setprefix(self, ctx, prefix: str):
+        """
+        Set a custom prefix for your server.
+        User requires Administrator permissions in the guild to use this command
+        """
+        lst = []
+        lst.append(prefix)
+        prefix = lst
+        print(prefix)
+        self.bot.prefix_cache[ctx.guild.id] = prefix
+        await self.bot.db.fetchval('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, prefix)
+        await ctx.send(f'Prefix changed to: `{prefix[0]}`')
 
 def setup(bot: commands.Bot):
     bot.add_cog(AdminCogs(bot))
