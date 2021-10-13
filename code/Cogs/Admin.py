@@ -31,12 +31,11 @@ class AdminCogs(commands.Cog, name = "Admin"):
         await ctx.send("This isn't available rn")
     
     @commands.cooldown(1, 10, commands.BucketType.guild)
-    @commands.command(name = "setprefix", brief = "Set Server prefix")
+    @commands.command(name = "setprefix",
+                      brief = "Set Server prefix",
+                      help = "Set a custom prefix for your server.\nUser requires Administrator permissions in the guild to use this command"      
+                    )
     async def setprefix(self, ctx, prefix: str):
-        """
-        Set a custom prefix for your server.
-        User requires Administrator permissions in the guild to use this command
-        """
         lst = []
         lst.append(prefix)
         prefix = lst

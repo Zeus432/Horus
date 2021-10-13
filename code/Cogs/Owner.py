@@ -140,7 +140,7 @@ class Owner(commands.Cog):
         await self.bot.close()
     
     @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "Who even asked bro", hidden = True)
-    async def whoasked(self, ctx, what: Union[discord.Member, discord.Message, str] = "None"):
+    async def whoasked(self, ctx, what: Union[discord.Member, discord.Message, str] = None):
         """ When people say random shit no one asked for """
         msgid = None
         if type(what) == discord.message.Message:

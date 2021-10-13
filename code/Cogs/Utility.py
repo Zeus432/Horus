@@ -289,7 +289,7 @@ class Utility(commands.Cog):
             if index+1 == id:
                 del result['data'][dct]
                 await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.timestamp(datetime.now())), result['data'])
-                await ctx.reply(f'I have removed this task (ID:`{id}) from your todo list')
+                await ctx.reply(f'I have removed this task (ID:`{id}`) from your todo list')
                 break
     
     @todo.command(name = "clear", brief = "Clear todo")
