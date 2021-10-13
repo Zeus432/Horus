@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from Utils.Useful import HelpButtons
+from Utils.Menus import Delete
 import asyncio
 
 class HelpMenu(discord.ui.Select):
@@ -140,15 +140,8 @@ class NewHelp(commands.HelpCommand):
             embed.add_field(name = command.qualified_name, value=command.short_doc or 'No info', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons(30)
-        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
-        try:
-            await asyncio.wait_for(view.wait(), timeout=30)
-        except asyncio.TimeoutError:
-            try:
-                await msg.edit(view=None)
-            except:
-                pass
+        view = Delete(self.context, 30)
+        view.message = await self.context.reply(view = view,embed=embed, mention_author = False)
 
     async def send_command_help(self, command):
         self.stopdms()
@@ -166,15 +159,8 @@ class NewHelp(commands.HelpCommand):
                 embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons(30)
-        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
-        try:
-            await asyncio.wait_for(view.wait(), timeout=30)
-        except asyncio.TimeoutError:
-            try:
-                await msg.edit(view=None)
-            except:
-                pass
+        view = Delete(self.context, 30)
+        view.message = await self.context.reply(view = view,embed=embed, mention_author = False)
 
 class CustomHelp(commands.Cog):
     def __init__(self, bot):

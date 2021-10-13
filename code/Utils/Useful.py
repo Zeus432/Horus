@@ -38,14 +38,6 @@ def botemojis(emoji = "None"):
     except:
         return listemoji['error']
 
-class HelpButtons(discord.ui.View):
-    def __init__(self, timeout:int, **kwargs):
-        super().__init__(timeout=timeout, **kwargs)
-
-    @discord.ui.button(style=discord.ButtonStyle.blurple, emoji = botemojis("trash"))
-    async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.message.delete()
-
 def fileanalytics():
     p = pathlib.Path('./')
     cm = cr = fn = cl = ls = fc = 0

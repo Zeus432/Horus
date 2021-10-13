@@ -1,6 +1,7 @@
 from typing import Union, Tuple, Optional, Any
 import discord
 from discord.ext import commands
+from discord.ui import view
 
 from Utils.Useful import *
 from loguru import logger
@@ -490,3 +491,20 @@ class PollMenu(discord.ui.View):
     async def on_timeout(self):
         if not self.disable:
             await self.endpoll()
+
+# Buttons
+class Delete(discord.ui.View):
+    def __init__(self, ctx, timeout:int, **kwargs):
+        self.ctx = ctx
+        super().__init__(timeout=timeout, **kwargs)
+
+    @discord.ui.button(style=discord.ButtonStyle.blurple, emoji = botemojis("trash"), label = "Exit")
+    async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.ctx.author.id != interaction.user.id:
+            return
+        await interaction.message.delete()
+        self.stop()
+
+    async def on_timeout(self):
+        self.clear_items()
+        await self.message.edit(view = view)
