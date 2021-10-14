@@ -227,7 +227,7 @@ class PollMenu(discord.ui.View):
 
 # Buttons
 class DeleteView(discord.ui.View):
-    def __init__(self, ctx, timeout:int, **kwargs):
+    def __init__(self, ctx, timeout:int = 30, **kwargs):
         self.user = ctx.author
         super().__init__(timeout=timeout, **kwargs)
     

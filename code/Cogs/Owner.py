@@ -106,10 +106,10 @@ class Owner(commands.Cog):
 
             if ret is None:
                 if value:
-                    await ctx.send(f'```py\n{value}\n```')
+                    await ctx.send(f'```py\n{value}\n```', view = DeleteView(ctx=ctx))
             else:
                 self._last_result = ret
-                await ctx.send(f'```py\n{value}{ret}\n```')
+                await ctx.send(f'```py\n{value}{ret}\n```', view = DeleteView(ctx=ctx))
 
     @_eval.error
     async def _eval_error(self, ctx, error, test = None):
