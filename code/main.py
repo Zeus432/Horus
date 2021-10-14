@@ -20,10 +20,10 @@ parser.add_argument("--token","--t", help = "Run Code With alternate Token", typ
 flags = parser.parse_args()
 
 if flags.log:
-    print("I will attempt to start logging the output in the log file instead of terminal!")
     try:
-        sys.stdout = open(f'{pathway + "/code/Core/terminal.log"}', 'a')
-        print("I have begun logging the output in the log file instead of terminal!\n")
+        print("\nI will attempt to start logging the output in the log file instead of terminal!")
+        sys.stdout = sys.stderr = open(f'{pathway + "/code/Core/terminal.log"}', 'a')
+        print(f"{datetime.datetime.now().strftime('%m:%d:%Y - %H:%M:%S')} | I have begun logging the output in the log file instead of terminal!\n")
     except:
         print("I was unable to do this\n")
 
