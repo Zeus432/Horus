@@ -1,4 +1,6 @@
+import discord
 from discord.ext import commands
+
 from Utils.Useful import *
 from Utils.Menus import *
 

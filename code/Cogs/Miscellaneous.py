@@ -1,10 +1,11 @@
 import discord
 from discord.ext import commands
-from Utils.Useful import *
 
 import matplotlib.figure
 import time
 import io
+
+from Utils.Useful import *
 
 class Misc(commands.Cog):
     """ Miscellaneous Bot Info and Stats commands """ 

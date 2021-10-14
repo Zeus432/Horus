@@ -1,7 +1,7 @@
-from discord.ext import commands
 import discord
-from Utils.Menus import Delete
-import asyncio
+from discord.ext import commands
+
+from Utils.Menus import DeleteView
 
 class HelpMenu(discord.ui.Select):
     def __init__(self, bot, getself, user,options=None):
@@ -140,7 +140,7 @@ class NewHelp(commands.HelpCommand):
             embed.add_field(name = command.qualified_name, value=command.short_doc or 'No info', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view = Delete(self.context, 30)
+        view = DeleteView(self.context, 30)
         view.message = await self.context.reply(view = view,embed=embed, mention_author = False)
 
     async def send_command_help(self, command):
@@ -159,7 +159,7 @@ class NewHelp(commands.HelpCommand):
                 embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view = Delete(self.context, 30)
+        view = DeleteView(self.context, 30)
         view.message = await self.context.reply(view = view,embed=embed, mention_author = False)
 
 class CustomHelp(commands.Cog):

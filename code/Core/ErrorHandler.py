@@ -1,7 +1,9 @@
+import discord
 from discord.ext import commands
-from typing import Any
+
 from Utils.Useful import *
-from Utils.Menus import senderror, ErrorsPagination
+from Utils.Menus import ErrorsPagination
+from Utils.Embeds import senderror
 
 class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
     """ Global Handler and Management for Errors"""

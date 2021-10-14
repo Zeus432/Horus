@@ -1,6 +1,6 @@
-from discord.ext import commands
-from discord.ext.commands import Greedy
 import discord
+from discord.ext import commands
+
 from Core.settings import *
 from Core.CustomHelp import *
 
