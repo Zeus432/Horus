@@ -68,12 +68,13 @@ class Bot(commands.Bot):
                 prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) DO NOTHING RETURNING prefix',message.guild.id,['h!'])
             self.prefix_cache[message.guild.id] = prefix # Update Cache
 
+        devprefix = []
         if await bot.is_owner(message.author):
             if "h!" not in prefix:
-                prefix.append("h!")
+                devprefix.append("h!")
             if bot.prefixstate == True:
-                prefix.append("")
-        return commands.when_mentioned_or(*prefix)(bot, message) # Return Prefix
+                devprefix.append("")
+        return commands.when_mentioned_or(*prefix,*devprefix)(bot, message) # Return Prefix
     
     async def on_ready(self):
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')

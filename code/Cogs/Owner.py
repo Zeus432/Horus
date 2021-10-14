@@ -103,13 +103,13 @@ class Owner(commands.Cog):
                 await ctx.message.add_reaction('\u2705')
             except:
                 pass
-
+            view = DeleteView(ctx=ctx)
             if ret is None:
                 if value:
-                    await ctx.send(f'```py\n{value}\n```', view = DeleteView(ctx=ctx))
+                    view.message = await ctx.send(f'```py\n{value}\n```', view = view)
             else:
                 self._last_result = ret
-                await ctx.send(f'```py\n{value}{ret}\n```', view = DeleteView(ctx=ctx))
+                view.message = await ctx.send(f'```py\n{value}{ret}\n```', view = view)
 
     @_eval.error
     async def _eval_error(self, ctx, error, test = None):

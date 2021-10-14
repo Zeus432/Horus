@@ -39,7 +39,6 @@ class AdminCogs(commands.Cog, name = "Admin"):
         lst = []
         lst.append(prefix)
         prefix = lst
-        print(prefix)
         self.bot.prefix_cache[ctx.guild.id] = prefix
         await self.bot.db.fetchval('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, prefix)
         await ctx.send(f'Prefix changed to: `{prefix[0]}`')

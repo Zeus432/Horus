@@ -2,7 +2,7 @@ from Utils.Menus import senderror
 from typing import List
 from discord.ext import commands
 import discord
-from datetime import datetime
+from datetime import datetime as dt
 import unicodedata
 
 from Core.settings import *
@@ -173,7 +173,7 @@ class Utility(commands.Cog):
             )
         else:
             message = await ctx.send(f"{ctx.author.mention} asks:\n{sendem}", allowed_mentions = discord.AllowedMentions.none())
-        tm = int(datetime.datetime.timestamp(datetime.datetime.now()) + time)
+        tm = int(dt.timestamp(dt.now()) + time)
         view = PollMenu(amount=len(options), bot=self.bot, timeout = time, timestring = f"{tm}", webhook = webhook, message = message, author = ctx.author)
         msg = message.content + "\n\n" + "\U000030fb".join([f"{self.bot.emojislist(i)}: `0` " for i in range(1,len(options)+ 1)]) + f"\n\nPoll ends on <t:{tm}:F> (<t:{tm}:R>)"
         await message.edit(content = msg, view = view, allowed_mentions = discord.AllowedMentions.none())
@@ -191,7 +191,10 @@ class Utility(commands.Cog):
             await ctx.reply(f'Command is on cooldown, Try again in {round(error.retry_after, 2)} seconds')
         
         elif isinstance(error, commands.CommandInvokeError):
-            await ctx.reply(f"I need `Manage Webhooks` perms for you to use the `--webhook` flag")
+            if not ctx.channel.permissions_for(ctx.me).manage_webhooks:
+                await ctx.reply(f"I need `Manage Webhooks` perms for you to use the `--webhook` flag")
+            else:
+                await senderror(bot=self.bot,ctx=ctx,error=error)
         
         else:
             await senderror(bot=self.bot,ctx=ctx,error=error)
@@ -264,7 +267,7 @@ class Utility(commands.Cog):
         except KeyError:
             result = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
         if not result:
-            result = await self.bot.db.fetchrow(f'INSERT INTO todo(userid, lastupdated, data) VALUES($1, $2, $3) ON CONFLICT (userid) DO UPDATE SET lastupdated = $2 RETURNING *', ctx.author.id, int(datetime.timestamp(datetime.now())), {})
+            result = await self.bot.db.fetchrow(f'INSERT INTO todo(userid, lastupdated, data) VALUES($1, $2, $3) ON CONFLICT (userid) DO UPDATE SET lastupdated = $2 RETURNING *', ctx.author.id, int(dt.timestamp(dt.now())), {})
         
         self.todo_cache[ctx.author.id] = result
 
@@ -274,7 +277,7 @@ class Utility(commands.Cog):
         result['data'][ctx.message.id] = {'messagelink':f'{ctx.message.jump_url}','stuff':f'{task}'}
         self.todo_cache[ctx.author.id] = result
 
-        await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.timestamp(datetime.now())), result['data'])
+        await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(dt.timestamp(dt.now())), result['data'])
         await ctx.reply('Your todo list has been updated!')
 
     @todo.command(name = "remove", brief = "Remove todo task")
@@ -289,8 +292,8 @@ class Utility(commands.Cog):
         for index, dct in enumerate(result['data']):
             if index+1 == id:
                 del result['data'][dct]
-                await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.timestamp(datetime.now())), result['data'])
-                await ctx.reply(f'I have removed this task (ID:`{id}`) from your todo list')
+                await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(dt.timestamp(dt.now())), result['data'])
+                await ctx.reply(f'I have removed this task (`ID:{id}`) from your todo list')
                 break
     
     @todo.command(name = "clear", brief = "Clear todo")
@@ -310,7 +313,7 @@ class Utility(commands.Cog):
         print(view.value)
         if view.value:
             result['data'].clear()
-            await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.timestamp(datetime.now())), result['data'])
+            await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(dt.timestamp(dt.now())), result['data'])
 
 
 def setup(bot: commands.Bot):
