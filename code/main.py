@@ -320,6 +320,14 @@ async def owner_only(ctx: commands.Context) -> bool:
         #raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.member)
     #return True
 
+@bot.check
+async def checkperms(ctx):
+    if not ctx.guild and not await bot.is_owner(ctx.author):
+        raise commands.NoPrivateMessage
+    else:
+        check = ctx.channel.permissions_for(ctx.me).embed_links and ctx.channel.permissions_for(ctx.me).send_messages
+    return check
+
 # Persistent View
 class PersistentButtons(discord.ui.Button):
     def __init__(self, x: int, y: int, role, emoji):
