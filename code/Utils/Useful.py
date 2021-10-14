@@ -253,3 +253,8 @@ def BotModOnly(user = None):
     async def predicate(ctx):
         return ctx.author.id in BotMods or await ctx.bot.is_owner(ctx.author)
     return commands.check(predicate)
+
+class UserBlacklisted(commands.CommandError):
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)

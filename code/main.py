@@ -321,7 +321,9 @@ async def check_blacklists(ctx: commands.Context):
             blacklists = {'prevbl': {}, 'blacklisted': False}
             data = await bot.db.fetchval('INSERT INTO userdata(userid, blacklists) VALUES($1, $2) ON CONFLICT (userid) DO UPDATE SET blacklists = $2 RETURNING blacklists', ctx.author.id, blacklists)
     bot.blacklists[ctx.author.id] = data
-    return not data["blacklisted"]
+    if data["blacklisted"]:
+        raise UserBlacklisted(ctx.author)
+    return True
 
 @bot.check
 async def checkperms(ctx):

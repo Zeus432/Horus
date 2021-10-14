@@ -18,6 +18,7 @@ class AdminCogs(commands.Cog, name = "Admin"):
     async def permissions(self, ctx):
         """ Set up Bot Related Permissions for your guild (Unavailable at the moment)"""
         await ctx.send_help('permissions')
+
     @permissions.command()
     async def add(self, ctx):
         #await self.bot.db.execute("INSERT INTO users (id, data) VALUES (1111,'This is nice')")

@@ -13,7 +13,6 @@ class Blacklists(commands.Cog, name = "Blacklists"):
     def __init__(self, bot):
         self.bot = bot
         self._mc = commands.MaxConcurrency(1, per=commands.BucketType.user, wait = False)
-        self.blchannel = self.bot.get_channel(898259956745252864)
     
     @BotModOnly()
     @commands.cooldown(2, 10, commands.BucketType.user)
@@ -57,7 +56,11 @@ class Blacklists(commands.Cog, name = "Blacklists"):
         embed = discord.Embed(description = f"**User:** {user} (`{user.id}`)\n**Reason:** {reason}\n\nUser was blacklisted <t:{timestamp}> (<t:{timestamp}:R>)", colour = self.bot.colour)
         embed.set_author(name = "User Blacklisted", icon_url = user.avatar or user.default_avatar)
         embed.set_footer(text = f"By: {ctx.author} ({ctx.author.id})", icon_url = ctx.author.avatar or ctx.author.default_avatar)
-        await self.blchannel.send(embed = embed)
+        await self.bot.get_channel(898259956745252864).send(embed = embed)
+        try:
+            await user.send(f"You were blacklisted from the bot  by a Bot Moderator: {ctx.author.mention}\nIf this is a mistake you can appeal your ban in the support server: https://discord.gg/8BQMHAbJWk")
+        except:
+            await view.message.edit(f"{user.mention} was blacklisted\n**Reason:** {reason}\n\nI was unable to dm this user about their blacklist! Maybe you could?", allowed_mentions = discord.AllowedMentions.none())
 
     
     @BotModOnly()
@@ -76,7 +79,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
             self.bot.blacklists[user.id] = data
             return await ctx.reply('This is not a previously blacklisted user!', mention_author = False)
         if not reason:
-            message = await ctx.reply('Enter a reason for blacklist!')
+            message = await ctx.reply('Enter a reason for unblacklist!')
             def check(m: discord.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
             try:
@@ -85,7 +88,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
             except asyncio.TimeoutError:
                 return await message.reply("Response Timed Out!")
 
-        await ctx.reply(f'{user.mention} was unblacklisted\n**Reason:** {reason}', allowed_mentions = discord.AllowedMentions.none())
+        message = await ctx.reply(f'{user.mention} was unblacklisted\n**Reason:** {reason}', allowed_mentions = discord.AllowedMentions.none())
         timestamp = int(datetime.datetime.now().timestamp())
         data["prevbl"][len(data["prevbl"])+ 1] = {"ban":{"reason":data["blacklisted"]["reason"], "mod": data["blacklisted"]["mod"],"timestamp":data["blacklisted"]["timestamp"]},"unban":{"reason": f"{reason}", "mod": ctx.author.id, "timestamp": timestamp}}
         data["blacklisted"] = False
@@ -94,7 +97,11 @@ class Blacklists(commands.Cog, name = "Blacklists"):
         embed = discord.Embed(description = f"**User:** {user} (`{user.id}`)\n**Reason:** {reason}\n\nUser was unblacklisted <t:{timestamp}> (<t:{timestamp}:R>)", colour = self.bot.colour)
         embed.set_author(name = "User Unblacklisted", icon_url = user.avatar or user.default_avatar)
         embed.set_footer(text = f"By: {ctx.author} ({ctx.author.id})", icon_url = ctx.author.avatar or ctx.author.default_avatar)
-        await self.blchannel.send(embed = embed)
+        await self.bot.get_channel(898259956745252864).send(embed = embed)
+        try:
+            await user.send(f"You were unblacklisted from the bot by a Bot Moderator: {ctx.author.mention}")
+        except:
+            await message.edit(f'{user.mention} was unblacklisted\n**Reason:** {reason}\n\nI was unable to dm this user about their unblacklist! Maybe you could?', allowed_mentions = discord.AllowedMentions.none())
 
 def setup(bot):
     bot.add_cog(Blacklists(bot))
