@@ -1,6 +1,7 @@
 from Utils.Menus import senderror
 from typing import List
 from discord.ext import commands
+from discord.ext.commands import Greedy
 import discord
 from datetime import datetime as dt
 import unicodedata
@@ -281,7 +282,7 @@ class Utility(commands.Cog):
         await ctx.reply('Your todo list has been updated!')
 
     @todo.command(name = "remove", brief = "Remove todo task")
-    async def todo_remove(self, ctx, id:int):
+    async def todo_remove(self, ctx, id: int):
         """ Remove a task from your todo list"""
         try:
             result = self.todo_cache[ctx.author.id]
@@ -291,10 +292,28 @@ class Utility(commands.Cog):
             return await ctx.reply(f"You don't have a task with ID:`{id}`")
         for index, dct in enumerate(result['data']):
             if index+1 == id:
+                deleted = result['data'][dct]
                 del result['data'][dct]
+                self.todo_cache[ctx.author.id], view = result, discord.ui.View()
                 await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(dt.timestamp(dt.now())), result['data'])
-                await ctx.reply(f'I have removed this task (`ID:{id}`) from your todo list')
+                view.add_item(discord.ui.Button(label = "Source", emoji = "\U0001f517", style = discord.ButtonStyle.link, url = f'{deleted["messagelink"]}'))
+                await ctx.reply(f'I have removed this task from your todo list:\n  **{id})** {deleted["stuff"]}', view = view)
                 break
+    
+    @todo.command(name = "edit", brief = "Edit todo task")
+    async def todo_edit(self, ctx, id: int, *, task:str):
+        """ Edit a task from your todo list """
+        try:
+            result = self.todo_cache[ctx.author.id]
+        except KeyError:
+            result = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
+        if id > len(result['data']) or id <= 0:
+            return await ctx.reply(f"You don't have a task with ID:`{id}`")
+        for index, dct in enumerate(result['data']):
+            if index+1 == id:
+                result['data'][dct]['stuff'] = f"{task}"
+                await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(dt.timestamp(dt.now())), result['data'])
+                await ctx.reply(f'I have edited this task!')
     
     @todo.command(name = "clear", brief = "Clear todo")
     async def todo_clear(self, ctx):
