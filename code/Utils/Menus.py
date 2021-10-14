@@ -241,3 +241,45 @@ class DeleteView(discord.ui.View):
     async def on_timeout(self):
         self.clear_items()
         await self.message.edit(view = self)
+
+class ConfirmBl(discord.ui.View):
+    def __init__(self, user, confirm, cancel, timeout:int = 30):
+        self.value = None
+        self.user = user
+        self.confirm = confirm
+        self.cancel = cancel
+        super().__init__(timeout=timeout)
+
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+    async def confirmed(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return
+        self.value = True
+        for item in self.children:
+            item.disabled = True
+        button.style = discord.ButtonStyle.green
+        await interaction.message.edit(f"{self.confirm}", view=self, allowed_mentions = discord.AllowedMentions.none())
+        self.stop()
+
+
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
+    async def canceled(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return
+        self.value = False
+        for item in self.children:
+            item.style = discord.ButtonStyle.grey
+            item.disabled = True
+        button.style = discord.ButtonStyle.red
+        await interaction.message.edit(f"{self.cancel}", view=self, allowed_mentions = discord.AllowedMentions.none())
+        self.stop()
+    
+    async def on_timeout(self):
+        self.value = False
+        for item in self.children:
+            item.style = discord.ButtonStyle.grey
+            if item.label == "Cancel":
+                item.style = discord.ButtonStyle.red
+            item.disabled = True
+        await self.message.edit("Timed Out!", view=self)
+        self.stop()

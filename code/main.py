@@ -51,6 +51,7 @@ class Bot(commands.Bot):
         self.devmode = True if flags.devmode else False
         self.prefixstate = False
         self.prefix_cache = {}
+        self.blacklists = {}
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
     
     async def close(self):
@@ -302,11 +303,34 @@ async def unload_error(ctx, error):
 
 # Bot checks
 @bot.check
-async def owner_only(ctx: commands.Context) -> bool:
+async def owner_only(ctx: commands.Context):
   """ Owner only commands globally. """
   if not bot.devmode:
       return True
   return ctx.author.id == 760823877034573864
+
+@bot.check
+async def check_blacklists(ctx: commands.Context):
+    try:
+        data = bot.blacklists[ctx.author.id]
+        if not data:
+            raise KeyError
+    except KeyError:
+        data = await bot.db.fetchval('SELECT blacklists FROM userdata WHERE userid = $1', ctx.author.id)
+        if not data:
+            blacklists = {'prevbl': {}, 'blacklisted': False}
+            data = await bot.db.fetchval('INSERT INTO userdata(userid, blacklists) VALUES($1, $2) ON CONFLICT (userid) DO UPDATE SET blacklists = $2 RETURNING blacklists', ctx.author.id, blacklists)
+    bot.blacklists[ctx.author.id] = data
+    return not data["blacklisted"]
+
+@bot.check
+async def checkperms(ctx):
+    if not ctx.guild and not await bot.is_owner(ctx.author):
+        raise commands.NoPrivateMessage
+    else:
+        check = ctx.channel.permissions_for(ctx.me).embed_links and ctx.channel.permissions_for(ctx.me).send_messages
+    return check
+
 
 #Global Cooldown
 #_cd = commands.CooldownMapping.from_cooldown(1.0, 2.0, commands.BucketType.member)
@@ -320,14 +344,6 @@ async def owner_only(ctx: commands.Context) -> bool:
     #if retry_after:
         #raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.member)
     #return True
-
-@bot.check
-async def checkperms(ctx):
-    if not ctx.guild and not await bot.is_owner(ctx.author):
-        raise commands.NoPrivateMessage
-    else:
-        check = ctx.channel.permissions_for(ctx.me).embed_links and ctx.channel.permissions_for(ctx.me).send_messages
-    return check
 
 # Persistent View
 class PersistentButtons(discord.ui.Button):

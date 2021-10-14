@@ -9,7 +9,7 @@ import json
 import sys
 import re
 
-from Core.settings import pathway
+from Core.settings import pathway, BotMods
 
 def print_exception(text: str, error: Exception, *, _print: bool = False) -> str:
         """Prints the exception with proper traceback."""
@@ -243,3 +243,13 @@ features = {
             "THREADS_ENABLED":"Threads Enabled",
             "NEW_THREAD_PERMISSIONS":"New Thread Permissions Enabled"
         }
+
+def private_guilds(guilds: list):
+    async def predicate(ctx, guilds = guilds):
+        return ctx.guild.id in guilds
+    return commands.check(predicate)
+
+def BotModOnly(user = None):
+    async def predicate(ctx):
+        return ctx.author.id in BotMods or await ctx.bot.is_owner(ctx.author)
+    return commands.check(predicate)
