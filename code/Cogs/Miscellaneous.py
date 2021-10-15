@@ -2,10 +2,13 @@ import discord
 from discord.ext import commands
 
 import matplotlib.figure
+import psutil
 import time
+import sys
+import os
 import io
 
-from Utils.Useful import *
+from Utils.Useful import get_uptime, _size
 
 class Misc(commands.Cog):
     """ Miscellaneous Bot Info and Stats commands """ 
@@ -18,17 +21,19 @@ class Misc(commands.Cog):
         return ctx.guild
  
 
-    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"])
+    @commands.command(name = "info", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['about','botinfo'])
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def info(self, ctx):
         who = self.bot.get_user(760823877034573864)
-        emb = discord.Embed(colour = discord.Colour(10263807))
-        emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
+        emb = discord.Embed(colour = self.bot.colour, title = "About Horus", description = f"Horus is a private bot and will continue to be so for the foreseeable future. It was initially made for testing but includes a lot more now\nIt has Simple Utility, Fun Commands. Run `{ctx.clean_prefix}help` to get started. For bot support join the support server by clicking the button below\n\u200b")
         emb.add_field(name="Coded in:",value=f"**Language:** **[`python 3.8.5`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0`](https://github.com/Rapptz/discord.py)**\nㅤㅤㅤㅤ{self.bot.emojislist('replyend')} Master Branch")
-        emb.add_field(name="About Horus:",value=f"Horus is a private made for testing, has Simple Utility and Fun Commands. For bot support join the support server by clicking the button below\n\u200b",inline = False)
-        emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
-        emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
+        emb.add_field(name="Bot Developer",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
+        emb.add_field(name="\u200b",value="**Bot Analytics**", inline = False)
+        emb.add_field(name="Version:",value="<:Horus:896358537268195370> `0.1.0`\n\u200b")
         emb.add_field(name="On Discord Since:",value=f"<t:{round(ctx.me.created_at.timestamp())}:D>")
+        emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
+        emb.add_field(name = "Statistics:", value=f"```yaml\nServers:  {len([g.id for g in self.bot.guilds])}\nUsers:    {len([g.id for g in self.bot.users])}\nChannels: {sum([len([chan.id for chan in guild.channels]) for guild in self.bot.guilds])}\nCommands: {len(list(self.bot.walk_commands()))}```")
+        emb.add_field(name = "System:", value = f"```yaml\nSystem OS:{' '*6}macOS\nCPU Usage:{' '*6}{round(psutil.getloadavg()[2]/os.cpu_count()*100, 2)}%\nRAM Usage:{' '*6}{round(psutil.virtual_memory()[2], 2)}%\nVirtual Memory: {_size(psutil.Process().memory_full_info().vms)}```")
         emb.set_thumbnail(url=ctx.me.avatar)
         view = discord.ui.View()
         button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.blurple)
