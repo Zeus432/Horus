@@ -43,18 +43,28 @@ class BotListeners(commands.Cog, name = "Listeners"):
             await channel.send(f"\u200b\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
 
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
+    async def on_guild_remove(self, guild: discord.Guild):
         embed = guildanalytics(bot = self.bot, join=False, guild = guild)
         channel = self.bot.get_channel(874212184828297297)
         self.bot.log_channel = channel
         await self.bot.log_channel.send(embed=embed)
     
     @commands.Cog.listener()
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild: discord.Guild):
         channel = self.bot.get_channel(874212184828297297)
         self.bot.log_channel = channel
         embed = guildanalytics(bot = self.bot, join=True, guild = guild)
         await self.bot.log_channel.send(embed=embed)
+        try:
+            data = self.bot.blacklists[guild.id]
+        except KeyError:
+            data = await self.bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', guild.id)
+            if not data:
+                blacklists = {'prevbl': 0, 'blacklisted': False}
+                data = await self.bot.db.fetchval('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists', guild.id, blacklists)
+                self.bot.blacklists[guild.id] = data
+        if data["blacklisted"]:
+            await guild.leave()
 
 def setup(bot):
     bot.add_cog(BotListeners(bot))

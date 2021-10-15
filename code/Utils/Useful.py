@@ -258,3 +258,8 @@ class UserBlacklisted(commands.CommandError):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+
+class ServerBlacklisted(commands.CommandError):
+    def __init__(self, server, *args, **kwargs):
+        self.server = server
+        super().__init__(*args, **kwargs)
