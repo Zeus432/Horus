@@ -119,14 +119,17 @@ async def senderror(bot, ctx, error):
 
 # Guild Embed
 
-def guildanalytics(bot, guild,join: bool = None, **kwargs) -> "BaseEmbed":
-    colour = discord.Color.red() if join == False else discord.Color.green()
-    colour = discord.Colour(0x9c9cff) if join == None else colour
-    msg = "I've left this server" if join == False else "I've joined a new server"
+def guildanalytics(bot, guild, type: int = 0, **kwargs) -> "BaseEmbed":
+
+    msg = "I've joined a new server" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}"
+    colour = discord.Color.green() if type == 1 else discord.Color.red()
+    colour = discord.Colour(0x9c9cff) if not type  else colour
+
     description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n"
-    description += f"I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>\n" if join == None else ""
-    description += f"{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now" if join != None else ""
+    description += f"I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>\n" if not type else ""
+    description += f"\n{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now" if type else ""
     embed = discord.Embed(title = guild, colour = colour, description = description)
+
     owner,region = guild.owner, guild.region.name
     ifnsfw = len([c for c in guild.text_channels if c.is_nsfw()])
     ifgprem = guild.premium_tier

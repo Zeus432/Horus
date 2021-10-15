@@ -286,7 +286,7 @@ class Owner(commands.Cog):
         if not guild:
             return await ctx.reply("You need to mention a guild to view!")
         async with ctx.typing():
-            emb = guildanalytics(bot = self.bot, join=None, guild = guild)
+            emb = guildanalytics(bot = self.bot, join = 0, guild = guild)
             view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot,user=ctx.author)
             view.message = await ctx.reply(embed = emb,view = view)
 

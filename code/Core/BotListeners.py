@@ -41,19 +41,12 @@ class BotListeners(commands.Cog, name = "Listeners"):
                 final = f"Message too long to Display"
                 view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
             await channel.send(f"\u200b\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
-
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild: discord.Guild):
-        embed = guildanalytics(bot = self.bot, join=False, guild = guild)
-        channel = self.bot.get_channel(874212184828297297)
-        self.bot.log_channel = channel
-        await self.bot.log_channel.send(embed=embed)
     
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         channel = self.bot.get_channel(874212184828297297)
         self.bot.log_channel = channel
-        embed = guildanalytics(bot = self.bot, join=True, guild = guild)
+        embed = guildanalytics(bot = self.bot, type = 1, guild = guild)
         await self.bot.log_channel.send(embed=embed)
         try:
             data = self.bot.blacklists[guild.id]
@@ -65,6 +58,17 @@ class BotListeners(commands.Cog, name = "Listeners"):
                 self.bot.blacklists[guild.id] = data
         if data["blacklisted"]:
             await guild.leave()
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild: discord.Guild):
+        try:
+            embed = guildanalytics(bot = self.bot, type = 3 if self.bot.blacklists[guild.id]["blacklisted"] else 2, guild = guild)
+        except KeyError:
+            embed = guildanalytics(bot = self.bot, type = 2, guild = guild)
+        channel = self.bot.get_channel(874212184828297297)
+        self.bot.log_channel = channel
+        await self.bot.log_channel.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(BotListeners(bot))
