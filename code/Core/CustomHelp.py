@@ -42,7 +42,7 @@ class NewHelp(commands.HelpCommand):
     colour = discord.Colour(0x9c9cff)
 
     def em(self, emoji):
-        lst = {"Admin": "mod","Fun": "games","Utility": "staff","Owner": "dev","ErrorHandler":"error","Misc":"\U0001f6e0"}
+        lst = {"Admin": "adminabooz","Fun": "games","Utility": "staff","Blacklists":"mod","Owner": "dev","ErrorHandler":"error","Misc":"\U0001f6e0"}
         try:
             emoji = lst[emoji]
         except: pass
