@@ -24,7 +24,7 @@ class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.errors.ExpectedClosingQuoteError, UserBlacklisted)
+        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.errors.ExpectedClosingQuoteError, UserBlacklisted, ServerBlacklisted)
         error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):

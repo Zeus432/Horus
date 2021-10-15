@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 
-import random
 import asyncio
 
 from Utils.Useful import *
+from Utils.Menus import *
 
 class PPfight(discord.ui.View):
 
@@ -74,51 +74,7 @@ class Fun(commands.Cog, name = "Fun"):
     @commands.command(name = "gtn", aliases = ['guess','guessthenumber'], help = "Play a fun game of guess the correct number", brief = "Guess the Number")
     @commands.guild_only()
     async def gtn(self, ctx: commands.Context):
-
-        class Guess(discord.ui.View):
-            def __init__(self):
-                super().__init__(timeout = 10)
-                self.value = None
-                self.choices = random.sample(range(1, 100), 9)
-                self.correct = random.choice(self.choices)
-                self.guess = 3
-                for index, number in enumerate(self.choices):
-                    self.add_item(self.Button(index = index, number = number))
-            
-            class Button(discord.ui.Button):
-                def __init__(self, index: int, number: int):
-                    self.index = index
-                    super().__init__(label = f"{number}", style=discord.ButtonStyle.gray, row = index//3)
-
-                async def callback(self, interaction: discord.Interaction):
-                    if interaction.user.id != ctx.author.id:
-                        return await interaction.response.send_message(content="This is not your guessing game. Run `h!gtn` if you wanna play", ephemeral=True)
-                    if self.view.choices[self.index] == self.view.correct:
-                        msg = "You choose the correct number <a:ChickenClap:847462608042197012> !"
-                        self.style = discord.ButtonStyle.green
-                    else:
-                        self.view.guess -= 1
-                        msg = f"`{self.label}` is not the correct number. Try again, you have `{self.view.guess}` guess{'es' if self.view.guess != 1 else ''} left" if self.view.guess else f"`{self.label}` is not the correct number either! The correct number was `{self.view.correct}`\nImagine not being able to choose the right even with 3 guesses lmao <a:kekexplode:824150147230466060>"
-                        self.style,self.disabled = discord.ButtonStyle.red, True
-                    if (not self.view.guess) or self.view.choices[self.index] == self.view.correct:
-                        for item in self.view.children:
-                            if item.label == f"{self.view.correct}":
-                                item.style = discord.ButtonStyle.green if self.view.choices[self.index] == self.view.correct else discord.ButtonStyle.blurple
-                            item.disabled = True
-                            self.view.stop()
-
-                    await interaction.response.edit_message(view = self.view)
-                    await interaction.followup.send(content = msg)
-
-            async def on_timeout(self):
-                for item in self.children:
-                    if item.label == f"{self.correct}":
-                        item.style = discord.ButtonStyle.blurple
-                    item.disabled = True
-                await self.message.reply(f"You took too long to respond smh {botemojis('idrk')}\nThe correct number was `{self.correct}`")
-                await self.message.edit(view = self)
-
-        view = Guess()
+        view = Guess(author = ctx.author)
         view.message = await ctx.reply('Guess the Number!', view = view)
 
     @commands.command(name = "tb", aliases = ['button','buttons','testbuttons'], help = "View Different Buttons that can be made", brief = "Test Some Buttons")

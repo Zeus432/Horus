@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from typing import Optional
+import random
 
 from Utils.Useful import *
 from Utils.Embeds import *
@@ -283,3 +284,48 @@ class ConfirmBl(discord.ui.View):
             item.disabled = True
         await self.message.edit("Timed Out!", view=self)
         self.stop()
+
+class Guess(discord.ui.View):
+    def __init__(self, author):
+        super().__init__(timeout = 10)
+        self.value = None
+        self.choices = random.sample(range(1, 100), 9)
+        self.correct = random.choice(self.choices)
+        self.guess = 3
+        self.author = author
+        for index, number in enumerate(self.choices):
+            self.add_item(self.Button(index = index, number = number, author = author))
+            
+    class Button(discord.ui.Button):
+        def __init__(self, index: int, number: int, author):
+            self.index = index
+            self.author = author
+            super().__init__(label = f"{number}", style=discord.ButtonStyle.gray, row = index//3)
+
+        async def callback(self, interaction: discord.Interaction):
+            if interaction.user.id != self.author.id:
+                return await interaction.response.send_message(content="This is not your guessing game. Run `h!gtn` if you wanna play", ephemeral=True)
+            if self.view.choices[self.index] == self.view.correct:
+                msg = "You choose the correct number <a:ChickenClap:847462608042197012> !"
+                self.style = discord.ButtonStyle.green
+            else:
+                self.view.guess -= 1
+                msg = f"`{self.label}` is not the correct number. Try again, you have `{self.view.guess}` guess{'es' if self.view.guess != 1 else ''} left" if self.view.guess else f"`{self.label}` is not the correct number either! The correct number was `{self.view.correct}`\nImagine not being able to choose the right even with 3 guesses lmao <a:kekexplode:824150147230466060>"
+                self.style,self.disabled = discord.ButtonStyle.red, True
+            if (not self.view.guess) or self.view.choices[self.index] == self.view.correct:
+                for item in self.view.children:
+                    if item.label == f"{self.view.correct}":
+                        item.style = discord.ButtonStyle.green if self.view.choices[self.index] == self.view.correct else discord.ButtonStyle.blurple
+                    item.disabled = True
+                    self.view.stop()
+
+            await interaction.response.edit_message(view = self.view)
+            await interaction.followup.send(content = msg)
+
+    async def on_timeout(self):
+        for item in self.children:
+            if item.label == f"{self.correct}":
+                item.style = discord.ButtonStyle.blurple
+            item.disabled = True
+        await self.message.reply(f"You took too long to respond smh {botemojis('idrk')}\nThe correct number was `{self.correct}`")
+        await self.message.edit(view = self)
