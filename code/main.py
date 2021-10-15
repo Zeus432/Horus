@@ -64,12 +64,14 @@ class Bot(commands.Bot):
             try:
                 prefix = self.prefix_cache[message.guild.id]
             except KeyError:
+
                 prefix = await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id)
             if not prefix:
-                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) DO NOTHING RETURNING prefix',message.guild.id,['h!'])
+                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix',message.guild.id,['h!'])
             self.prefix_cache[message.guild.id] = prefix # Update Cache
 
         devprefix = []
+        prefix = [] if not prefix else prefix
         if await bot.is_owner(message.author):
             if "h!" not in prefix:
                 devprefix.append("h!")
@@ -311,6 +313,21 @@ async def owner_only(ctx: commands.Context):
 
 @bot.check
 async def check_blacklists(ctx: commands.Context):
+    # Check for Guild Blacklist
+
+    try:
+        data = bot.blacklists[ctx.guild.id]
+    except KeyError:
+        data = await bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', ctx.guild.id)
+        if not data:
+            blacklists = {'prevbl': 0, 'blacklisted': False}
+            data = await bot.db.fetchval('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists', ctx.guild.id, blacklists)
+            bot.blacklists[ctx.guild.id] = data
+    if data["blacklisted"]:
+        await ctx.guild.leave()
+        raise ServerBlacklisted(ctx.guild)
+
+    # Check for User Blacklist
     try:
         data = bot.blacklists[ctx.author.id]
         if not data:

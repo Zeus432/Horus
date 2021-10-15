@@ -155,19 +155,20 @@ class Blacklists(commands.Cog, name = "Blacklists"):
     @BotModOnly()
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.command(name = "unserverblacklist", aliases = ["unserverbl"], brief = "Unblacklist server", help = "Unblacklist a previously blacklisted server")
-    async def unserverblacklist(self, ctx, guild: discord.Guild, *, reason: str = None):
+    async def unserverblacklist(self, ctx, guild: Union[discord.Guild, int], *, reason: str = None):
+        guildid = guild if isinstance(guild, int) else guild.id
         try:
-            data = self.bot.blacklists[guild.id]
+            data = self.bot.blacklists[guildid]
         except KeyError:
-            data = await self.bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', guild.id)
+            data = await self.bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', guildid)
             if not data:
-                return await ctx.reply(f"Could not find a blacklisted server of ID: `{guild}`", mention_author = False)
+                return await ctx.reply(f"Could not find a blacklisted server of ID: `{guildid}`", mention_author = False)
         if not data["blacklisted"]:
             self.bot.blacklists[guild.id] = data
             return await ctx.reply('This is not a previously blacklisted server!', mention_author = False)
         
         if not reason:
-            message = await ctx.reply('Enter a reason for blacklist!')
+            message = await ctx.reply('Enter a reason for unblacklist!')
             def check(m: discord.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
             try:
@@ -176,21 +177,16 @@ class Blacklists(commands.Cog, name = "Blacklists"):
             except asyncio.TimeoutError:
                 return await message.reply("Response Timed Out!")
 
-        message = await ctx.reply(f'**{guild}** was unblacklisted\n**Reason:** {reason}', allowed_mentions = discord.AllowedMentions.none())
+        message = await ctx.reply(f'Unblacklisted server of id {guildid}\n**Reason:** {reason}', allowed_mentions = discord.AllowedMentions.none())
         timestamp = int(datetime.datetime.now().timestamp())
         data["prevbl"] += 1
         data["blacklisted"] = False
-        self.bot.blacklists[guild.id] = data
-        await self.bot.db.execute('UPDATE guilddata SET blacklists = $2 WHERE guildid = $1',guild.id, data)
-        embed = discord.Embed(description = f"**Server:** {guild} (`{guild.id}`)\n**Reason:** {reason}\n\Server was unblacklisted <t:{timestamp}> (<t:{timestamp}:R>)", colour = self.bot.colour)
-        embed.set_author(name = "Server Unblacklisted", icon_url = guild.icon or discord.Embed.Empty)
+        self.bot.blacklists[guildid] = data
+        await self.bot.db.execute('UPDATE guilddata SET blacklists = $2 WHERE guildid = $1',guildid, data)
+        embed = discord.Embed(description = f"**Server ID:** `{guildid}`\n**Reason:** {reason}\n\Server was unblacklisted <t:{timestamp}> (<t:{timestamp}:R>)", colour = self.bot.colour)
+        embed.set_author(name = "Server Unblacklisted")
         embed.set_footer(text = f"By: {ctx.author} ({ctx.author.id})", icon_url = ctx.author.avatar or ctx.author.default_avatar)
         await self.bot.get_channel(898259956745252864).send(embed = embed)
-
-        try:
-            await guild.owner.send(f"Your server (**{guild}**) was unblacklisted from the bot by a Bot Moderator: {ctx.author.mention}")
-        except:
-            await message.edit(f"**{guild}** was unblacklisted\n**Reason:** {reason}\n\nI was unable to dm the owner ({guild.owner.mention}) about their server's unblacklist! Maybe you could?", allowed_mentions = discord.AllowedMentions.none())
 
 def setup(bot):
     bot.add_cog(Blacklists(bot))
