@@ -53,7 +53,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
         timestamp = int(datetime.datetime.now().timestamp())
         data["blacklisted"] = {"reason": f"{reason}", "mod": ctx.author.id, "timestamp": timestamp}
         self.bot.blacklists[user.id] = data
-        await self.bot.db.execute('INSERT INTO userdata(userid, blacklists) VALUES($1, $2) ON CONFLICT (userid) DO UPDATE SET blacklists = $2',user.id, data)
+        await self.bot.db.execute('UPDATE userdata SET blacklists = $2 WHERE userid = $1',user.id, data)
         embed = discord.Embed(description = f"**User:** {user} (`{user.id}`)\n**Reason:** {reason}\n\nUser was blacklisted <t:{timestamp}> (<t:{timestamp}:R>)", colour = self.bot.colour)
         embed.set_author(name = "User Blacklisted", icon_url = user.avatar or user.default_avatar)
         embed.set_footer(text = f"By: {ctx.author} ({ctx.author.id})", icon_url = ctx.author.avatar or ctx.author.default_avatar)
@@ -73,7 +73,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
         except KeyError:
             data = await self.bot.db.fetchval('SELECT blacklists FROM userdata WHERE userid = $1', user.id)
             if not data:
-                blacklists = {'prevbl': {}, 'blacklisted': False}
+                blacklists = {'prevbl': 0, 'blacklisted': False}
                 data = await self.bot.db.fetchval('INSERT INTO userdata(userid, blacklists) VALUES($1, $2) ON CONFLICT (userid) DO UPDATE SET blacklists = $2 RETURNING blacklists', user.id, blacklists)
                 self.bot.blacklists[user.id] = data
         if not data["blacklisted"]:
@@ -132,7 +132,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
                 return await message.reply("Response Timed Out!")
     
         view = ConfirmBl(ctx.author, f'**{guild}** was blacklisted\n**Reason:** {reason}', "Alright not gonna Blacklist this server *yet*")
-        view.message = await ctx.reply(f"Are you sure you want to blacklist **{ctx.guild}**?\n**Note:** This will also make me leave the server", view = view, allowed_mentions = discord.AllowedMentions.none())
+        view.message = await ctx.reply(f"Are you sure you want to blacklist **{guild}**?\n**Note:** This will also make me leave the server", view = view, allowed_mentions = discord.AllowedMentions.none())
         
         await view.wait()
         if not view.value:
@@ -140,7 +140,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
         timestamp = int(datetime.datetime.now().timestamp())
         data["blacklisted"] = {"reason": f"{reason}", "mod": ctx.author.id, "timestamp": timestamp}
         self.bot.blacklists[guild.id] = data
-        await self.bot.db.execute('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2',guild.id, data)
+        await self.bot.db.execute('UPDATE guilddata SET blacklists = $2 WHERE guildid = $1',guild.id, data)
         embed = discord.Embed(description = f"**Server:** {guild} (`{guild.id}`)\n**Reason:** {reason}\n\nServer was blacklisted <t:{timestamp}> (<t:{timestamp}:R>)", colour = self.bot.colour)
         embed.set_author(name = "Server Blacklisted", icon_url = guild.icon or discord.Embed.Empty)
         embed.set_footer(text = f"By: {ctx.author} ({ctx.author.id})", icon_url = ctx.author.avatar or ctx.author.default_avatar)
@@ -161,9 +161,7 @@ class Blacklists(commands.Cog, name = "Blacklists"):
         except KeyError:
             data = await self.bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', guild.id)
             if not data:
-                blacklists = {'prevbl': 0, 'blacklisted': False}
-                data = await self.bot.db.fetchval('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists', guild.id, blacklists)
-                self.bot.blacklists[guild.id] = data
+                return await ctx.reply(f"Could not find a blacklisted server of ID: `{guild}`", mention_author = False)
         if not data["blacklisted"]:
             self.bot.blacklists[guild.id] = data
             return await ctx.reply('This is not a previously blacklisted server!', mention_author = False)
