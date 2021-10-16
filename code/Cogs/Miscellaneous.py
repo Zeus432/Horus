@@ -1,4 +1,5 @@
 import discord
+from discord.enums import Status
 from discord.ext import commands
 
 import matplotlib.figure
@@ -35,16 +36,29 @@ class Misc(commands.Cog):
         emb.add_field(name = "Statistics:", value=f"```yaml\nServers:  {len([g.id for g in self.bot.guilds])}\nUsers:    {len([g.id for g in self.bot.users])}\nChannels: {sum([len([chan.id for chan in guild.channels]) for guild in self.bot.guilds])}\nCommands: {len(list(self.bot.walk_commands()))}```")
         emb.add_field(name = "System:", value = f"```yaml\nSystem OS:{' '*6}macOS\nCPU Usage:{' '*6}{round(psutil.getloadavg()[2]/os.cpu_count()*100, 2)}%\nRAM Usage:{' '*6}{round(psutil.virtual_memory()[2], 2)}%\nVirtual Memory: {_size(psutil.Process().memory_full_info().vms)}```")
         emb.set_thumbnail(url=ctx.me.avatar)
-        view = discord.ui.View()
-        button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.blurple)
-        async def callback(interaction):
-            em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
-            await ctx.reply(embed = em, mention_author = False)
-            await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
-        button.callback = callback
-        view.add_item(button)
+
+        class Buttons(discord.ui.View):
+            def __init__(self, user: discord.Member, bot):
+                super().__init__(timeout = 300)
+                self.user = user
+                self.bot = bot
+            
+            @discord.ui.button(label = "Request Bot Invite", style = discord.ButtonStyle.blurple)
+            async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+                if interaction.user != self.user:
+                    return await interaction.response.send_message("Not your menu to interact with!", ephemeral = True)
+                em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
+                em.set_image(url = "https://c.tenor.com/Z6gmDPeM6dgAAAAC/dance-moves.gif")
+                await ctx.reply(embed = em, mention_author = True)
+            
+            async def on_timeout(self):
+                for item in self.children:
+                    item.disabled = True
+                await self.message.edit(view = self)
+
+        view = Buttons(user = ctx.author, bot = self.bot)
         view.add_item(discord.ui.Button(label= "Horus Support", style=discord.ButtonStyle.link, url=f"https://discord.gg/8BQMHAbJWk"))
-        await ctx.send(embed = emb, view=view)
+        view.message = await ctx.send(embed = emb, view=view)
 
 
     @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
