@@ -91,7 +91,7 @@ class Bot(commands.Bot):
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
         await asyncio.sleep(10)
         if not self.devmode:
-            await self.change_presence(status=discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name=f"over {len(self.guilds)} servers | h!help"))
+            await self.change_presence(status=discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name=f"for @{self.user.name} help"))
         else:
             print("Logging into Dev Mode\n")
             await self.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))

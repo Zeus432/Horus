@@ -380,7 +380,7 @@ class Owner(commands.Cog):
             self.bot.devmode = False
             await ctx.reply("Dev Mode has been disabled!")
             self.bot.prefixstate = False
-            await self.bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+            await self.bot.change_presence(status=discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name=f"for @{self.user.name} help"))
             return
         self.bot.devmode = True
         await ctx.reply("Dev Mode has been enabled!")
