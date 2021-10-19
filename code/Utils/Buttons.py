@@ -32,7 +32,7 @@ class PollButton(discord.ui.Button):
 class Delete(discord.ui.Button):
     def __init__(self, user):
         self.user = user
-        super().__init__(label = "Exit", emoji = f"{botemojis('trash')}", style = discord.ButtonStyle.blurple)
+        super().__init__(label = "Delete", emoji = f"{botemojis('trash')}", style = discord.ButtonStyle.blurple)
 
     async def callback(self, interaction: discord.Interaction):
         if self.user.id != interaction.user.id:

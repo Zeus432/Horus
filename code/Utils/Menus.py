@@ -187,7 +187,7 @@ class ErrorsPagination(discord.ui.View):
 # Poll Menu
 
 class PollMenu(discord.ui.View):
-    def __init__(self, amount:int ,bot:commands.Bot, message:discord.Message, author, timestring:str, webhook:discord.Webhook = None, timeout: Optional[float] = 180):
+    def __init__(self, amount:int ,bot:commands.Bot, message:discord.Message, author, timestring:str, webhook:discord.Webhook = None, timeout: Optional[float] = 180, yesno: bool = False):
         super().__init__(timeout=timeout)
         self.num = amount
         self.count = []
@@ -232,7 +232,7 @@ class DeleteView(discord.ui.View):
         self.user = ctx.author
         super().__init__(timeout=timeout, **kwargs)
     
-    @discord.ui.button(label = "Exit", emoji = f"{botemojis('trash')}", style = discord.ButtonStyle.blurple)
+    @discord.ui.button(label = "Delete", emoji = f"{botemojis('trash')}", style = discord.ButtonStyle.blurple)
     async def callback(self,button: discord.ui.Button, interaction: discord.Interaction):
         if self.user.id != interaction.user.id:
             return
