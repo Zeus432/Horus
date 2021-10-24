@@ -8,6 +8,7 @@ import pathlib
 import json
 import sys
 import re
+import os
 
 from Core.settings import pathway, BotMods
 
@@ -263,3 +264,17 @@ class ServerBlacklisted(commands.CommandError):
     def __init__(self, server, *args, **kwargs):
         self.server = server
         super().__init__(*args, **kwargs)
+
+def total_stuff(root: str, /) -> int:
+    lines = files = 0
+    for x in os.listdir(root):
+        if os.path.isdir(x):
+            result = total_stuff(root + "/" + x)
+            files += result[0]
+            lines += result[1]
+        else:
+            if x.endswith((".py")):
+                files += 1
+                with open(f"{root}/{x}") as r:
+                    lines += len(r.readlines())
+    return [files, lines]

@@ -5,7 +5,7 @@ from Core.settings import *
 from Core.CustomHelp import *
 
 class AdminCogs(commands.Cog, name = "Admin"):
-    """ Management commands mostly for Setup """
+    """ Management cmds mostly for Setup """
     COLOUR = discord.Colour(0x9c9cff)
     def __init__(self, bot: commands.Bot):
         self.bot = bot 

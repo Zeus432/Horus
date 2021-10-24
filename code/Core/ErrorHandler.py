@@ -6,7 +6,7 @@ from Utils.Menus import ErrorsPagination
 from Utils.Embeds import senderror
 
 class CommandErrorHandler(commands.Cog, name = "ErrorHandler"):
-    """ Global Handler and Management for Errors"""
+    """ Module for Global Error Handling and Logging"""
 
     def __init__(self, bot):
         self.bot = bot
