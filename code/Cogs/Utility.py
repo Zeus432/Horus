@@ -106,6 +106,7 @@ class Utility(commands.Cog):
     class PollFlags(commands.FlagConverter, prefix='--', delimiter=' ', case_insensitive=True):
         question: str = commands.flag(name='question', aliases=["q","ques"])
         time: TimeConverter = 600.0
+        yesno: bool = False
         opt: List[str]  = commands.flag(name='option', aliases=["opt"])
         webhook: bool = False
 
@@ -131,6 +132,11 @@ class Utility(commands.Cog):
         `--opt <option>`
         Enter the options for the poll. Can have a maximum of 10 options per poll
 
+        **Yes or No:**
+        `--yesno <True/False>`
+        Entering True will make it a yes or no question with 2 options Yes or No. Other Input options are ignored
+
+
         **Webhook:**
         `--webhook <True/False>`
         Entering True will make the bot send the poll as a webhook if it has Manage Webhooks perms
@@ -144,16 +150,16 @@ class Utility(commands.Cog):
         question = flags.question
         time = flags.time
         options = flags.opt
+        yesno = flags.yesno
         webhook = None
-        if len(options) < 2:
-            await ctx.reply("You need to give atleast 2 options!")
-            return
-        elif len(options) > 10:
-            await ctx.reply("You can only have a maximum of 10 options!")
-            return
+
+        if len(options) < 2 or yesno:
+            return await ctx.reply("You need to give atleast 2 options!")
+        elif len(options) > 10 or yesno:
+            return await ctx.reply("You can only have a maximum of 10 options!")
         elif time > 36000:
-            await ctx.reply("Maximum duration for a poll has been set to 1 hour due to hosting limits")
-            return
+            return await ctx.reply("Maximum duration for a poll has been set to 1 hour due to hosting limits")
+
         sendem,count = f"{question}",1
         for opt in options:
             sendem += f"\n\n{self.bot.emojislist(str(count))} {opt}"
@@ -175,7 +181,7 @@ class Utility(commands.Cog):
         else:
             message = await ctx.send(f"{ctx.author.mention} asks:\n{sendem}", allowed_mentions = discord.AllowedMentions.none())
         tm = int(dt.timestamp(dt.now()) + time)
-        view = PollMenu(amount=len(options), bot=self.bot, timeout = time, timestring = f"{tm}", webhook = webhook, message = message, author = ctx.author)
+        view = PollMenu(amount=len(options), bot=self.bot, timeout = time, timestring = f"{tm}", webhook = webhook, message = message, author = ctx.author, yesno = yesno)
         msg = message.content + "\n\n" + "\U000030fb".join([f"{self.bot.emojislist(i)}: `0` " for i in range(1,len(options)+ 1)]) + f"\n\nPoll ends on <t:{tm}:F> (<t:{tm}:R>)"
         await message.edit(content = msg, view = view, allowed_mentions = discord.AllowedMentions.none())
 

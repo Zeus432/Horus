@@ -1,5 +1,4 @@
 import discord
-from discord.enums import Status
 from discord.ext import commands
 
 import matplotlib.figure
