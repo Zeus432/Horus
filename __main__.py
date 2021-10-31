@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from datetime import datetime
-import logging
+from loguru import logger
 import aiohttp
 import pathlib
 import asyncio
@@ -10,8 +10,7 @@ import asyncpg
 import json
 import time
 
-
-from Core.utils import load_json, write_json
+from Core.Utils.useful import load_json, write_json
 from Core.settings import INITIAL_EXTENSIONS
 
 CONFIG = load_json('Core/config.json')
@@ -20,11 +19,8 @@ TOKEN = CONFIG['TOKEN']
 rootdir = pathlib.Path(__file__).parent.resolve()
 
 # Loggers help keep your console from being flooded with Errors, you can instead send them to a file which you can check later
-logger = logging.getLogger('HorusLog')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename = f'{rootdir}/Core/Horus.log', encoding = 'utf-8', mode = 'a')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+logger.remove()
+logger.add(f'{rootdir}/Core/Horus.log', level="DEBUG", format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
 
 class Horus(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -43,22 +39,28 @@ class Horus(commands.Bot):
         # Edit restart message if exists
         restart = CONFIG["restart"]
         if restart:
-            start = restart[0]
             end = datetime.utcnow().timestamp()
-            restart.append(round((end - start) * 10, 2))
-            self.restart = restart
-            self.loop.create_task(self.restartcheck())
+            self.loop.create_task(self.restartcheck(end, **restart))
     
-    async def restartcheck(self):
+    async def restartcheck(self, end, **kwargs):
         await self.wait_until_ready()
-        CONFIG['restart'] = []
+        CONFIG['restart'] = {}
         self.config = CONFIG
-        write_json('Core/config.json', CONFIG)
+        write_json(f'Core/config.json', CONFIG)
+
+        start = kwargs.pop("start")
+        message = kwargs.pop("message")
+        invoke = kwargs.pop("invoke")
+
         try:
-            msg = self.get_channel(self.restart[1][0]).get_partial_message(self.restart[1][1])
+            msg = self.get_channel(message[0]).get_partial_message(message[1])
         except:
-            return
-        await msg.edit(content = f"Restarted **{self.user.name}** in `{self.restart[2]}`s")
+            pass
+        else:
+            await msg.edit(content = f"Restarted **{self.user.name}** in `{round(end - start, 2)}s`")
+
+        react = self.get_channel(invoke[0]).get_partial_message(invoke[1])
+        await react.add_reaction(self.get_em('tick'))
     
     async def on_ready(self):
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
@@ -103,12 +105,23 @@ class Horus(commands.Bot):
 
         except Exception as e:
             print("Could not connect to database:", e)
+            logger.opt(exception = e).error("I was unable to connect to database:\n")
         
         else:
+            logger.info("Connected to database")
             self.launch_time = datetime.now()
             self.launch_ts = self.launch_time.timestamp()
             print(f"Connected to database ({round((time.perf_counter() - start) * 10, 2)}s)")
             self.run()
+
+    def get_em(self, emoji: str | int) -> str:
+        if isinstance(emoji, int):
+            return self.get_emoji(emoji)
+        emojis = load_json(f'Core/Assets/emojis.json')
+        try:
+            return emojis[emoji]
+        except:
+            return "\U000026a0"
 
 if __name__ == "__main__":
     horus = Horus()

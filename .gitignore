@@ -2,6 +2,5 @@
 __pycache__
 *.log
 Assets
-code/testing.py
 Releases
 config.json
