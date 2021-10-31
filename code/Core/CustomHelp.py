@@ -1,8 +1,7 @@
-from discord.ext import commands
 import discord
-from Utils.Menus import senderror
-from Utils.Useful import HelpButtons
-import asyncio
+from discord.ext import commands
+
+from Utils.Menus import DeleteView
 
 class HelpMenu(discord.ui.Select):
     def __init__(self, bot, getself, user,options=None):
@@ -43,11 +42,15 @@ class NewHelp(commands.HelpCommand):
     colour = discord.Colour(0x9c9cff)
 
     def em(self, emoji):
-        lst = {"Admin": "mod","Fun": "games","Utility": "staff","Owner": "dev","ErrorHandler":"error"}
+        lst = {"Admin": "adminabooz","Fun": "games","Utility": "staff","Blacklists":"mod","Owner": "dev","ErrorHandler":"error","Misc":"\U0001f6e0"}
         try:
             emoji = lst[emoji]
         except: pass
-        return self.context.bot.emojislist(emoji)
+        if emoji == "\U0001f6e0":
+            return emoji
+        try:
+            return self.context.bot.emojislist(emoji)
+        except: return emoji
     
     def stopdms(self):
         if not self.context.guild:
@@ -134,18 +137,11 @@ class NewHelp(commands.HelpCommand):
 
         filtered = await self.filter_commands(group.commands, sort=True)
         for command in filtered:
-            embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No info', inline=False)
+            embed.add_field(name = command.qualified_name, value=command.short_doc or 'No info', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons(30)
-        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
-        try:
-            await asyncio.wait_for(view.wait(), timeout=30)
-        except asyncio.TimeoutError:
-            try:
-                await msg.edit(view=None)
-            except:
-                pass
+        view = DeleteView(self.context, 30)
+        view.message = await self.context.reply(view = view,embed=embed, mention_author = False)
 
     async def send_command_help(self, command):
         self.stopdms()
@@ -163,15 +159,8 @@ class NewHelp(commands.HelpCommand):
                 embed.add_field(name=self.get_command_signature(command), value=command.short_doc or 'No documentation provided', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        view=HelpButtons(30)
-        msg = await self.context.reply(view = view,embed=embed, mention_author = False)
-        try:
-            await asyncio.wait_for(view.wait(), timeout=30)
-        except asyncio.TimeoutError:
-            try:
-                await msg.edit(view=None)
-            except:
-                pass
+        view = DeleteView(self.context, 30)
+        view.message = await self.context.reply(view = view,embed=embed, mention_author = False)
 
 class CustomHelp(commands.Cog):
     def __init__(self, bot):

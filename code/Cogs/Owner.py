@@ -1,24 +1,25 @@
-from discord.ext import commands
 import discord
-import asyncio
+from discord.ext import commands
 from discord.ext.commands import Greedy
+
+from contextlib import redirect_stdout
+from typing import Union
+import asyncio
+import textwrap
+import sys
+import io
+import os
+
 from Utils.Useful import *
 from Core.settings import *
 from Utils.Menus import *
-from typing import Union
-import io
-from contextlib import redirect_stdout
-import textwrap
-import sys
-import os
 
 class Owner(commands.Cog):
-    """ Overall bot management, or just for abooz, commands """
+    """ Overall bot related management stuff, or just for abooz commands """
 
     def __init__(self, bot):
         self.bot = bot
         self._last_result = None
-        self.sessions = set()
 
     def cleanup_code(self, content):
         """Automatically removes code blocks from the code."""
@@ -46,25 +47,40 @@ class Owner(commands.Cog):
             return f'```py\n{e.__class__.__name__}: {e}\n```'
         return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
-    @commands.command(hidden=True, name='eval')
+    @commands.command(name='eval', brief = "Evaluate Code")
     async def _eval(self, ctx, *, body: str):
-        """Evaluates a code"""
+        """ 
+        **Execute asynchronous code.**
+        This command wraps code into the body of an async function and then
+        calls and awaits it. The bot will respond with anything printed to
+        stdout, as well as the return value of the function.
+
+        The code can be within a codeblock, inline code or neither, as long
+        as they are not mixed and they are formatted correctly.
+
+        **Environment Variables:**
+        `ctx` - command invocation context
+        `bot` - bot object
+        `channel` - the current channel object
+        `author` - command author's member object
+        `message` - the command's message object
+        `discord` - discord.py library
+        `_` - The result of the last dev command.
+        """
 
         env = {
-            'bot.http.token': "",
             'bot': self.bot,
             'ctx': ctx,
             'channel': ctx.channel,
             'author': ctx.author,
             'guild': ctx.guild,
             'message': ctx.message,
-            'faketoken': "||MjM4Uc3Nz **Token Deez Nuts** Bad joke? Nvm then <:YouWantItToMoveButItWont:873921001023500328> .wNNTIxzQgV4||",
             '_': self._last_result
         }
 
         env.update(globals())
 
-        body = self.cleanup_code(body.replace('bot.http.token','faketoken'))
+        body = self.cleanup_code(body)
         stdout = io.StringIO()
 
         to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
@@ -87,13 +103,13 @@ class Owner(commands.Cog):
                 await ctx.message.add_reaction('\u2705')
             except:
                 pass
-
+            view = DeleteView(ctx=ctx)
             if ret is None:
                 if value:
-                    await ctx.send(f'```py\n{value}\n```')
+                    view.message = await ctx.send(f'```py\n{value}\n```', view = view)
             else:
                 self._last_result = ret
-                await ctx.send(f'```py\n{value}{ret}\n```')
+                view.message = await ctx.send(f'```py\n{value}{ret}\n```', view = view)
 
     @_eval.error
     async def _eval_error(self, ctx, error, test = None):
@@ -102,9 +118,9 @@ class Owner(commands.Cog):
         else:
             print(error)
     
-    @commands.command(name="shutdown", aliases = ['gotosleepwhorus','die','sleb','stop'], help = "Shutdown the bot in a peaceful way, rather than just closing the window", brief = "Shutdown ")
+    @commands.command(name="shutdown", aliases = ['gotosleepwhorus','die','sleb','stop'], help = "Put Horus to sleep <a:Frogsleb:849663487080792085>", brief = "Shutdown ")
     async def shutdown(self, ctx):
-        """Put Horus to sleep <a:Frogsleb:849663487080792085> """
+        """ Shutdown the bot in a peaceful way, rather than just closing the terminal """
         msg = await ctx.reply("Shutting down")
         await asyncio.sleep(0.5)
         await msg.edit("Shutting down .")
@@ -125,9 +141,9 @@ class Owner(commands.Cog):
             pass
         await self.bot.close()
     
-    @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "when people say random shit no one asked for", hidden = True)
-    async def whoasked(self, ctx, what: Union[discord.Member, discord.Message, str] = "None"):
-        """Who even asked bro"""
+    @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "Who even asked bro", hidden = True)
+    async def whoasked(self, ctx, what: Union[discord.Member, discord.Message, str] = None):
+        """ When people say random shit no one asked for """
         msgid = None
         if type(what) == discord.message.Message:
             msgid = what.id
@@ -185,20 +201,8 @@ class Owner(commands.Cog):
             await msg.edit(view = view)
         except:
             pass
-
-    @commands.command(aliases = ['di'])
-    async def disable(self, ctx, command):
-        """Disable a command."""
-
-        command = self.bot.get_command(command)
-        if command == None:
-            return await ctx.send("Could not find command")
-        if not command.enabled:
-            return await ctx.send("This command is already disabled.")
-        command.enabled = False
-        await ctx.send(f"Disabled {command.name} command.")
-
-    @commands.command(aliases = ['en'])
+    
+    @commands.command(aliases = ['en'], brief = "Enable Command")
     async def enable(self, ctx, command):
         """Enable a command."""
 
@@ -209,6 +213,18 @@ class Owner(commands.Cog):
             return await ctx.send("This command is already enabled.")
         command.enabled = True
         await ctx.send(f"Enabled {command.name} command.")
+
+    @commands.command(aliases = ['di'], brief = "Disable Command")
+    async def disable(self, ctx, command):
+        """Disable a command."""
+
+        command = self.bot.get_command(command)
+        if command == None:
+            return await ctx.send("Could not find command")
+        if not command.enabled:
+            return await ctx.send("This command is already disabled.")
+        command.enabled = False
+        await ctx.send(f"Disabled {command.name} command.")
     
     @commands.command()
     async def sql(self, ctx, *, query: str):
@@ -254,23 +270,29 @@ class Owner(commands.Cog):
             await ctx.send(fmt)
 
 
-    @commands.command()
+    @commands.command(brief = "Guilds List")
     async def guilds(self, ctx):
+        """ Get a list of all Guilds Horus is in """
         async with ctx.typing():
             msg = await ctx.reply("Fetching Guilds", mention_author = False)
             guilds = ", ".join([g.name + f" ({g.id})" for g in self.bot.guilds])
             await msg.delete()
             await ctx.send(f"```glsl\n{guilds}```")
     
-    @commands.command()
-    async def getguild(self, ctx, guild: discord.Guild):
+    @commands.command(brief = "Get Guild Info")
+    async def getguild(self, ctx, guild: discord.Guild = None):
+        """ Get all information and staistics about the specified guild """
+        guild = ctx.guild if not guild else guild
+        if not guild:
+            return await ctx.reply("You need to mention a guild to view!")
         async with ctx.typing():
-            emb = guildanalytics(bot = self.bot, join=None, guild = guild)
+            emb = guildanalytics(bot = self.bot, join = 0, guild = guild)
             view = GuildButtons(guild=guild,ctx=ctx,bot=self.bot,user=ctx.author)
             view.message = await ctx.reply(embed = emb,view = view)
 
-    @commands.command()
+    @commands.command(brief = "Toggle Noprefix")
     async def noprefix(self, ctx):
+        """ Enable/Disable Noprefix for Bot Owners """
         try:
             if self.bot.prefixstate == False:
                 self.bot.prefixstate = True
@@ -283,8 +305,9 @@ class Owner(commands.Cog):
             state = f"enabled for bot owners {botemojis('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
     
-    @commands.command()
+    @commands.command(brief = "Dm a user")
     async def dm(self, ctx, member: Greedy[discord.User], *, message: str = None):
+        """ Dm a user/multiple users using the bot"""
         reply,error = ctx,[]
         if not member:
             return await ctx.send_help(ctx.command)
@@ -327,8 +350,9 @@ class Owner(commands.Cog):
                 emb.add_field(name="\n\nI was unable to dm the following users:",value="\n".join([f"{botemojis('parrow')} **{who}**" for who in error]))
             await confirm.edit(embed=emb)
 
-    @commands.command()
+    @commands.command(brief = "Restart Bot")
     async def restart(self, ctx):
+        """ Restart the Bot  """
         def restart_program():
             python = sys.executable
             os.execl(python, python, * sys.argv)
@@ -339,32 +363,42 @@ class Owner(commands.Cog):
             await ctx.message.add_reaction(botemojis('warning'))
             await message.edit('Error I was unable to restart')
     
+    @commands.command(brief = "Manual Error")
+    async def err(self, ctx):
+        """ Manually Invoke an Error """
+        raise commands.CommandError
+    
     #bot.devmode
-    @commands.command(aliases = ['invis'])
+    @commands.command(aliases = ['invis'], brief = "Enable Devmode")
     async def devmode(self, ctx):
+        """
+        **Enable devmode**
+        Devmode sets the bot status to Invisible
+        Can only be used by the bot owner for testing in this state
+        """
         if self.bot.devmode:
             self.bot.devmode = False
             await ctx.reply("Dev Mode has been disabled!")
             self.bot.prefixstate = False
-            await self.bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+            await self.bot.change_presence(status=discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name=f"for @{self.user.name} help"))
             return
         self.bot.devmode = True
         await ctx.reply("Dev Mode has been enabled!")
         self.bot.prefixstate = True
         await self.bot.change_presence(status=discord.Status.invisible)
+    
+    @commands.command(name = "leave", brief = "Leave Guild")
+    async def leave(self, ctx, guild: discord.Guild = None):
+        guild = ctx.guild if not guild else guild
+        if not guild:
+            return await ctx.reply("You need to mention a guild to leave!")
+        
+        embed = discord.Embed(description=f"Are you sure you want to leave **[{guild}]({guild.icon})**?",colour=self.bot.colour)
+        view = Confirm()
+        view.msg = await ctx.reply(embed=embed,view=view)
+        view.user,view.guild = ctx.author, guild
 
-    @commands.group(invoke_without_command=True)
-    async def foo(self, ctx):
-        await ctx.send("1")
-
-    @foo.group(invoke_without_group = True)
-    async def sub(self, ctx):
-        await ctx.send("2")
-    @sub.command()
-    async def meee(self, ctx):
-        await ctx.send("3")   
-
-    @commands.command(aliases=["ss"])
+    @commands.command(aliases=["ss"], brief = "Screenshot a website")
     async def screenshot(self, ctx, website):
         """Take a website screenshot."""
 

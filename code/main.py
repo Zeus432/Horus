@@ -1,22 +1,34 @@
-import asyncio
 import discord
 from discord.ext import commands
-import time
-import datetime
+
 from loguru import logger
+import datetime
+import argparse
+import asyncio
 import asyncpg
+import time
+import sys
+
 from Utils.Useful import *
 from Core.settings import *
 from Utils.Menus import *
-import argparse
-import sys
 
 #add parsers
 parser = argparse.ArgumentParser()
 parser.add_argument("--devmode","--d", help = "Enable Devmode on start",action = 'store_true',default = False)
+parser.add_argument("--log","--l", help = "Enable Logging terminal output to terminal.log file",action = 'store_true',default = False)
 parser.add_argument("--token","--t", help = "Run Code With alternate Token", type = str,default = False)
 flags = parser.parse_args()
-print(flags.token)
+
+if flags.log:
+    try:
+        print("\nI will attempt to start logging the output in the log file instead of terminal!")
+        sys.stdout = sys.stderr = open(f'{pathway + "/code/Core/terminal.log"}', 'a')
+        print(f"{datetime.datetime.now().strftime('%m:%d:%Y - %H:%M:%S')} | I have begun logging the output in the log file instead of terminal!\n")
+    except:
+        print("I was unable to do this\n")
+
+print("Running with default token" if not flags.token else f"Running with input token: {flags.token}")
 TOKEN = flags.token if flags.token else TOKEN
 
 coglist = WorkingCogs
@@ -27,7 +39,7 @@ logger.info("Logged into Horus succesfully")
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for fun and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>", case_insensitive=True)
+        super().__init__(command_prefix=self.noprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, description="Horus is a private bot made for testing, has simple Utility and Fun Commands", case_insensitive=True)
         self.persview = False
         self.owner_ids = frozenset(BotOwners)
         self.launch_time = datetime.datetime.utcnow()
@@ -38,40 +50,53 @@ class Bot(commands.Bot):
         self.emojislist = botemojis
         self.devmode = True if flags.devmode else False
         self.prefixstate = False
+        self.prefix_cache = {}
+        self.blacklists = {}
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
     
     async def close(self):
-        # do stuff
         await super().close()
     
-    async def noprefix(self, bot, message):
-        prefix_return = ["h!","H!"]
-        if await bot.is_owner(message.author):
+    async def noprefix(self, bot, message: discord.Message):
+        # Check for prefix in cache, if not then get from db and build cache
+        prefix = ["h!"] # Default prefix
+        if message.guild:
             try:
-                if bot.prefixstate == True:
-                    prefix_return.append("")
-            except:
-                pass
-        return prefix_return
+                prefix = self.prefix_cache[message.guild.id]
+            except KeyError:
+
+                prefix = await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id)
+            if not prefix:
+                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix',message.guild.id,['h!'])
+            self.prefix_cache[message.guild.id] = prefix # Update Cache
+
+        devprefix = []
+        prefix = [] if not prefix else prefix
+        if await bot.is_owner(message.author):
+            if "h!" not in prefix:
+                devprefix.append("h!")
+            if bot.prefixstate == True:
+                devprefix.append("")
+        return commands.when_mentioned_or(*prefix,*devprefix)(bot, message) # Return Prefix
     
     async def on_ready(self):
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
-        total_members = list(bot.get_all_members())
-        total_channels = sum(1 for x in bot.get_all_channels())
-        print(f'Guilds: {len(bot.guilds)}')
-        print(f'Large Guilds: {sum(g.large for g in bot.guilds)}')
-        print(f'Chunked Guilds: {sum(g.chunked for g in bot.guilds)}')
+        total_members = list(self.get_all_members())
+        total_channels = sum(1 for x in self.get_all_channels())
+        print(f'Guilds: {len(self.guilds)}')
+        print(f'Large Guilds: {sum(g.large for g in self.guilds)}')
+        print(f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}')
         print(f'Members: {len(total_members)}')
         print(f'Channels: {total_channels}')
-        print(f'Message Cache Size: {len(bot.cached_messages)}\n')
+        print(f'Message Cache Size: {len(self.cached_messages)}\n')
         await asyncio.sleep(10)
-        if not bot.devmode:
-            await bot.change_presence(status=discord.Status.idle, activity = discord.Game(name="h!help | Watching over Woodlands"))
+        if not self.devmode:
+            await self.change_presence(status=discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name=f"for @{self.user.name} help"))
         else:
             print("Logging into Dev Mode\n")
-            await bot.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))
-        bot.launch_time = datetime.datetime.utcnow()
-        bot.launch_ts = time.time()
+            await self.change_presence(status=discord.Status.invisible, activity = discord.Game(name="Lurk"))
+        self.launch_time = datetime.datetime.utcnow()
+        self.launch_ts = time.time()
         if not self.persview:
             self.add_view(PersistentView())
             self.persview = True
@@ -85,7 +110,15 @@ async def run():
     closesys = True
     for i in range(5):
         try:
-            bot.db = await asyncpg.create_pool(**credentials)
+            async def init_connection(conn):
+                await conn.set_type_codec(
+                        'jsonb',
+                        encoder=json.dumps,
+                        decoder=json.loads,
+                        schema='pg_catalog'
+                    )
+            db = await asyncpg.create_pool(init=init_connection, **credentials)
+            bot.db = db
             print("Connection Successful")
             closesys = False
             break
@@ -171,7 +204,11 @@ async def load(ctx, cog = None):
         message += '\U0001f4e5 **Loaded:**\n'+f"{load[1:]}\n\n" if load else ""
         message += "\U0001f501 **Reloaded:**\n"+f"{rload[1:]}\n\n" if rload else ""
         message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
-        await ctx.send(message)
+        return await ctx.send(message)
+    try:
+        bot.load_extension(f"{cog}")
+    except Exception as e:
+        await ctx.send(f"```py\n{e}```")
 
 @load.error
 async def load_error(ctx, error):
@@ -252,7 +289,12 @@ async def unload(ctx, cog = None):
         message += '\U0001f4e4 **Unloaded:**\n'+f"{unload[1:]}\n\n" if unload else ""
         message += f"{botemojis('cross')} **Already Unloaded:**\n"+f"{aload[1:]}\n\n" if aload else ""
         message += f"{botemojis('error')} **Failed to Load:**\n"+f"{fload[1:]}\n\n" if fload else ""
-        await ctx.send(message)
+        return await ctx.send(message)
+    
+    try:
+        bot.unload_extension(f"{cog}")
+    except Exception as e:
+        await ctx.send(f"```py\n{e}```")
 
 @unload.error
 async def unload_error(ctx, error):
@@ -263,11 +305,51 @@ async def unload_error(ctx, error):
 
 # Bot checks
 @bot.check
-async def owner_only(ctx: commands.Context) -> bool:
+async def owner_only(ctx: commands.Context):
   """ Owner only commands globally. """
   if not bot.devmode:
       return True
   return ctx.author.id == 760823877034573864
+
+@bot.check
+async def check_blacklists(ctx: commands.Context):
+    # Check for Guild Blacklist
+
+    try:
+        data = bot.blacklists[ctx.guild.id]
+    except KeyError:
+        data = await bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', ctx.guild.id)
+        if not data:
+            blacklists = {'prevbl': 0, 'blacklisted': False}
+            data = await bot.db.fetchval('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists', ctx.guild.id, blacklists)
+            bot.blacklists[ctx.guild.id] = data
+    if data["blacklisted"]:
+        await ctx.guild.leave()
+        raise ServerBlacklisted(ctx.guild)
+
+    # Check for User Blacklist
+    try:
+        data = bot.blacklists[ctx.author.id]
+        if not data:
+            raise KeyError
+    except KeyError:
+        data = await bot.db.fetchval('SELECT blacklists FROM userdata WHERE userid = $1', ctx.author.id)
+        if not data:
+            blacklists = {'prevbl': {}, 'blacklisted': False}
+            data = await bot.db.fetchval('INSERT INTO userdata(userid, blacklists) VALUES($1, $2) ON CONFLICT (userid) DO UPDATE SET blacklists = $2 RETURNING blacklists', ctx.author.id, blacklists)
+    bot.blacklists[ctx.author.id] = data
+    if data["blacklisted"]:
+        raise UserBlacklisted(ctx.author)
+    return True
+
+@bot.check
+async def checkperms(ctx):
+    if not ctx.guild and not await bot.is_owner(ctx.author):
+        raise commands.NoPrivateMessage
+    else:
+        check = ctx.channel.permissions_for(ctx.me).embed_links and ctx.channel.permissions_for(ctx.me).send_messages
+    return check
+
 
 #Global Cooldown
 #_cd = commands.CooldownMapping.from_cooldown(1.0, 2.0, commands.BucketType.member)
@@ -286,7 +368,7 @@ async def owner_only(ctx: commands.Context) -> bool:
 class PersistentButtons(discord.ui.Button):
     def __init__(self, x: int, y: int, role, emoji):
         super().__init__(style=discord.ButtonStyle.secondary, label=f'{role.name}', row=x, custom_id=f'per:{role.name}', emoji=f'{emoji}')
-        self.rlist = {"Edgy":810018752639795220,"Cherry":810018754582151199,"Pearl":810018758009421834,"Bubblegum":810018760869543936,"Aqua":810018764467732480,"Sunset":810018767555526677,"Sky":810018771385319514,"Sid's Role":810090688838107157,"Random Colour":813387935394562108}
+        self.rlist = {"Edgy":810018752639795220,"Cherry":810018754582151199,"Pearl":810018758009421834,"Bubblegum":810018760869543936,"Aqua":810018764467732480,"Sunset":810018767555526677,"Sky":810018771385319514,"Random Colour":813387935394562108}
         self.x = x
         self.y = y
         self.role = role
@@ -304,7 +386,7 @@ class PersistentView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         rlist = {"00":810018752639795220,"01":810018754582151199,"02":810018758009421834,"03":810018760869543936,"10":810018764467732480,"11":810018767555526677,"12":810018771385319514,"13":813387935394562108}
-        remoji = {"00":"\U000026ab","01":"\U0001f534","02":"\U000026aa","03":"<:pink_circle:886511143433166879>","10":"<:green:853998821663047710>","11":"\U0001f7e0","12":"\U0001f535","13":"<:rainbow_circle:886456317978484776>"}
+        remoji = {"00":"\U000026ab","01":"\U0001f534","02":"\U000026aa","03":"<:pink_circle:886511143433166879>","10":"<:green:853998821663047710>","11":"\U0001f7e0","12":"\U0001f535","13":f"{botemojis('rainbow')}"}
         for x in range(2):
             for y in range(4):
                 role = rlist[f'{x}{y}']
@@ -318,7 +400,7 @@ class PersistentView(discord.ui.View):
 @commands.is_owner()
 async def buttonroles(ctx: commands.Context):
     view = PersistentView()
-    embed = discord.Embed(title = "Colour Roles", colour = discord.Colour(0xFCAD69),description = "\U000026ab <@&810018752639795220>\n\U0001f534 <@&810018754582151199>\n\U000026aa <@&810018758009421834>\n<:pink_circle:886511143433166879> <@&810018760869543936>\n<:green:853998821663047710> <@&810018764467732480>\n\U0001f7e0 <@&810018767555526677>\n\U0001f535 <@&810018771385319514>\n<:rainbow_circle:886456317978484776> <@&813387935394562108>\n\nButton roles are an experimental feature to substitue reaction roles but they only work when <@858335663571992618> is online, so to get colour roles you can use the buttons when it is online and the reactions in <#809650375589625867> when it isn't")
+    embed = discord.Embed(title = "Colour Roles", colour = discord.Colour(0xFCAD69),description = f"\U000026ab <@&810018752639795220>\n\U0001f534 <@&810018754582151199>\n\U000026aa <@&810018758009421834>\n<:pink_circle:886511143433166879> <@&810018760869543936>\n<:green:853998821663047710> <@&810018764467732480>\n\U0001f7e0 <@&810018767555526677>\n\U0001f535 <@&810018771385319514>\n{botemojis('rainbow')} <@&813387935394562108>\n\nButton roles are an experimental feature to substitue reaction roles but they only work when <@858335663571992618> is online, so to get colour roles you can use the buttons when it is online and the reactions in <#809650375589625867> when it isn't")
     await ctx.send(embed = embed, view=view)
 
 #load Cogs on turning on

@@ -1,7 +1,7 @@
 .DS_Store
 __pycache__
 settings.py
-horus.log
+*.log
 Assets
 code/testing.py
 Releases

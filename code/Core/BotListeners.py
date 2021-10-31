@@ -1,4 +1,6 @@
+import discord
 from discord.ext import commands
+
 from Utils.Useful import *
 from Utils.Menus import *
 
@@ -39,40 +41,34 @@ class BotListeners(commands.Cog, name = "Listeners"):
                 final = f"Message too long to Display"
                 view.add_item(discord.ui.Button(label="MystBin", style=discord.ButtonStyle.link, url=f"{fl}"))
             await channel.send(f"\u200b\n**{message.author}** (`{message.author.id}`) [<t:{round(message.created_at.timestamp())}:T>]\n{final}",view=view,files=[await attachment.to_file() for attachment in message.attachments])
-        #await self.bot.process_commands(message)
     
     @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if message.author.bot:
-            return
-        if "zeus" in message.content.lower() or "sid" in message.content.lower():
-            user = self.bot.get_user(760823877034573864)
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(url = f"{message.jump_url}", label = "Jump to Source", emoji = "\U0001f517"))
-            embed = discord.Embed(title = "Global Highlight", description = f"You were mentioned in {message.guild}" if message.guild else f"You were mentioned in my private dms with {message.author}", colour = self.bot.colour)
-            embed.add_field(name="Author:", value=f"**{message.author}**\n (`{message.author.id}`)")
-            if message.guild:
-                embed.add_field(name="Channel:", value=f"**#{message.channel}**\n (`{message.channel.id}`)")
-                embed.add_field(name="Guild:", value=f"**{message.guild}**\n (`{message.guild.id}`)")
-            else:
-                embed.add_field(name="Dm Channel:", value=f"**#{message.channel}**\n (`{message.channel.id}`)")
-            embed.add_field(name="Message ID:", value=f"`{message.id}`")
-
-            await user.send(f"{message.content}", files = [await attachment.to_file() for attachment in message.attachments], view = view, embed = embed)
-
+    async def on_guild_join(self, guild: discord.Guild):
+        channel = self.bot.get_channel(874212184828297297)
+        self.bot.log_channel = channel
+        embed = guildanalytics(bot = self.bot, type = 1, guild = guild)
+        await self.bot.log_channel.send(embed=embed)
+        try:
+            data = self.bot.blacklists[guild.id]
+        except KeyError:
+            data = await self.bot.db.fetchval('SELECT blacklists FROM guilddata WHERE guildid = $1', guild.id)
+            if not data:
+                blacklists = {'prevbl': 0, 'blacklisted': False}
+                data = await self.bot.db.fetchval('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists', guild.id, blacklists)
+                self.bot.blacklists[guild.id] = data
+        if data["blacklisted"]:
+            await guild.leave()
 
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
-        embed = guildanalytics(bot = self.bot, join=False, guild = guild)
+    async def on_guild_remove(self, guild: discord.Guild):
+        try:
+            embed = guildanalytics(bot = self.bot, type = 3 if self.bot.blacklists[guild.id]["blacklisted"] else 2, guild = guild)
+        except KeyError:
+            embed = guildanalytics(bot = self.bot, type = 2, guild = guild)
         channel = self.bot.get_channel(874212184828297297)
         self.bot.log_channel = channel
         await self.bot.log_channel.send(embed=embed)
-    
-    async def on_guild_join(self, guild):
-        channel = self.bot.get_channel(874212184828297297)
-        self.bot.log_channel = channel
-        embed = guildanalytics(bot = self.bot, join=True, guild = guild)
-        await self.bot.log_channel.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(BotListeners(bot))

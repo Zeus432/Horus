@@ -1,10 +1,13 @@
 import discord
 from discord.ext import commands
-from Utils.Useful import *
 
 import matplotlib.figure
+import psutil
 import time
+import os
 import io
+
+from Utils.Useful import get_uptime, _size, total_stuff
 
 class Misc(commands.Cog):
     """ Miscellaneous Bot Info and Stats commands """ 
@@ -17,28 +20,43 @@ class Misc(commands.Cog):
         return ctx.guild
  
 
-    @commands.command(name = "botinfo", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['info', "about"])
+    @commands.command(name = "info", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['about','botinfo'])
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def info(self, ctx):
         who = self.bot.get_user(760823877034573864)
-        emb = discord.Embed(colour = discord.Colour(10263807))
-        emb.add_field(name="Bot Dev:",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
-        emb.add_field(name="Coded in:",value=f"**Language:** **[`python 3.8.5`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0`](https://github.com/Rapptz/discord.py)**\nㅤㅤㅤㅤ{self.bot.emojislist('replyend')} Master Branch")
-        emb.add_field(name="About Horus:",value=f"Horus is a private bot made for fun, has simple moderation, fun commands and is also called as Whorus <:YouWantItToMoveButItWont:873921001023500328>",inline = False)
-        emb.add_field(name="Analytics:",value=f"**Servers:** {len([g.id for g in self.bot.guilds])} servers\n**Users:** {len([g.id for g in self.bot.users])}")
-        emb.add_field(name="Bot Uptime:",value=get_uptime(self.bot))
-        emb.add_field(name="On Discord Since:",value=f"<t:{round(ctx.me.created_at.timestamp())}:D>")
+        emb = discord.Embed(colour = self.bot.colour, title = "About Horus", description = f"Horus is a semi-private bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now\nIt has Simple Utility, Fun Commands. Run `{ctx.clean_prefix}help` to get started. For bot support join the support server by clicking the button below\n\u200b")
+        emb.add_field(name="Coded in",value=f"**Language:** **[`python 3.8.5`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0`](https://github.com/Rapptz/discord.py)**\nㅤㅤㅤㅤ{self.bot.emojislist('replyend')}Master Branch")
+        emb.add_field(name="Developed By",value=f"**[{who}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
+        emb.add_field(name="\u200b",value="**Bot Analytics**", inline = False)
+        emb.add_field(name="Running On",value="<:Horus:896358537268195370> `v0.1.0`\n\u200b")
+        emb.add_field(name="On Discord Since",value=f"<t:{round(ctx.me.created_at.timestamp())}:D>")
+        emb.add_field(name="Bot Uptime",value=get_uptime(self.bot))
+        emb.add_field(name = "Statistics", value=f"```yaml\nUsers:    {len([g.id for g in self.bot.users])}\nServers:  {len([g.id for g in self.bot.guilds])}\nChannels: {sum([len([chan.id for chan in guild.channels]) for guild in self.bot.guilds])}\nCommands: {len(list(self.bot.walk_commands()))}```")
+        emb.add_field(name = "System", value = f"```yaml\nSystem OS:{' '*6}macOS\nCPU Usage:{' '*6}{round(psutil.getloadavg()[2]/os.cpu_count()*100, 2)}%\nRAM Usage:{' '*6}{round(psutil.virtual_memory()[2], 2)}%\nVirtual Memory: {_size(psutil.Process().memory_full_info().vms)}```")
         emb.set_thumbnail(url=ctx.me.avatar)
-        view = discord.ui.View()
-        button = discord.ui.Button(label= "Request Bot Invite", style=discord.ButtonStyle.blurple)
-        async def callback(interaction):
-            em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
-            await ctx.reply(embed = em, mention_author = False)
-            await ctx.send("https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825")
-        button.callback = callback
-        view.add_item(button)
-        view.add_item(discord.ui.Button(label= "Horus Support", style=discord.ButtonStyle.link, url=f"https://discord.gg/8BQMHAbJWk", emoji = "<:hsupport:893556630820618251>"))
-        await ctx.send(embed = emb, view=view)
+
+        class Buttons(discord.ui.View):
+            def __init__(self, user: discord.Member, bot):
+                super().__init__(timeout = 300)
+                self.user = user
+                self.bot = bot
+            
+            @discord.ui.button(label = "Request Bot Invite", style = discord.ButtonStyle.blurple)
+            async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+                if interaction.user != self.user:
+                    return await interaction.response.send_message("Not your menu to interact with!", ephemeral = True)
+                em = discord.Embed(description=f"Bot isn't fully set up yet <:hadtodoittoem:874263602897502208>",colour = self.bot.colour)
+                em.set_image(url = "https://c.tenor.com/Z6gmDPeM6dgAAAAC/dance-moves.gif")
+                await ctx.reply(embed = em, mention_author = True)
+            
+            async def on_timeout(self):
+                for item in self.children:
+                    item.disabled = True
+                await self.message.edit(view = self)
+
+        view = Buttons(user = ctx.author, bot = self.bot)
+        view.add_item(discord.ui.Button(label= "Horus Support", style=discord.ButtonStyle.link, url=f"https://discord.gg/8BQMHAbJWk"))
+        view.message = await ctx.send(embed = emb, view=view)
 
 
     @commands.command(name = "ping", help = "View the ping of the bot", brief = "Take a wild guess")
@@ -67,13 +85,13 @@ class Misc(commands.Cog):
 
     @commands.command(name='support', brief = "Bot Support")
     @commands.cooldown(2, 5, commands.BucketType.user)
-    async def uptime(self, ctx: commands.Context):
+    async def support(self, ctx: commands.Context):
         """ Get an Invite to Horus' Support Server """
         msg = "<#892767470379749456>: For bot support and For reporting bugs" if ctx.guild.id == 873127663840137256 else "Here is an invite to my Support Server.\n**[ https://discord.gg/8BQMHAbJWk ]**"
         await ctx.reply(msg)
 
 
-    @commands.command(name = "pie-bot")
+    @commands.command(name = "pie-bot", brief = "Bot/Member ratio")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def pie_bot(self, ctx):
         """Make a pie chart of server bots."""

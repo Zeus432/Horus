@@ -1,16 +1,16 @@
-import discord
+from discord.ext import commands
+
+from dateutil.relativedelta import relativedelta
 import traceback
-import sys
+import datetime
+import aiohttp
 import pathlib
 import json
-import datetime
-from dateutil.relativedelta import relativedelta
-import aiohttp
-from discord.ext import commands
+import sys
 import re
-from Core.settings import pathway
+import os
 
-from discord.ext.commands.flags import FlagsMeta
+from Core.settings import pathway, BotMods
 
 def print_exception(text: str, error: Exception, *, _print: bool = False) -> str:
         """Prints the exception with proper traceback."""
@@ -37,14 +37,6 @@ def botemojis(emoji = "None"):
         return listemoji[emoji]
     except:
         return listemoji['error']
-
-class HelpButtons(discord.ui.View):
-    def __init__(self, timeout:int, **kwargs):
-        super().__init__(timeout=timeout, **kwargs)
-
-    @discord.ui.button(style=discord.ButtonStyle.blurple, emoji = botemojis("trash"))
-    async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.message.delete()
 
 def fileanalytics():
     p = pathlib.Path('./')
@@ -138,14 +130,17 @@ def get_uptime(bot):
         delta_uptime = relativedelta(datetime.datetime.utcnow(), bot.launch_time)
         days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
 
-        uptimes = {x[0]: x[1] for x in [('days, ' if days != 1 else 'day, ', days), ('hours, ' if hours != 1 else 'hour, ', hours),
-                                        ('minutes' if minutes != 1 else 'minute', minutes), ('seconds' if seconds != 1 else 'second', seconds)] if x[1]}
+        uptimes = {x[0]: x[1] for x in [('day', days), ('hour', hours), ('minute', minutes), ('second', seconds)] if x[1]}
+        l = len(uptimes) 
 
         last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes)-1)
-        uptime_string = "".join(
-            f"{v} {k}" if k != last else f" and {v} {k}" if len(uptimes) != 1 else f"{v} {k}"
-            for k, v in uptimes.items()
+
+        uptime_string = ", ".join(
+            f"{uptimes[value]} {value}{'s' if uptimes[value] > 1 else ''}" for index, value in enumerate(uptimes.keys()) if index != l-1
         )
+        uptime_string += f" and {uptimes[last]}" if l > 1 else f"{uptimes[last]}"
+        uptime_string += f" {last}{'s' if uptimes[last] > 1 else ''}"
+        
         return uptime_string
 
 async def mystbin(data):
@@ -174,3 +169,112 @@ class TimeConverter(commands.Converter):
             return float(argument)
         except: 
             return time
+
+def _size(num):
+    for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
+        if abs(num) < 1024.0:
+            return "{0:.1f}{1}".format(num, unit)
+        num /= 1024.0
+    return "{0:.1f}{1}".format(num, "YB")
+            
+def _bitsize(num):
+    for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
+        if abs(num) < 1000.0:
+            return "{0:.1f}{1}".format(num, unit)
+        num /= 1000.0
+    return "{0:.1f}{1}".format(num, "YB")
+
+vc_regions = {
+            "vip-us-east": "__VIP__ US East " + "\U0001F1FA\U0001F1F8",
+            "vip-us-west": "__VIP__ US West " + "\U0001F1FA\U0001F1F8",
+            "vip-amsterdam": "__VIP__ Amsterdam " + "\U0001F1F3\U0001F1F1",
+            "eu-west": "EU West " + "\U0001F1EA\U0001F1FA",
+            "eu-central": "EU Central " + "\U0001F1EA\U0001F1FA",
+            "europe": "Europe " + "\U0001F1EA\U0001F1FA",
+            "london": "London " + "\U0001F1EC\U0001F1E7",
+            "frankfurt": "Frankfurt " + "\U0001F1E9\U0001F1EA",
+            "amsterdam": "Amsterdam " + "\U0001F1F3\U0001F1F1",
+            "us_west": "US West " + "\U0001F1FA\U0001F1F8",
+            "us-east": "US East " + "\U0001F1FA\U0001F1F8",
+            "us-south": "US South " + "\U0001F1FA\U0001F1F8",
+            "us-central": "US Central " + "\U0001F1FA\U0001F1F8",
+            "singapore": "Singapore " + "\U0001F1F8\U0001F1EC",
+            "sydney": "Sydney " + "\U0001F1E6\U0001F1FA",
+            "brazil": "Brazil " + "\U0001F1E7\U0001F1F7",
+            "hongkong": "Hong Kong " + "\U0001F1ED\U0001F1F0",
+            "russia": "Russia " + "\U0001F1F7\U0001F1FA",
+            "japan": "Japan " + "\U0001F1EF\U0001F1F5",
+            "southafrica": "South Africa " + "\U0001F1FF\U0001F1E6",
+            "india": "India " + "\U0001F1EE\U0001F1F3",
+            "south-korea": "South Korea " + "\U0001f1f0\U0001f1f7",
+            'dubai':'\U0001f1e6\U0001f1ea'
+        }
+verif = {
+            "none": "0 - None",
+            "low": "1 - Low",
+            "medium": "2 - Medium",
+            "high": "3 - High",
+            "extreme": "4 - Extreme",
+        }
+features = {
+            "ANIMATED_ICON": "Animated Icon",
+            "BANNER": "Banner Image",
+            "COMMERCE": "Commerce",
+            "COMMUNITY": "Community",
+            "DISCOVERABLE": "Server Discovery",
+            "FEATURABLE": "Featurable",
+            "INVITE_SPLASH": "Splash Invite",
+            "MEMBER_LIST_DISABLED": "Member list disabled",
+            "MEMBER_VERIFICATION_GATE_ENABLED": "Membership Screening enabled",
+            "MONETIZATION_ENABLED": "Monetisation is enabled",
+            "MORE_EMOJI": "More Emojis",
+            "MORE_STICKERS":"More Stickers",
+            "NEWS": "News Channels",
+            "PARTNERED": "Partnered",
+            "PREVIEW_ENABLED": "Preview enabled",
+            "PUBLIC_DISABLED": "Public disabled",
+            "PRIVATE_THREADS": "Threads Private",
+            "SEVEN_DAY_THREAD_ARCHIVE": "Threads Archive time - 7 Days",
+            "THREE_DAY_THREAD_ARCHIVE": "Threads Archive time - 3 Days",
+            "TICKETED_EVENTS_ENABLED": "Ticketed Events Enabled",
+            "VANITY_URL": "Vanity URL",
+            "VERIFIED": "Verified",
+            "VIP_REGIONS": "VIP Voice Servers",
+            "WELCOME_SCREEN_ENABLED": "Welcome Screen enabled",
+            "THREADS_ENABLED":"Threads Enabled",
+            "NEW_THREAD_PERMISSIONS":"New Thread Permissions Enabled"
+        }
+
+def private_guilds(guilds: list):
+    async def predicate(ctx, guilds = guilds):
+        return ctx.guild.id in guilds
+    return commands.check(predicate)
+
+def BotModOnly(user = None):
+    async def predicate(ctx):
+        return ctx.author.id in BotMods or await ctx.bot.is_owner(ctx.author)
+    return commands.check(predicate)
+
+class UserBlacklisted(commands.CommandError):
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+class ServerBlacklisted(commands.CommandError):
+    def __init__(self, server, *args, **kwargs):
+        self.server = server
+        super().__init__(*args, **kwargs)
+
+def total_stuff(root: str, /) -> int:
+    lines = files = 0
+    for x in os.listdir(root):
+        if os.path.isdir(x):
+            result = total_stuff(root + "/" + x)
+            files += result[0]
+            lines += result[1]
+        else:
+            if x.endswith((".py")):
+                files += 1
+                with open(f"{root}/{x}") as r:
+                    lines += len(r.readlines())
+    return [files, lines]

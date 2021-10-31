@@ -1,8 +1,10 @@
 import discord
 from discord.ext import commands
-import random
+
 import asyncio
+
 from Utils.Useful import *
+from Utils.Menus import *
 
 class PPfight(discord.ui.View):
 
@@ -72,94 +74,8 @@ class Fun(commands.Cog, name = "Fun"):
     @commands.command(name = "gtn", aliases = ['guess','guessthenumber'], help = "Play a fun game of guess the correct number", brief = "Guess the Number")
     @commands.guild_only()
     async def gtn(self, ctx: commands.Context):
-
-        class Guess(discord.ui.View):
-            numlist = random.sample(range(1, 100), 4)
-            correct = random.choice(numlist)
-
-            def __init__(self):
-                super().__init__()
-                self.value = None
-
-            @discord.ui.button(label= numlist[0], style=discord.ButtonStyle.grey)
-            async def choice1(self, button: discord.ui.Button, interaction: discord.Interaction, numlist = numlist, correct = correct):
-                if interaction.user.id == ctx.author.id:
-                    if numlist[0] == correct:
-                        msg = "You choose the correct number <a:ChickenClap:847462608042197012>!"
-                        button.style = discord.ButtonStyle.green
-                    else:
-                        msg = f"Imagine not being able to choose the right answer out of only 4 options <a:kekexplode:824150147230466060>, the correct number was {correct}"
-                        button.style = discord.ButtonStyle.red
-                    for item in self.children:
-                        if item.label == correct:
-                            item.style = discord.ButtonStyle.green
-                        item.disabled = True
-                    await interaction.response.edit_message(view=self)
-                    await interaction.followup.send(content=msg, ephemeral=False)
-                    self.stop()
-                else:
-                    await interaction.response.send_message(content="This is not your guessing game. Start one for yourself nab", ephemeral=True)
-
-            @discord.ui.button(label= numlist[1], style=discord.ButtonStyle.grey)
-            async def choice2(self, button: discord.ui.Button, interaction: discord.Interaction, numlist = numlist, correct = correct):
-                if interaction.user.id == ctx.author.id:
-                    if numlist[1] == correct:
-                        msg = "You choose the correct number <a:ChickenClap:847462608042197012>!"
-                        button.style = discord.ButtonStyle.green
-                    else:
-                        msg = f"Imagine not being able to choose the right answer out of only 4 options <a:kekexplode:824150147230466060>, the correct number was {correct}"
-                        button.style = discord.ButtonStyle.red
-                    for item in self.children:
-                        if item.label == correct:
-                            item.style = discord.ButtonStyle.green
-                        item.disabled = True
-                    await interaction.response.edit_message(view=self)
-                    await interaction.followup.send(content=msg, ephemeral=False)
-                    self.stop()
-                else:
-                    await interaction.response.send_message(content="This is not your guessing game. Start one for yourself nab", ephemeral=True)
-
-            @discord.ui.button(label= numlist[2], style=discord.ButtonStyle.grey)
-            async def choice3(self, button: discord.ui.Button, interaction: discord.Interaction, numlist = numlist, correct = correct):
-                if interaction.user.id == ctx.author.id:
-                    if numlist[2] == correct:
-                        msg = "You choose the correct number <a:ChickenClap:847462608042197012>!"
-                        button.style = discord.ButtonStyle.green
-                    else:
-                        msg = f"Imagine not being able to choose the right answer out of only 4 options <a:kekexplode:824150147230466060>, the correct number was {correct}"
-                        button.style = discord.ButtonStyle.red
-                    for item in self.children:
-                        if item.label == correct:
-                            item.style = discord.ButtonStyle.green
-                        item.disabled = True
-                    await interaction.response.edit_message(view=self)
-                    await interaction.followup.send(content=msg, ephemeral=False)
-                    self.stop()
-                else:
-                    await interaction.response.send_message(content="This is not your guessing game. Start one for yourself nab", ephemeral=True)
-
-            @discord.ui.button(label=numlist[3], style=discord.ButtonStyle.grey)
-            async def choice4(self, button: discord.ui.Button, interaction: discord.Interaction, numlist = numlist, correct = correct):
-                if interaction.user.id == ctx.author.id:
-                    if numlist[3] == correct:
-                        msg = "You choose the correct number <a:ChickenClap:847462608042197012>!"
-                        button.style = discord.ButtonStyle.green
-                    else:
-                        msg = f"Imagine not being able to choose the right answer out of only 4 options <a:kekexplode:824150147230466060>, the correct number was {correct}"
-                        button.style = discord.ButtonStyle.red
-                    for item in self.children:
-                        if item.label == correct:
-                            item.style = discord.ButtonStyle.green
-                        item.disabled = True
-                    await interaction.response.edit_message(view=self)
-                    await interaction.followup.send(content=msg, ephemeral=False)
-                    self.stop()
-                else:
-                    await interaction.response.send_message(content="This is not your guessing game. Start one for yourself nab", ephemeral=True)
-
-        view=Guess()
-        await ctx.reply('Guess the Number!', view=view)
-        await asyncio.sleep(30)
+        view = Guess(author = ctx.author)
+        view.message = await ctx.reply('Guess the Number!', view = view)
 
     @commands.command(name = "tb", aliases = ['button','buttons','testbuttons'], help = "View Different Buttons that can be made", brief = "Test Some Buttons")
     @commands.guild_only()
@@ -205,10 +121,7 @@ class Fun(commands.Cog, name = "Fun"):
             await ctx.send(f"You can't play with bots nab, they'll never respond {botemojis('yikes')}")
             return
         if ctx.author.id == opponent.id:
-            if ctx.guild.id == 876044372460838922:
-                await ctx.send(f"You can't play against yourself {botemojis('yikes')}")
-                return
-            await ctx.send(f"You can't play with yourself here {botemojis('yikes')}")
+            await ctx.send(f"You can't play against yourself {botemojis('yikes')}")
             await ctx.send("https://tenor.com/view/we-dont-do-that-here-black-panther-tchalla-bruce-gif-16558003")
             return
         class View(discord.ui.View):
