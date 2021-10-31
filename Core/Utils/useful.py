@@ -6,12 +6,12 @@ import asyncio
 import datetime
 import json
 
-def load_json(file) -> dict:
+def load_json(file: str) -> dict:
     with open(file, encoding = 'utf-8') as newfile:
         return json.load(newfile)
 
 
-def write_json(file, contents):
+def write_json(file: str, contents: dict) -> None:
     with open(file, 'w') as newfile:
         json.dump(contents, newfile, ensure_ascii = True, indent = 4)
 
@@ -34,22 +34,6 @@ def get_uptime(bot: commands.Bot) -> str:
 
 class CheckAsync(commands.Converter):
     async def isAsync(self, ctx: commands.Context, argument):
-        return asyncio.iscoroutinefunction(self)
-
-class Confirm(discord.ui.View):
-    def __init__(self, onconfirm: CheckAsync, oncancel: CheckAsync, ontimeout: CheckAsync, timeout: float = 180.0):
-        super().__init__(timeout=timeout)
-        self.onconfirm = onconfirm
-        self.oncancel = oncancel
-        self.ontimeout = ontimeout
-    
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
-    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await self.onconfirm(self, button, interaction)
-    
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
-    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await self.oncancel(self, button, interaction)
-    
-    async def on_timeout(self):
-        await self.ontimeout(self)
+        if asyncio.iscoroutinefunction(self):
+            return self
+        raise commands.BadArgument("Argument is meant to be a coroutine function!")
