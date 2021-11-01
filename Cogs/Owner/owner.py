@@ -12,9 +12,11 @@ import sys
 import io
 import os
 
-from .useful import cleanup_code, plural, TabularData, ConfirmLeave, WhoAsked
-from Core.Utils.useful import write_json
+from Core.Utils.useful import write_json, guildanalytics
 from Core.Utils.views import Confirm
+
+from .useful import cleanup_code, plural, TabularData
+from .menus import ConfirmLeave, WhoAsked, GuildButtons
 
 class Owner(commands.Cog):
     """ Overall bot related management stuff, or just for abuse commands """
@@ -280,5 +282,30 @@ class Owner(commands.Cog):
         except:
             view.message = await ctx.send('Now playing: \nWho Asked (Feat. Nobody Did)\n⬤────────────────', view = view)
 
-        await view.playmusic()
+        await view.playmusic(wait = False)
+        await view.wait()
+    
+    @commands.command(brief = "Guilds List")
+    async def guilds(self, ctx: commands.Context):
+        """ Get a list of all Guilds Horus is in """
+        async with ctx.typing():
+            msg = await ctx.reply("Fetching Guilds", mention_author = False)
+            guilds = ", ".join([g.name + f" ({g.id})" for g in self.bot.guilds])
+            try:
+                await msg.delete()
+            except: pass
+            await ctx.send(f"```glsl\n{guilds}```")
+    
+    @commands.command(brief = "Get Guild Info")
+    async def getguild(self, ctx: commands.Context, guild: discord.Guild = None):
+        """ Get all information and staistics about the specified guild """
+        guild = ctx.guild if not guild else guild
+
+        if not guild:
+            return await ctx.reply("You need to mention a guild to view!")
+
+        async with ctx.typing():
+            embed = guildanalytics(bot = self.bot, guild = guild, join = 0)
+            view = GuildButtons(guild = guild, ctx = ctx, bot = self.bot)
+            view.message = await ctx.reply(embed = embed,view = view)
         await view.wait()
