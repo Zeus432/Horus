@@ -239,7 +239,7 @@ class Owner(commands.Cog):
     async def noprefix(self, ctx: commands.Context):
         """ Enable/Disable Noprefix for Bot Owners """
         self.bot.noprefix = False if self.bot.noprefix else True
-        state = f"disabled, use default prefixes now {self.bot.get_em('hmm')}" if self.bot.noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
+        state = f"disabled, use default prefixes now {self.bot.get_em('hmm')}" if not self.bot.noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
     
     @commands.command(brief = "Dm a user")

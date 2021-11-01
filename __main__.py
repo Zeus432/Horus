@@ -24,7 +24,7 @@ logger.add(f'{rootdir}/Core/Horus.log', level="DEBUG", format="{time:YYYY-MM-DD 
 
 class Horus(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(command_prefix = commands.when_mentioned_or(*CONFIG['prefix']),  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, case_insensitive = True, **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, case_insensitive = True, **kwargs)
         self.description = CONFIG['description']
         self.config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
@@ -41,6 +41,18 @@ class Horus(commands.Bot):
         restart = CONFIG["restart"]
         if restart:
             self.loop.create_task(self.restartcheck(**restart))
+    
+    async def getprefix(self, bot: commands.Bot, message: discord.Message):
+        # Check for prefix in cache, if not then get from db and build cache
+        prefix = CONFIG['prefix'] # Default prefix
+        devprefix = []
+
+        if await self.is_owner(message.author):
+            if "h!" not in prefix:
+                devprefix.append("h!")
+            if self.noprefix == True:
+                devprefix.append("")
+        return commands.when_mentioned_or(*prefix,*devprefix)(bot, message) # Return Prefix
     
     async def restartcheck(self, **kwargs):
         await self.wait_until_ready()
