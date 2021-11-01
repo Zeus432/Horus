@@ -146,12 +146,12 @@ def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwa
         threadinfo = ""
         if "THREADS_ENABLED" in  guild.features:
             threadinfo = f"\n{bot.get_em('parrow')} Threads Enabled"
-            threadinfo = f"\nㅤㅤ{bot.get_em('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
+            threadinfo += f"\nㅤㅤ{bot.get_em('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
             threadinfo += f"\nㅤㅤ{bot.get_em('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
             threadinfo += f"\nㅤㅤ{bot.get_em('replyend')} Archive time limit: "
             threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
-        featurend = "\n".join([c for c in gfl if not c.startswith(f"{bot.get_em('parrow')} Thread") or not c.startswith(f"{bot.get_em('parrow')} New Thread")]) + threadinfo
-            
+        featurend = "\n".join([c for c in gfl if not c.startswith(f"{bot.get_em('parrow')} Thread") and not c.startswith(f"{bot.get_em('parrow')} New Thread")]) + threadinfo
+
     if ifnsfw > 0:
         ifnsfw = f"\nㅤㅤ{bot.get_em('replyend')} Nsfw ⤏ **{ifnsfw}**"
     else:
