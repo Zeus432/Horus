@@ -1,3 +1,9 @@
+import discord
+from discord.ext import commands
+
+import asyncio
+
+from Core.Utils.useful import try_add_reaction
 
 def cleanup_code(content) -> str:
     """Automatically removes code blocks from the code."""
@@ -14,6 +20,7 @@ def get_syntax_error(error) -> str:
 class plural:
     def __init__(self, value):
         self.value = value
+
     def __format__(self, format_spec):
         v = self.value
         singular, sep, plural = format_spec.partition('|')
@@ -72,3 +79,100 @@ class TabularData:
 
         to_draw.append(sep)
         return '\n'.join(to_draw)
+
+class ConfirmLeave(discord.ui.View):
+    def __init__(self, ctx: commands.Context, guild: discord.Guild, bot: commands.Bot, timeout: float = 180.0) -> bool:
+        super().__init__(timeout = timeout)
+        self.ctx = ctx
+        self.guild = guild
+        self.bot = bot
+        self.value = None
+    
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author:
+                return
+        for item in self.children:
+            item.disabled = True
+        button.style = discord.ButtonStyle.green
+        try:
+            await self.guild.leave()
+        except:
+            button.style = discord.ButtonStyle.red
+            await interaction.message.edit(embed = discord.Embed(description = f"I was unable to leave **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**!", color = discord.Colour.red()), view = self)
+            await try_add_reaction(self.ctx.message, self.bot.get_em('tick'))
+        else:
+            self.value = True
+            await interaction.message.edit(embed = discord.Embed(description = f"I have left **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**, sucks for them {self.bot.get_em('shinobubully')}", color = discord.Colour.green()), view = self)
+            await try_add_reaction(self.ctx.message, self.bot.get_em('tick'))
+        self.stop()
+
+    @discord.ui.button(label='Cancel', style = discord.ButtonStyle.grey)
+    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author:
+            return
+        for item in self.children:
+            item.disabled = True
+            item.style = discord.ButtonStyle.red if item == button else discord.ButtonStyle.gray
+        self.value = False
+        await interaction.message.edit(embed = discord.Embed(description = f"Guess I'm not leaving **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})** today", colour = discord.Colour.red()), view = self)
+        self.stop()
+    
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+            item.style = discord.ButtonStyle.red if item.label == "Cancel" else discord.ButtonStyle.gray
+        self.value = False
+        await self.message.edit(embed = discord.Embed(description = f"You took too long to respond!", colour = discord.Colour.red()), view = self)
+
+class WhoAsked(discord.ui.View):
+    def __init__(self, *, timeout: float = 180):
+        super().__init__(timeout = timeout)
+        self.playing = False
+    
+    async def playmusic(self):
+        self.playing = True
+        timeline = ['0:00', '1:19', '1:55', '2:37', '3:56']
+
+        for item in self.children:
+            if item.custom_id == "time":
+                button = item
+            if item.custom_id == "play":
+                playpause = item
+
+        playpause.label = "▐▐"
+        for x in range(5):
+            await asyncio.sleep(1)
+            try:
+                button.label = f"{timeline[x]} / 3:56"
+                await self.message.edit("Now playing: \nWho Asked (Feat. Nobody Did)\n"+"────"*x + "⬤" + "────"*(4-x), view = self)
+            except: pass
+        
+        playpause.label = "▶"
+        self.playing = False
+        await self.message.edit(view = self)
+
+    @discord.ui.button(label = "◄◄", style = discord.ButtonStyle.gray, custom_id = 'prevtrack')
+    async def prevtrack(self, button: discord.ui.Button, interaction: discord.Interaction):
+        pass
+
+    @discord.ui.button(label = "▶", style = discord.ButtonStyle.gray, custom_id = 'play')
+    async def play(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.playing:
+            return
+        await interaction.response.defer()
+        await self.playmusic()
+
+    @discord.ui.button(label = "►►", style = discord.ButtonStyle.gray, custom_id = 'nextrack')
+    async def nexttrack(self, button: discord.ui.Button, interaction: discord.Interaction):
+        pass
+
+    @discord.ui.button(label = "0:00 / 3:56", style = discord.ButtonStyle.gray, custom_id = 'time')
+    async def time(self, button: discord.ui.Button, interaction: discord.Interaction):
+        pass
+
+    @discord.ui.button(label= "━━━━━◉", emoji = "\U0001f50a", style = discord.ButtonStyle.gray, custom_id = 'sound')
+    async def sound(self, button: discord.ui.Button, interaction: discord.Interaction):
+        button.label = "◉━━━━━" if button.label == "━━━━━◉" else "━━━━━◉"
+        button.emoji = "\U0001f507" if button.label != "━━━━━◉" else "\U0001f50a"
+        await self.message.edit(view = self)

@@ -3,14 +3,16 @@ from discord.ext import commands
 
 from contextlib import redirect_stdout
 from datetime import datetime
+from typing import Union
 import traceback
 import textwrap
+import asyncio
 import time
 import sys
 import io
 import os
 
-from .useful import cleanup_code, plural, TabularData
+from .useful import cleanup_code, plural, TabularData, ConfirmLeave, WhoAsked
 from Core.Utils.useful import write_json
 from Core.Utils.views import Confirm
 
@@ -216,3 +218,67 @@ class Owner(commands.Cog):
     async def error(self, ctx: commands.Context, error: commands.CommandError = commands.CommandError):
         """ Manually Invoke an Error """
         raise error
+    
+    @commands.command(name = "leave", brief = "Leave Guild")
+    async def leave(self, ctx: commands.Context, guild: discord.Guild = None):
+        """ Leave a guild, for I dunno whatever the reason is """
+        guild = guild or ctx.guild
+        if guild is None:
+            return await ctx.reply("You need to mention a guild to leave!")
+
+        embed = discord.Embed(description = f"Are you sure you want to leave **[{guild}]({guild.icon})**?", colour = discord.Colour(0x2F3136))
+
+        view = ConfirmLeave(ctx, guild, self.bot, timeout = 90)
+        view.message = await ctx.reply(embed = embed, view = view)
+        await view.wait()
+        return view.value
+    
+    @commands.command(name = "noprefix", brief = "Toggle Noprefix")
+    async def noprefix(self, ctx: commands.Context):
+        """ Enable/Disable Noprefix for Bot Owners """
+        self.bot.noprefix = False if self.bot.noprefix else True
+        state = f"disabled, use default prefixes now {self.bot.get_em('hmm')}" if self.bot.noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
+        await ctx.reply(f"No prefix has been {state}")
+    
+    @commands.command(brief = "Dm a user")
+    async def dm(self, ctx: commands.Context, user: discord.User, *, message: str = None):
+        def check(m: discord.Message):
+            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+        if not message:
+            await ctx.reply("Enter the message you want to send")
+            try:
+                message = await self.bot.wait_for(event='message', check=check, timeout=60)
+                message = message.content
+            except asyncio.TimeoutError:
+                return await ctx.reply(f"Can't send them a blank message dumbass {self.bot.get_em('kermitslap')}")
+        try:
+            await user.send(f"**You have a message from {ctx.author.name}**:\n{message}")
+        except:
+            await ctx.reply("I was unable to dm this user, maybe you could?")
+        else:
+            await ctx.reply("Dmed this user!")
+    
+    @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "Who even asked bro")
+    async def whoasked(self, ctx: commands.Context, what: Union[discord.Member, discord.Message, str] = None):
+        message = what.id if isinstance(what, discord.Message) else None
+
+        if isinstance(what, discord.Member):
+            chanmsgs = await ctx.channel.history(limit=20).flatten()
+            for m in chanmsgs:
+                if m.author.id == what.id:
+                    message = m.id
+                    break
+        
+        if ctx.message.reference is not None:
+            message = ctx.message.reference.message_id
+        
+        view = WhoAsked()
+        
+        try:
+            message = await ctx.channel.fetch_message(message)
+            view.message = await message.reply('Now playing: \nWho Asked (Feat. Nobody Did)\n⬤────────────────', view = view)
+        except:
+            view.message = await ctx.send('Now playing: \nWho Asked (Feat. Nobody Did)\n⬤────────────────', view = view)
+
+        await view.playmusic()
+        await view.wait()

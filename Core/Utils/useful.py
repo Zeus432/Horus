@@ -37,3 +37,9 @@ class CheckAsync(commands.Converter):
         if asyncio.iscoroutinefunction(self):
             return self
         raise commands.BadArgument("Argument is meant to be a coroutine function!")
+
+async def try_add_reaction(message: discord.Message, emoji: str):
+    try:
+        await message.add_reaction(emoji)
+    except:
+        pass

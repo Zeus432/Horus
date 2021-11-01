@@ -27,30 +27,31 @@ class Horus(commands.Bot):
         super().__init__(command_prefix = commands.when_mentioned_or(*CONFIG['prefix']),  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, case_insensitive = True, **kwargs)
         self.description = CONFIG['description']
         self.config = CONFIG
-        self.colour = discord.Colour(0x2F3136)
+        self.colour = discord.Colour(0x9c9cff)
+        self.noprefix = False
 
         # Load Initial Extensions
         for extension in INITIAL_EXTENSIONS:
             try:
                 self.load_extension(extension)
             except Exception as e:
-                print(f'Failed to load extension {extension}\n{type(e).__name__}: {e}')
+                print(f'\nFailed to load extension {extension}\n{type(e).__name__}: {e}')
         
         # Edit restart message if exists
         restart = CONFIG["restart"]
         if restart:
-            end = datetime.utcnow().timestamp()
-            self.loop.create_task(self.restartcheck(end, **restart))
+            self.loop.create_task(self.restartcheck(**restart))
     
-    async def restartcheck(self, end, **kwargs):
+    async def restartcheck(self, **kwargs):
         await self.wait_until_ready()
         CONFIG['restart'] = {}
         self.config = CONFIG
         write_json(f'Core/config.json', CONFIG)
 
-        start = kwargs.pop("start")
         message = kwargs.pop("message")
         invoke = kwargs.pop("invoke")
+        start = kwargs.pop("start")
+        end = datetime.utcnow().timestamp()
 
         try:
             msg = self.get_channel(message[0]).get_partial_message(message[1])
@@ -87,7 +88,7 @@ class Horus(commands.Bot):
     
     def starter(self):
         try:
-            print("Connecting to database ...")
+            print("\nConnecting to database ...")
             start = time.perf_counter()
             async def init_connection(conn):
                 await conn.set_type_codec(
@@ -104,14 +105,14 @@ class Horus(commands.Bot):
             self.db = pg_pool
 
         except Exception as e:
-            print("Could not connect to database:", e)
+            print("Could not connect to database:\n", e)
             logger.opt(exception = e).error("I was unable to connect to database:\n")
         
         else:
             logger.info("Connected to database")
             self.launch_time = datetime.now()
             self.launch_ts = self.launch_time.timestamp()
-            print(f"Connected to database ({round((time.perf_counter() - start) * 10, 2)}s)")
+            print(f"Connected to database ({round((time.perf_counter() - start) * 10, 2)}s)\n")
             self.run()
 
     def get_em(self, emoji: str | int) -> str:
@@ -121,7 +122,7 @@ class Horus(commands.Bot):
         try:
             return emojis[emoji]
         except:
-            return "\U000026a0"
+            return emojis["error"]
 
 if __name__ == "__main__":
     horus = Horus()

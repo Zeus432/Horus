@@ -1,22 +1,17 @@
 import os
 
-#INITIAL_EXTENSIONS = [
+INITIAL_EXTENSIONS = [
 #    'Cogs.Admin',
 #    'Cogs.Sniper',
 #    'Cogs.Fun',
 #    'Cogs.Utility',
 #    'Cogs.Miscellaneous',
-#    'Cogs.Owner',
-#    'jishaku',
+    'Cogs.Owner',
+    'jishaku',
 #    'Core.Blacklists',
 #    'Core.ErrorHandler',
 #    'Core.CustomHelp',
 #    'Core.BotListeners'
-#]
-
-INITIAL_EXTENSIONS = [
-    'Cogs.Owner',
-    'jishaku'
 ]
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
