@@ -123,7 +123,7 @@ class GuildButtons(discord.ui.View):
         if invite or None:
             await interaction.response.send_message(f"Invite Generated for **[{self.guild}]( {invite} )**", ephemeral = True)
         else:
-            await interaction.response.send_message(f"I was unable to generate an invite to this guild {self.bot.get_em('error')}", ephemeral = True)
+            await interaction.response.send_message(f"I was unable to generate an invite to this guild {self.bot.get_em('cross')}", ephemeral = True)
   
     @discord.ui.button(label= "Leave Guild", style = discord.ButtonStyle.red)
     async def leaveguild(self, button: discord.ui.Button, interaction: discord.Interaction):

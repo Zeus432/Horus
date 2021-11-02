@@ -86,6 +86,7 @@ class Horus(commands.Bot):
         await asyncio.sleep(10)
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name = f"for @{self.user.name} help"))
         logger.info(f"{self.user} is Online!")
+        self.zeus = self.get_user(760823877034573864)
     
     async def start(self, *args, **kwargs):
         self.session = aiohttp.ClientSession()

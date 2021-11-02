@@ -12,7 +12,7 @@ import sys
 import io
 import os
 
-from Core.Utils.useful import write_json, guildanalytics
+from Core.Utils.useful import try_add_reaction, write_json, guildanalytics
 from Core.Utils.views import Confirm
 
 from .useful import cleanup_code, plural, TabularData
@@ -83,10 +83,7 @@ class Owner(commands.Cog):
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
             value = stdout.getvalue()
-            try:
-                await ctx.message.add_reaction('\u2705')
-            except:
-                pass
+            await try_add_reaction(self.bot.get_em("tick"))
 
             if ret is None:
                 if value:
@@ -239,7 +236,7 @@ class Owner(commands.Cog):
     async def noprefix(self, ctx: commands.Context):
         """ Enable/Disable Noprefix for Bot Owners """
         self.bot.noprefix = False if self.bot.noprefix else True
-        state = f"disabled, use default prefixes now {self.bot.get_em('hmm')}" if not self.bot.noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
+        state = f"disabled, use default prefixes now {self.bot.get_em('hadtodoittoem')}" if not self.bot.noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
     
     @commands.command(brief = "Dm a user")

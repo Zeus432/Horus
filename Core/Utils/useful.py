@@ -7,15 +7,18 @@ import datetime
 import json
 
 def load_json(file: str) -> dict:
+    """ Load json content from the given file """
     with open(file, encoding = 'utf-8') as newfile:
         return json.load(newfile)
 
 
 def write_json(file: str, contents: dict) -> None:
+    """ Write json content on to the given file """
     with open(file, 'w') as newfile:
         json.dump(contents, newfile, ensure_ascii = True, indent = 4)
 
 def get_uptime(bot: commands.Bot) -> str:
+    """ Get Bot Uptime in a neatly converted string """
     delta_uptime = relativedelta(datetime.datetime.now(), bot.launch_time)
     days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
 
@@ -33,6 +36,7 @@ def get_uptime(bot: commands.Bot) -> str:
     return uptime_string
 
 class CheckAsync(commands.Converter):
+    """ Check if given function is a coroutine """
     async def isAsync(self, ctx: commands.Context, argument):
         if asyncio.iscoroutinefunction(self):
             return self
@@ -45,6 +49,7 @@ async def try_add_reaction(message: discord.Message, emoji: str):
         pass
 
 def _size(num):
+    """ Convert Size from Bytes to appropriate size."""
     for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
         if abs(num) < 1024.0:
             return "{0:.1f}{1}".format(num, unit)
@@ -52,6 +57,7 @@ def _size(num):
     return "{0:.1f}{1}".format(num, "YB")
             
 def _bitsize(num):
+    """ Convert from Bytes to appropriate size."""
     for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
         if abs(num) < 1000.0:
             return "{0:.1f}{1}".format(num, unit)
@@ -120,6 +126,7 @@ features = {
         }
 
 def get_em(emoji: str | int) -> str:
+    """ Get Emoji by providing its short key """
     emojis = load_json(f'Core/Assets/emojis.json')
     try:
         return emojis[emoji]
@@ -127,6 +134,7 @@ def get_em(emoji: str | int) -> str:
         return emojis["error"]
 
 def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwargs) -> discord.Embed:
+    """ An embed with useful information about a given guild """
     msg = "I've joined a new server" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}"
     colour = discord.Color.green() if type == 1 else discord.Color.red()
     colour = discord.Colour(0x9c9cff) if not type  else colour

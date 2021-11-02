@@ -2,10 +2,10 @@ import os
 
 INITIAL_EXTENSIONS = [
 #    'Cogs.Admin',
+    'Cogs.BotStuff',
 #    'Cogs.Sniper',
 #    'Cogs.Fun',
 #    'Cogs.Utility',
-#    'Cogs.Miscellaneous',
     'Cogs.Owner',
     'jishaku',
 #    'Core.Blacklists',
