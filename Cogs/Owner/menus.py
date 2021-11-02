@@ -6,6 +6,7 @@ import asyncio
 from Core.Utils.useful import get_em
 
 class ConfirmLeave(discord.ui.View):
+    """ View to Confirm Leave """
     def __init__(self, ctx: commands.Context, guild: discord.Guild, bot: commands.Bot, timeout: float = 180.0) -> bool:
         super().__init__(timeout = timeout)
         self.ctx = ctx
@@ -49,6 +50,7 @@ class ConfirmLeave(discord.ui.View):
         await self.message.edit(embed = discord.Embed(description = f"You took too long to respond!", colour = discord.Colour.red()), view = self)
 
 class WhoAsked(discord.ui.View):
+    """ View for Whoasked """
     def __init__(self, *, timeout: float = 180):
         super().__init__(timeout = timeout)
         self.playing = False
@@ -103,6 +105,7 @@ class WhoAsked(discord.ui.View):
         await self.message.edit(view = self)
 
 class GuildButtons(discord.ui.View):
+    """ View for getguild """
     def __init__(self, ctx: commands.Context, bot: commands.Bot, guild: discord.Guild):
         super().__init__(timeout = 90)
         self.ctx = ctx

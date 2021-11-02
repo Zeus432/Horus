@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 class InfoButtons(discord.ui.View):
+    """ View for Bot Info command """
     def __init__(self, ctx: commands.Context, bot: commands.Bot):
         super().__init__(timeout = 300)
         self.user = ctx.author

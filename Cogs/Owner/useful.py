@@ -6,6 +6,7 @@ def cleanup_code(content) -> str:
     else: return content
     
 def get_syntax_error(error) -> str:
+    """ Get properly formated error """
     if error.text is None:
         return f'```py\n{error.__class__.__name__}: {error}\n```'
     return f'```py\n{error.text}{"^":>{error.offset}}\n{error.__class__.__name__}: {error}```'
@@ -45,7 +46,8 @@ class TabularData:
             self.add_row(row)
 
     def render(self):
-        """Renders a table in rST format.
+        """
+        Renders a table in rST format.
         Example:
         +-------+-----+
         | Name  | Age |
