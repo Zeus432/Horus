@@ -5,6 +5,7 @@ from loguru import logger
 import traceback
 
 async def send_error(bot: commands.Bot, ctx: commands.Context, error):
+    """ Properly send error to error channel and log it in the error logs """
     embed = discord.Embed(title = "Command Error!", description = f"This error has been forwarded to the bot developer and will be fixed soon.\nIn the meanwhile please refrain from trying to recreate this error unnecessarily.\n\n```py\n{error}```", colour = discord.Colour(0x2F3136))
     embed.set_footer(text = "Spamming errored commands will get you blacklisted!", icon_url = ctx.author.avatar or ctx.author.default_avatar)
     await ctx.reply(embed = embed)

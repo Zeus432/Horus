@@ -115,5 +115,5 @@ class RpsView(discord.ui.View):
         for item in self.children:
             item.disabled = True
         self.message : discord.Message
-        await self.message.edit(f"{self.message.content + '\n\n> You took too long to respond'}", view = self)
+        await self.message.edit(content = self.message.content + '\n\n> You took too long to respond', view = self)
         self.stop()

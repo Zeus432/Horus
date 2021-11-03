@@ -316,7 +316,7 @@ class Owner(commands.Cog):
             # Add views here later
         
         loadcog = [c for c in INITIAL_EXTENSIONS if cog in c]
-        loadcog = cog if loadcog is [] else loadcog[0]
+        loadcog = cog if not loadcog else loadcog[0]
 
         try:
             self.bot.load_extension(loadcog)
@@ -343,7 +343,7 @@ class Owner(commands.Cog):
             # Add views here later
         
         unloadcog = [c for c in INITIAL_EXTENSIONS if cog.lower() in c.lower()]
-        unloadcog = cog if unloadcog is [] else unloadcog[0]
+        unloadcog = cog if not unloadcog else unloadcog[0]
 
         try:
             self.bot.unload_extension(unloadcog)

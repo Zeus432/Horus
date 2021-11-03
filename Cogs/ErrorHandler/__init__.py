@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .errorhandler import ErrorHanlder
+from .errorhandler import ErrorHandler
 
 def setup(bot: commands.Bot):
-    bot.add_cog(ErrorHanlder(bot))
+    bot.add_cog(ErrorHandler(bot))
