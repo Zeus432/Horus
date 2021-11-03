@@ -77,6 +77,7 @@ class Horus(commands.Bot):
         await react.add_reaction(self.get_em('tick'))
     
     async def on_ready(self):
+        self.zeus = self.get_user(760823877034573864)
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
         print(f'Guilds: {len(self.guilds)}')
         print(f'Large Guilds: {sum(g.large for g in self.guilds)}')
@@ -87,7 +88,6 @@ class Horus(commands.Bot):
         await asyncio.sleep(10)
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name = f"for @{self.user.name} help"))
         logger.info(f"{self.user} is Online!")
-        self.zeus = self.get_user(760823877034573864)
     
     async def start(self, *args, **kwargs):
         self.session = aiohttp.ClientSession()
@@ -140,7 +140,7 @@ class Horus(commands.Bot):
     
     def get_uptime(self) -> str:
         """ Get Bot Uptime in a neatly converted string """
-        delta_uptime = relativedelta(datetime.datetime.now(), self.launch_time)
+        delta_uptime = relativedelta(datetime.now(), self.launch_time)
         days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
 
         uptimes = {x[0]: x[1] for x in [('day', days), ('hour', hours), ('minute', minutes), ('second', seconds)] if x[1]}

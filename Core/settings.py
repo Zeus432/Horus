@@ -3,13 +3,13 @@ import os
 INITIAL_EXTENSIONS = [
 #    'Cogs.Admin',
     'Cogs.BotStuff',
+    'Cogs.ErrorHandler',
 #    'Cogs.Sniper',
 #    'Cogs.Fun',
 #    'Cogs.Utility',
     'Cogs.Owner',
     'jishaku',
 #    'Core.Blacklists',
-#    'Core.ErrorHandler',
 #    'Core.CustomHelp',
 #    'Core.BotListeners'
 ]

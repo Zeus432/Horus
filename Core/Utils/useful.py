@@ -1,9 +1,7 @@
 import discord
 from discord.ext import commands
 
-from dateutil.relativedelta import relativedelta
 import asyncio
-import datetime
 import json
 
 def load_json(file: str) -> dict:
