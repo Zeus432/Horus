@@ -2,6 +2,7 @@ import discord
 from .useful import CheckAsync
 
 class Confirm(discord.ui.View):
+    """ Global Confirm View can be used by inputting functions """
     def __init__(self, onconfirm: CheckAsync, oncancel: CheckAsync, ontimeout: CheckAsync, timeout: float = 180.0, **kwargs):
         super().__init__(timeout=timeout)
         self.onconfirm = onconfirm

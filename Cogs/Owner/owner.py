@@ -83,7 +83,7 @@ class Owner(commands.Cog):
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
             value = stdout.getvalue()
-            await try_add_reaction(self.bot.get_em("tick"))
+            await try_add_reaction(ctx.message, self.bot.get_em("tick"))
 
             if ret is None:
                 if value:
