@@ -6,8 +6,8 @@ import time
 import os
 
 from Core.Utils.useful import _size
-from .useful import total_stuff
-from.menus import InfoButtons
+from .useful import total_stuff, pie_gen
+from .menus import InfoButtons
 
 class BotStuff(commands.Cog):
     """ Bot Info, Stats and Stuff commands """ 
@@ -41,7 +41,12 @@ class BotStuff(commands.Cog):
             end = time.perf_counter()
         typing_ping = (end - start) * 1000
 
-        embed = discord.Embed(description = f"```yaml\nTyping: {round(typing_ping, 1)} ms\nWebsocket: {round(self.bot.latency*1000)} ms```", colour = discord.Colour(0x2F3136))
+        start = time.perf_counter()
+        await self.bot.db.execute('SELECT 1')
+        end = time.perf_counter()
+        postgres_ping = (end - start) * 1000
+
+        embed = discord.Embed(description = f"```yaml\nTyping: {round(typing_ping, 1)} ms\nWebsocket: {round(self.bot.latency*1000)} ms\nDatabase: {round(postgres_ping, 1)}```", colour = discord.Colour(0x2F3136))
 
         await msg.edit(content = "Pong \U0001f3d3", embed = embed)
 
@@ -51,3 +56,21 @@ class BotStuff(commands.Cog):
         """Gets the uptime of the bot"""
         uptime_string = self.bot.get_uptime()
         await ctx.channel.send(f'{self.bot.user} has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
+    
+    @commands.command(name='support', brief = "Bot Support")
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def support(self, ctx: commands.Context):
+        """ Get an Invite to Horus' Support Server """
+        msg = "<#892767470379749456>: For bot support and For reporting bugs" if ctx.guild.id == 873127663840137256 else "Here is an invite to my Support Server.\n**[ https://discord.gg/8BQMHAbJWk ]**"
+        await ctx.reply(msg)
+    
+    @commands.command(name = "pie-bot", brief = "Bot/Member ratio")
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def pie_bot(self, ctx: commands.Context):
+        """Make a pie chart of server bots."""
+
+        fp, prc = await pie_gen(ctx)
+
+        fp = discord.File(fp, filename = "piechart.png")
+
+        await ctx.send(f"{self.bot.get_em('tick')} {prc}% of the server's members are bots.", file = fp)

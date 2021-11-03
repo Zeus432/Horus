@@ -1,7 +1,7 @@
 from discord.ext import commands
 
-from dateutil.relativedelta import relativedelta
-from datetime import datetime
+import matplotlib
+import io
 import os
 
 def total_stuff(root: str, /) -> int:
@@ -18,3 +18,21 @@ def total_stuff(root: str, /) -> int:
                 with open(f"{root}/{x}") as r:
                     lines += len(r.readlines())
     return [files, lines]
+
+async def pie_gen(ctx: commands.Context):
+    prc = round(sum(m.bot for m in ctx.guild.members) / len(ctx.guild.members) * 100, 3)
+
+    labels = ["Bots", "Non-Bots"]
+    sizes = [prc, 100 - prc]
+    colors = ["lightcoral", "lightskyblue"]
+
+    fig = matplotlib.figure.Figure(figsize=(5, 5))
+    ax = fig.add_subplot()
+    patches, _ = ax.pie(sizes, colors=colors, startangle=90)
+    ax.legend(patches, labels)
+
+    fp = io.BytesIO()
+    fig.savefig(fp)
+    fp.seek(0)
+
+    return [fp, prc]
