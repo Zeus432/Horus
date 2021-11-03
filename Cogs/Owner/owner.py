@@ -14,6 +14,7 @@ import os
 
 from Core.Utils.useful import try_add_reaction, write_json, guildanalytics
 from Core.Utils.views import Confirm
+from Core.settings import INITIAL_EXTENSIONS
 
 from .useful import cleanup_code, plural, TabularData
 from .menus import ConfirmLeave, WhoAsked, GuildButtons
@@ -306,3 +307,47 @@ class Owner(commands.Cog):
             view = GuildButtons(guild = guild, ctx = ctx, bot = self.bot)
             view.message = await ctx.reply(embed = embed,view = view)
         await view.wait()
+    
+    @commands.command(name = "load", aliases = ['l','reload','rl','r'], brief = "Load Cogs")
+    async def load(self, ctx: commands.Context, cog: str = None):
+        """ Load Cogs onto the bot """
+        if cog is None:
+            return await ctx.reply("You need to provide a cog to load!")
+            # Add views here later
+        
+        loadcog = [c for c in INITIAL_EXTENSIONS if cog in c]
+        loadcog = cog if loadcog is [] else loadcog[0]
+
+        try:
+            self.bot.load_extension(loadcog)
+        except Exception as error:
+
+            if isinstance(error, commands.ExtensionAlreadyLoaded):
+                try:
+                    self.bot.unload_extension(loadcog)
+                    self.bot.load_extension(loadcog)
+                except Exception as error:
+                    return await ctx.reply(f"I was unable to reload `{cog}`{f' ~ `{loadcog}`' if loadcog != cog else ''}\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+                else:
+                    return await ctx.reply(f"Reloaded module `{cog}`{f' ~ `{loadcog}`' if loadcog != cog else ''}")
+
+            return await ctx.reply(f"I was unable to load `{cog}`{f' ~ `{loadcog}`' if loadcog != cog else ''}\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+        else:
+            return await ctx.reply(f"Loaded module `{cog}`{f' ~ `{loadcog}`' if loadcog != cog else ''}")
+    
+    @commands.command(name = "unload", aliases = ['ul'], brief = "Load Cogs")
+    async def unload(self, ctx: commands.Context, cog: str = None):
+        """ Unload Cogs from the bot """
+        if cog is None:
+            return await ctx.reply("You need to provide a cog to unload!")
+            # Add views here later
+        
+        unloadcog = [c for c in INITIAL_EXTENSIONS if cog.lower() in c.lower()]
+        unloadcog = cog if unloadcog is [] else unloadcog[0]
+
+        try:
+            self.bot.unload_extension(unloadcog)
+        except Exception as error:
+            return await ctx.reply(f"I was unable to unload `{cog}`{f' ~ `{unloadcog}`' if unloadcog != cog else ''}\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+        else:
+            return await ctx.reply(f"Unloaded module `{cog}`{f' ~ `{unloadcog}`' if unloadcog != cog else ''}")
