@@ -31,7 +31,7 @@ class Guess(discord.ui.View):
                 return await interaction.response.send_message(content = f"This is not your guessing game. Run `{self.view.ctx.invoked_with}gtn` if you wanna play", ephemeral = True)
 
             if self.view.choices[self.index] == self.view.correct:
-                msg = f"You choose the correct number {get_em('clap')}!"
+                msg = f"You choose the correct number {get_em('pog')}!"
                 self.style = discord.ButtonStyle.green
             else:
                 self.view.guess -= 1
@@ -70,14 +70,18 @@ class RpsView(discord.ui.View):
         
         if interaction.user.id == self.ctx.author.id:
             if not self.user_answer:
-                f'**{self.ctx.author.name}** has chosen'
+                self.user_answer = button.label
+                self.message.content += f'\n**{self.ctx.author.name}** has chosen'
+                await self.message.edit(self.message.content)
                 await interaction.response.send_message(f"You have chosen **{button.label}**!", ephemeral = True)
             else:
                 await interaction.response.send_message(f"You've already chosen `{self.user_answer}`, It's too late to change it now {get_em('kermitslap')}", ephemeral = True)
         
         elif interaction.user.id == self.opponent.id:
             if not self.opponent_answer:
-                f'**{self.opponent.name}** has chosen'
+                self.opponent_answer = button.label
+                self.message.content += f'\n**{self.opponent.name}** has chosen'
+                await self.message.edit(self.message.content)
                 await interaction.response.send_message(f"You have chosen **{button.label}**!", ephemeral = True)
             else:
                 await interaction.response.send_message(f"You've already chosen `{self.opponent_answer}`, It's too late to change it now {get_em('kermitslap')}", ephemeral = True)
@@ -94,8 +98,9 @@ class RpsView(discord.ui.View):
 
             for item in self.children:
                 item.disabled = True
-
-            await self.message.edit(f"{self.ctx.author.mention} vs {self.opponent.mention}\n**{self.ctx.author}** chose {self.ctx_answer}\n**{self.opponent}** chose {self.opponent_answer}\n\n> {result}", view = self)
+            
+            self.message.content = f"{self.ctx.author.mention} vs {self.opponent.mention}\n**{self.ctx.author}** chose {self.user_answer}\n**{self.opponent}** chose {self.opponent_answer}\n\n> {result}"
+            await self.message.edit(self.message.content, view = self)
             self.stop()
     
     @discord.ui.button(style=discord.ButtonStyle.primary, label="Rock", emoji = "\U0001faa8")
@@ -115,5 +120,6 @@ class RpsView(discord.ui.View):
         for item in self.children:
             item.disabled = True
         self.message : discord.Message
-        await self.message.edit(content = self.message.content + '\n\n> You took too long to respond', view = self)
+        self.message.content += '\n\n> You took too long to respond'
+        await self.message.edit(self.message.content, view = self)
         self.stop()
