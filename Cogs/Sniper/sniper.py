@@ -12,7 +12,7 @@ class Sniper(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def snipe(self, ctx: commands.Context, channel: discord.TextChannel = None):
         """ Snipe the latest deleted message in the current or specified channel """
-        channel = channel if channel else ctx.channel
+        channel = channel or ctx.channel
 
         try:
             message: discord.Message = self.delete_cache[channel.id]
@@ -31,7 +31,7 @@ class Sniper(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def esnipe(self, ctx: commands.Context, channel: discord.TextChannel = None):
         """ Snipe the latest edited message in the current or specified channel """
-        channel = channel if channel else ctx.channel
+        channel = channel or ctx.channel
 
         try:
             message: discord.Message = self.edit_cache[channel.id]["before"]
