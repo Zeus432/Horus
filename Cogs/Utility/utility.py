@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
 
+from .useful import UserBadges
+
 class Utility(commands.Cog):
     """ Utility Commands that contain general information """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.todo_cache = {}
-        self.bot.launch_time = bot.launch_time
     
     @commands.command(name = "userinfo", aliases = ['ui'], brief = "Get User Info", ignore_extra = True)
     @commands.cooldown(2, 5, commands.BucketType.user)
@@ -35,6 +36,7 @@ class Utility(commands.Cog):
         embed.add_field(name = "User's Roles:", value = f"{roles}", inline = False)
 
         # Badges here
+        embed = UserBadges(ctx, self.bot, user, embed)
 
         embed.add_field(name = "Servers:", value = f"{len([guild.id for guild in self.bot.guilds if guild.get_member(user.id)])} shared")
 
