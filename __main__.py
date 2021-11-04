@@ -12,7 +12,7 @@ import json
 import time
 
 from Core.Utils.useful import load_json, write_json
-from Core.settings import INITIAL_EXTENSIONS
+from Core.settings import INITIAL_EXTENSIONS, OWNER_IDS
 
 CONFIG = load_json('Core/config.json')
 TOKEN = CONFIG['TOKEN']
@@ -30,6 +30,8 @@ class Horus(commands.Bot):
         self.config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
         self.noprefix = False
+        self.owner_ids = OWNER_IDS
+        self.prefix_cache = {}
 
         # Load Initial Extensions
         for extension in INITIAL_EXTENSIONS:
@@ -48,12 +50,24 @@ class Horus(commands.Bot):
         prefix = CONFIG['prefix'] # Default prefix
         devprefix = []
 
+        if message.guild:
+            try:
+                prefix = self.prefix_cache[message.guild.id]
+            except KeyError:
+                prefix = await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id)
+
+            if not prefix:
+                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix', message.guild.id, CONFIG['prefix'])
+
+            self.prefix_cache[message.guild.id] = prefix # Update Cache
+
         if await self.is_owner(message.author):
             if "h!" not in prefix:
                 devprefix.append("h!")
             if self.noprefix == True:
                 devprefix.append("")
-        return commands.when_mentioned_or(*prefix,*devprefix)(bot, message) # Return Prefix
+
+        return commands.when_mentioned_or(*prefix, *devprefix)(bot, message) # Return Prefix
     
     async def restartcheck(self, **kwargs):
         await self.wait_until_ready()
@@ -78,6 +92,7 @@ class Horus(commands.Bot):
     
     async def on_ready(self):
         self.zeus = self.get_user(760823877034573864)
+
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
         print(f'Guilds: {len(self.guilds)}')
         print(f'Large Guilds: {sum(g.large for g in self.guilds)}')
@@ -85,8 +100,10 @@ class Horus(commands.Bot):
         print(f'Members: {len(list(self.get_all_members()))}')
         print(f'Channels: {len([1 for x in self.get_all_channels()])}')
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
+
         await asyncio.sleep(10)
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name = f"for @{self.user.name} help"))
+
         logger.info(f"{self.user} is Online!")
     
     async def start(self, *args, **kwargs):

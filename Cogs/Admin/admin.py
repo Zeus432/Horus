@@ -1,0 +1,17 @@
+from discord.ext import commands
+
+class Admin(commands.Cog):
+    """ Management cmds mostly for Setup """
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @commands.command(name = "setprefix", brief = "Set Server prefix")
+    async def setprefix(self, ctx: commands.Context, prefix: str):
+        """
+        Set a custom prefix for your server.
+        User requires Administrator permissions in the guild to use this command
+        """
+        self.bot.prefix_cache[ctx.guild.id] = [prefix]
+        await self.bot.db.fetchval('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, prefix)
+        await ctx.send(f'Prefix changed to: `{prefix}`')
