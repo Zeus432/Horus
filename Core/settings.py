@@ -1,7 +1,7 @@
 import os
 
 INITIAL_EXTENSIONS = [
-#    'Cogs.Admin',
+    'Cogs.Admin',
     'Cogs.BotStuff',
     'Cogs.ErrorHandler',
     'Cogs.Fun',

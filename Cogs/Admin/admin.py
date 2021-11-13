@@ -12,6 +12,6 @@ class Admin(commands.Cog):
         Set a custom prefix for your server.
         User requires Administrator permissions in the guild to use this command
         """
-        self.bot.prefix_cache[ctx.guild.id] = [prefix]
-        await self.bot.db.fetchval('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, prefix)
+        self.bot.prefix_cache[ctx.guild.id] = [f"{prefix}"]
+        await self.bot.db.execute('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, self.bot.prefix_cache[ctx.guild.id])
         await ctx.send(f'Prefix changed to: `{prefix}`')
