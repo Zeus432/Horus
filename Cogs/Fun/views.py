@@ -8,7 +8,7 @@ from Core.Utils.useful import get_em
 class Guess(discord.ui.View):
     """ View for Guess the number """
     def __init__(self, bot:commands.Bot, ctx: commands.Context):
-        super().__init__(timeout = 10)
+        super().__init__(timeout = 100)
         self.value = None
         self.choices = random.sample(range(1, 100), 9)
         self.correct = random.choice(self.choices)
@@ -28,7 +28,7 @@ class Guess(discord.ui.View):
 
         async def callback(self, interaction: discord.Interaction):
             if interaction.user.id != self.author.id:
-                return await interaction.response.send_message(content = f"This is not your guessing game. Run `{self.view.ctx.invoked_with}gtn` if you wanna play", ephemeral = True)
+                return await interaction.response.send_message(content = f"This is not your guessing game. Run `{self.view.ctx.clean_prefix}{self.view.ctx.invoked_with}` if you wanna play", ephemeral = True)
 
             if self.view.choices[self.index] == self.view.correct:
                 msg = f"You choose the correct number {get_em('pog')}!"
@@ -63,11 +63,13 @@ class RpsView(discord.ui.View):
         self.opponent_answer = None
         self.ctx = ctx
         self.opponent = opponent
+    
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id != self.ctx.author.id  and interaction.user.id != self.opponent.id:
+            return await interaction.response.send_message(f"This isn't your game to play! Run `{self.view.ctx.clean_prefix}{self.view.ctx.invoked_with}` if you wanna play", ephemeral = True)
+        return True
 
     async def button_pressed(self, button: discord.ui.Button, interaction: discord.Interaction):
-        if interaction.user.id != self.ctx.author.id  and interaction.user.id != self.opponent.id:
-            return interaction.response.send_message(f"This isn't your game to play!", ephemeral = True)
-        
         if interaction.user.id == self.ctx.author.id:
             if not self.user_answer:
                 self.user_answer = button.label

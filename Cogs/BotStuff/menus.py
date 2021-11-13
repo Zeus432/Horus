@@ -9,6 +9,11 @@ class InfoButtons(discord.ui.View):
         self.bot = bot
         self.ctx = ctx
         self.add_item(discord.ui.Button(label = "Horus Support", style = discord.ButtonStyle.link, url = f"https://discord.gg/8BQMHAbJWk"))
+    
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user != self.user:
+            return await interaction.response.send_message("Not your button to interact with!", ephemeral = True)
+        return True
 
     @discord.ui.button(label = "Request Bot Invite", style = discord.ButtonStyle.blurple)
     async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):

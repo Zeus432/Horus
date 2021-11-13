@@ -112,11 +112,14 @@ class GuildButtons(discord.ui.View):
         self.bot = bot
         self.guild = guild
         self.user = ctx.author
+    
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id != self.user.id:
+            return await interaction.response.send_message(content = f"This is not your button to interact with", ephemeral = True)
+        return True
 
     @discord.ui.button(label= "Join Guild", style = discord.ButtonStyle.green)
     async def joinguild(self, button: discord.ui.Button, interaction: discord.Interaction):
-        if interaction.user.id != self.user.id:
-            return
         for chan in self.guild.text_channels:
             try:
                 invite = await chan.create_invite(reason = f"Requested by {self.user}", max_age = 7, temporary = True)
