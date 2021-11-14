@@ -1,4 +1,5 @@
 import discord
+from discord.channel import _threaded_channel_factory
 from discord.ext import commands
 
 from contextlib import redirect_stdout
@@ -13,6 +14,7 @@ import io
 import os
 
 from Core.Utils.useful import try_add_reaction, write_json, guildanalytics
+from Core.Utils.math import NumericStringParser
 from Core.Utils.views import Confirm
 from Core.settings import INITIAL_EXTENSIONS
 
@@ -351,3 +353,13 @@ class Owner(commands.Cog):
             return await ctx.reply(f"I was unable to unload `{cog}`{f' ~ `{unloadcog}`' if unloadcog != cog else ''}\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
         else:
             return await ctx.reply(f"Unloaded module `{cog}`{f' ~ `{unloadcog}`' if unloadcog != cog else ''}")
+    
+    @commands.command(name = "calc", aliases = ['+', 'math'], brief = "Load Cogs")
+    async def calc(self, ctx: commands.Context, *, equation: str):
+        NSP = NumericStringParser()
+        try:
+            result = NSP.eval(num_string = equation.strip(" "))
+        except:
+            await ctx.send("There was an error while trying to evaluate your equation.\nMake sure to check your input for any illegal characters and try again")
+        else:
+            await ctx.send(f"```coffeescript\n{equation}```\n> `{result}`")
