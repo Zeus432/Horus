@@ -22,9 +22,9 @@ class Listeners(commands.Cog):
         try:
             blacklist = self.bot.blacklists[guild.id]
         except KeyError:
-            blacklist = await self.bot.db.fetchval("SELECT blacklists FROM guilddata WHERE guildid = $1", guild.id)
+            blacklist = await self.bot.db.fetchval("SELECT blacklists->'blacklisted' FROM guilddata WHERE guildid = $1", guild.id)
             if blacklist is None:
-                blacklist = await self.bot.db.fetchval('INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists', guild.id, {'prevbl': 0, 'blacklisted': False})
+                blacklist = await self.bot.db.fetchval("INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists->'blacklisted'", guild.id, {'prevbl': 0, 'blacklisted': False})
 
             self.bot.blacklists[guild.id] = blacklist # Update Blacklist cache
         

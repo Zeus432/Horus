@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-import matplotlib
+import matplotlib.figure
 import io
 import os
 

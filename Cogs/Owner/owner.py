@@ -354,7 +354,7 @@ class Owner(commands.Cog):
         else:
             return await ctx.reply(f"Unloaded module `{cog}`{f' ~ `{unloadcog}`' if unloadcog != cog else ''}")
     
-    @commands.command(name = "calc", aliases = ['+', 'math'], brief = "Load Cogs")
+    @commands.command(name = "calc", aliases = ['+', 'math'], brief = "Do Meth")
     async def calc(self, ctx: commands.Context, *, equation: str):
         NSP = NumericStringParser()
         try:

@@ -56,7 +56,7 @@ class BotStuff(commands.Cog):
     async def uptime(self, ctx: commands.Context):
         """Gets the uptime of the bot"""
         uptime_string = self.bot.get_uptime()
-        await ctx.channel.send(f'{self.bot.user} has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
+        await ctx.channel.send(f'**{self.bot.user.name}** has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
     
     @commands.command(name='support', brief = "Bot Support")
     @commands.cooldown(2, 5, commands.BucketType.user)

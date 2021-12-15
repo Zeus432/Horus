@@ -1,4 +1,7 @@
 import os
+import sys
+
+sys.dont_write_bytecode = True
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_HIDE"] = "True"
