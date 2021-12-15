@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+import humanize
 import psutil
 import time
 import os
@@ -25,7 +26,7 @@ class BotStuff(commands.Cog):
         embed.add_field(name = "On Discord Since", value = f"<t:{round(self.bot.user.created_at.timestamp())}:D>")
         embed.add_field(name = "Bot Uptime", value = f"{self.bot.get_uptime()}")
         embed.add_field(name = "Statistics", value = f"```yaml\nUsers:    {len([g.id for g in self.bot.users])}\nServers:  {len([g.id for g in self.bot.guilds])}\nChannels: {sum([len([chan.id for chan in guild.channels]) for guild in self.bot.guilds])}\nCommands: {len(list(self.bot.walk_commands()))}```")
-        embed.add_field(name = "System", value = f"```yaml\nSystem OS:{' '*6}macOS\nCPU Usage:{' '*6}{round(psutil.getloadavg()[2]/os.cpu_count()*100, 2)}%\nRAM Usage:{' '*6}{round(psutil.virtual_memory()[2], 2)}%\nVirtual Memory: {_size(psutil.Process().memory_full_info().vms)}```")
+        embed.add_field(name = "System", value = f"```yaml\nSystem OS:{' '*6}macOS\nCPU Usage:{' '*6}{round(psutil.getloadavg()[2]/os.cpu_count()*100, 2)}%\nRAM Usage:{' '*6}{round(psutil.virtual_memory()[2], 2)}%\nMemory Usage: {humanize.naturalsize(psutil.Process().memory_full_info().uss)}```")
         embed.set_thumbnail(url = self.bot.user.display_avatar)
 
         view = InfoButtons(ctx = ctx, bot = self.bot)

@@ -7,3 +7,5 @@ class Listeners(commands.Cog):
     """ Listeners for bot commands, guild joins and stuff """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    # on_message_without_command 

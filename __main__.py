@@ -25,7 +25,7 @@ logger.add(f'{rootdir}/Core/Horus.log', level="DEBUG", format="{time:YYYY-MM-DD 
 
 class Horus(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name="Waking Up"), status=discord.Status.idle, case_insensitive = True, **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.idle, case_insensitive = True, **kwargs)
         self.description = CONFIG['description']
         self.config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
