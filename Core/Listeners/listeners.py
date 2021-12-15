@@ -8,4 +8,10 @@ class Listeners(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    # on_message_without_command 
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: discord.Guild):
+        print()
+    
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild: discord.Guild):
+        print()

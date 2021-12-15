@@ -32,6 +32,7 @@ class Horus(commands.Bot):
         self.noprefix = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
+        self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         # Load Initial Extensions
         for extension in INITIAL_EXTENSIONS:

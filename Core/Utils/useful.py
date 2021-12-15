@@ -113,47 +113,39 @@ def get_em(emoji: str | int) -> str:
     except:
         return emojis["error"]
 
+def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
+    featuresinfo = ""
+    if "THREADS_ENABLED" in  guild.features:
+        featuresinfo += f"{bot.get_em('parrow')} Threads Enabled"
+        featuresinfo = f"\n{bot.get_em('parrow')} Threads Enabled"
+        featuresinfo += f"\nㅤㅤ{bot.get_em('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
+        featuresinfo += f"\nㅤㅤ{bot.get_em('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
+        featuresinfo += f"\nㅤㅤ{bot.get_em('replyend')} Archive time limit: "
+        featuresinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
+    
+    feature_list =  "\n".join(f"{bot.get_em('parrow')} {features[feature]}" for feature in guild.features if "THREAD" not in feature) + featuresinfo
+    return feature_list or "No Features Availabe"
+
 def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwargs) -> discord.Embed:
     """ An embed with useful information about a given guild """
-    msg = "I've joined a new server" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}"
-    colour = discord.Color.green() if type == 1 else discord.Color.red()
-    colour = discord.Colour(0x9c9cff) if not type  else colour
+    message = "I've joined this server" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
+    colour = discord.Color.green() if type == 1 else discord.Color.red() if type == 2 else discord.Colour.dark_grey() if type == 3 else discord.Colour(0x9c9cff)
+    description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n{message}\n{f'I am currently in **{len([g.id for g in bot.guilds])}** servers now and **{len([g.id for g in bot.users])}** users now' if type else ''}"
+    nsfw = len([chan for chan in guild.text_channels if chan.is_nsfw()])
 
-    description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n"
-    description += f"I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>\n" if not type else ""
-    description += f"\n{msg}\nI'm in **{len([g.id for g in bot.guilds])}** servers now\nI have **{len([g.id for g in bot.users])}** users now" if type else ""
     embed = discord.Embed(title = guild, colour = colour, description = description)
 
-    owner,region = guild.owner, guild.region.name
-    ifnsfw = len([c for c in guild.text_channels if c.is_nsfw()])
-    ifgprem = guild.premium_tier
-    gfl = [f"{bot.get_em('parrow')} {features[c]}" for c in guild.features] 
-    if gfl == []:
-        featurend = "No Features Available"
-    else:
-        threadinfo = ""
-        if "THREADS_ENABLED" in  guild.features:
-            threadinfo = f"\n{bot.get_em('parrow')} Threads Enabled"
-            threadinfo += f"\nㅤㅤ{bot.get_em('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
-            threadinfo += f"\nㅤㅤ{bot.get_em('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
-            threadinfo += f"\nㅤㅤ{bot.get_em('replyend')} Archive time limit: "
-            threadinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
-        featurend = "\n".join([c for c in gfl if not c.startswith(f"{bot.get_em('parrow')} Thread") and not c.startswith(f"{bot.get_em('parrow')} New Thread")]) + threadinfo
-
-    if ifnsfw > 0:
-        ifnsfw = f"\nㅤㅤ{bot.get_em('replyend')} Nsfw ⤏ **{ifnsfw}**"
-    else:
-        ifnsfw = ""
-    embed.set_footer(icon_url="https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text=guild.name if "VERIFIED" in guild.features or "PARTNERED" in guild.features else discord.Embed.Empty)
-    embed.add_field(name="**Guild Info**", value=f"**Owner:** {owner.mention} (`{owner.id}`)\n**Verif. Level:** {verif[str(guild.verification_level)]}\n**Server ID:** `{guild.id}`",inline=False)
-    embed.add_field(name="**Members**",value=f"Humans: **{len([g.id for g in guild.members if not g.bot])}**\nBots: **{len([g.id for g in guild.members if g.bot])}**\nTotal: **{len([g.id for g in guild.members])}**")
-    embed.add_field(name="**Channels**",value=f"{bot.get_em('text')} Text Channels: **{len(guild.text_channels)}** {ifnsfw}\n{bot.get_em('voice')} Voice Channels: **{len(guild.voice_channels)}**\n{bot.get_em('stage')} Stage Channels: **{len(guild.stage_channels)}**")
-    embed.add_field(name="**Misc**",value=f"AFK channel: **{guild.afk_channel}**\nAFK timeout: **{(guild.afk_timeout)/60} minutes**\nCustom emojis: **{len(guild.emojis)}**\nRoles: **{len(guild.roles)}**", inline=False)
-    if ifgprem > 0:
-        nitro_boost = f"Tier **{str(guild.premium_tier)}** with **{guild.premium_subscription_count}** boosters\nFile size limit: **{_size(guild.filesize_limit)}**\nEmoji limit: **{str(guild.emoji_limit)}**\nVCs max bitrate: **{_bitsize(guild.bitrate_limit)}**"
-        embed.add_field(name="**Nitro State**", value=nitro_boost)
-    embed.add_field(name="**Server Features**", value=featurend, inline=False)
-    embed.set_thumbnail(url=guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
+    embed.set_thumbnail(url = guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
+    embed.set_footer(icon_url = "https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text = "Verified Discord Server" if "VERIFIED" in guild.features else "Discord Partnered Server" if "PARTNERED" in guild.features else discord.Embed.Empty)
     if guild.banner:
-        embed.set_image(url=guild.banner)
+        embed.set_image(url = guild.banner)
+
+    embed.add_field(name = "Guild Info", value = f"Owner: {guild.owner.mention} (`{guild.owner.id}`)\nVerif. Level: **{verif[str(guild.verification_level)]}**\nServer ID: `{guild.id}`\n{'This guild has not been cached yet' if not guild.chunked else ''}", inline = False)
+    embed.add_field(name = "Members", value = f"Humans: **{len([member for member in guild.members if not member.bot])}**\nBots: **{len([member for member in guild.members if member.bot])}**\nTotal: **{guild.member_count}**")
+    embed.add_field(name = "Channels", value = f"{bot.get_em('text')} Text Channels: **{len(guild.text_channels)}**\n{bot.get_em('voice')} Voice Channels: **{len(guild.voice_channels)}**\n{bot.get_em('stage')} Stage Channels: **{len(guild.stage_channels)}**")
+    embed.add_field(name = "Misc", value = f"AFK channel: **{guild.afk_channel}**\nAFK timeout: **{(guild.afk_timeout)//60} minutes {f'{round(guild.afk_timeout%60)} seconds' if guild.afk_timeout%60 else ''}**\nCustom emojis: **{len(guild.emojis)}**\nRoles: **{len(guild.roles)}**", inline = False)
+    if guild.premium_tier:
+        embed.add_field(name = "**Server Boost**", value = f"Tier **{str(guild.premium_tier)}** with **{guild.premium_subscription_count}** boosters\nFile size limit: **{_size(guild.filesize_limit)}**\nEmoji limit: **{str(guild.emoji_limit)}**\nVCs max bitrate: **{_bitsize(guild.bitrate_limit)}**")
+    embed.add_field(name = "**Server Features**", value = get_features(bot = bot, guild = guild), inline = False)
+
     return embed

@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .newhelp import NewHelp
+from .gethelp import NewHelp
 
 class CustomHelp(commands.Cog):
     """ Custom Help Handling for the Bot """
