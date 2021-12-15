@@ -125,9 +125,9 @@ class Horus(commands.Bot):
             async def init_connection(conn):
                 await conn.set_type_codec(
                         'jsonb',
-                        encoder=json.dumps,
-                        decoder=json.loads,
-                        schema='pg_catalog'
+                        encoder = json.dumps,
+                        decoder = json.loads,
+                        schema = 'pg_catalog'
                     )
             pg_pool = self.loop.run_until_complete(
                 asyncpg.create_pool(
