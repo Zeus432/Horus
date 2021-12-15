@@ -1,8 +1,10 @@
 import discord
 from discord.ext import commands
 
+from datetime import datetime
 import asyncio
 import json
+import re
 
 def load_json(file: str) -> dict:
     """ Load json content from the given file """
@@ -149,3 +151,22 @@ def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwa
     embed.add_field(name = "**Server Features**", value = get_features(bot = bot, guild = guild), inline = False)
 
     return embed
+
+class TimeConverter(commands.Converter):
+    async def convert(ctx: commands.Context, argument) -> datetime:
+        time_regex = re.compile(r"(\d{1,5}(?:[.,]?\d{1,5})?)([smhd])")
+        time_dict = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+
+        matches = time_regex.findall(argument.lower())
+        time = 0
+        for v, k in matches:
+            try:
+                time += time_dict[k]*float(v)
+            except KeyError:
+                raise commands.BadArgument(f"{k} is an invalid time-key! h/m/s/d are valid!")
+            except ValueError:
+                raise commands.BadArgument(f"{v} is not a number!")
+        try:
+            return float(argument)
+        except: 
+            return time

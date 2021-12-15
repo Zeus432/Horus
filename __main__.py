@@ -148,8 +148,13 @@ class Horus(commands.Bot):
             self.run()
 
     def get_em(self, emoji: str | int) -> str:
+        numdict = {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten'}
+        if emoji in numdict:
+            emoji = numdict[emoji]
+
         if isinstance(emoji, int):
             return self.get_emoji(emoji)
+
         emojis = load_json(f'Core/Assets/emojis.json')
         try:
             return emojis[emoji]
