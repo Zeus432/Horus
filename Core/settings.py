@@ -10,13 +10,13 @@ os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 INITIAL_EXTENSIONS = [
     'Cogs.Admin',
     'Cogs.BotStuff',
-    'Cogs.ErrorHandler',
     'Cogs.Fun',
     'Cogs.Owner',
     'Cogs.Sniper',
     'Cogs.Utility',
     'jishaku',
     'Core.Blacklists',
+    'Core.ErrorHandler',
     'Core.Help',
     'Core.Listeners'
 ]
