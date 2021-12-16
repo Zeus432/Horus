@@ -18,7 +18,7 @@ class BotStuff(commands.Cog):
     @commands.command(name = "info", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['about','botinfo'])
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def info(self, ctx):
-        embed = discord.Embed(title = "About Horus",  description = f"Horus is a semi-private bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now\nIt has Simple Utility, Fun Commands. Run `{ctx.clean_prefix}help` to get started. For bot support join the support server by clicking the button below\n\u200b")
+        embed = discord.Embed(title = "About Horus",  description = f"Horus is a private bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now\nIt has Simple Utility, Fun Commands. Run `{ctx.clean_prefix}help` to get started. For bot support join the support server by clicking the button below\n\u200b", colour = self.bot.colour)
         embed.add_field(name = "Developed By", value = f"**[{self.bot.zeus}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
         embed.add_field(name = "Coded in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0.0a`](https://github.com/Rapptz/discord.py)**")
         embed.add_field(name = "\u200b", value = "**Bot Analytics**", inline = False)
@@ -51,14 +51,14 @@ class BotStuff(commands.Cog):
 
         await msg.edit(content = "Pong \U0001f3d3", embed = embed)
 
-    @commands.command(name='uptime', brief = "Bot Uptime")
+    @commands.command(name = 'uptime', brief = "Bot Uptime")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def uptime(self, ctx: commands.Context):
         """Gets the uptime of the bot"""
         uptime_string = self.bot.get_uptime()
         await ctx.channel.send(f'**{self.bot.user.name}** has been up for {uptime_string}.\nSince <t:{round(self.bot.launch_ts)}>')
     
-    @commands.command(name='support', brief = "Bot Support")
+    @commands.command(name = 'support', brief = "Bot Support")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def support(self, ctx: commands.Context):
         """ Get an Invite to Horus' Support Server """
