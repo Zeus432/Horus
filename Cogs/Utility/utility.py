@@ -1,7 +1,10 @@
 import discord
 from discord.ext import commands
 
-from .useful import UserBadges
+from datetime import datetime
+
+from .useful import UserBadges, PollFlags
+from .menus import PollMenu
 
 class Utility(commands.Cog):
     """ Utility Commands that contain general information """ 
@@ -63,3 +66,98 @@ class Utility(commands.Cog):
         view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, url = f"{webpav}", label = ".webp"))
 
         await ctx.send(embed = embed, view = view)
+    
+    @commands.command(cooldown_after_parsing = True)
+    @commands.is_owner()
+    @commands.cooldown(3, 60, commands.BucketType.guild)
+    async def poll(self, ctx: commands.Context, *, flags: PollFlags):
+        """ 
+        Start a poll with buttons which makes polling truly anonymous
+        Input is done by entering using multiple flags.
+
+        __**List of flags:**__
+
+        **Question:**
+        `--q <question>` 
+        Enter the question or whatever you need a poll for
+
+        **Time:**
+        `--time <time>` 
+        Enter the time duration for the poll. It's 10 minutes by default
+
+        **Options:**
+        `--o <option>`
+        Enter the options for the poll. Can have a maximum of 10 options per poll
+
+        **Yes or No:**
+        `--yesno <True/False>`
+        Entering True will make it a yes or no question with 2 options Yes or No. Other Input options are ignored
+
+
+        **Webhook:**
+        `--webhook <True/False>`
+        Entering True will make the bot send the poll as a webhook if it has Manage Webhooks perms
+
+        __**Example Usage:**__
+
+        >>> `h!poll --question Hey there this is a poll --time 5m --option Option 1 --opt Option 2 --opt Option 3 --option Last one Lol`
+
+        `h!poll --ques Hey look another poll --opt Option --opt Another Option --webhook True`
+        """
+
+        content = flags.question
+        time = flags.time
+        options = flags.opt
+        yesno = flags.yesno
+        webhook = None
+
+        content = f"{ctx.author.mention} asks:\n{content}" if yesno else content
+
+        if len(options) < 2 and not yesno:
+            return await ctx.reply("You need to give atleast 2 options!")
+        elif len(options) > 10 and not yesno:
+            return await ctx.reply("You can only have a maximum of 10 options!")
+        elif time > 36000:
+            return await ctx.reply("Maximum duration for a poll has been set to 1 hour due to hosting limits")
+        
+        endtime = int(datetime.now().timestamp() + time)
+
+        if not yesno:
+            for index, option in enumerate(options):
+                content += f"\n\n{self.bot.get_em(index + 1)} {option}"
+
+            view = PollMenu(options = len(options), content = content, endtime = endtime, bot = self.bot, ctx = ctx, timeout = time, yesno = yesno)
+            content += "\n\n" + "\U000030fb".join([f"{self.bot.get_em(num)}: `0` " for num in range(1, len(options) + 1)])
+        
+        else:
+            view = PollMenu(options = 2, content = content, endtime = endtime, bot = self.bot, ctx = ctx, timeout = time, yesno = yesno)
+            content += "\n\n" + "\U000030fb".join([f"{self.bot.get_em(f'{value}')}: `0` " for value in ['tick', 'cross']])
+        
+        content += f"\n\nPoll ends on <t:{endtime}:F> (<t:{endtime}:R>)"
+
+        if len(content) > 1800:
+            return await ctx.reply(f'Please shorten the length of your question{" and options!" if not yesno else ""}')
+        
+        if flags.webhook:
+            try:
+                webhook = await ctx.channel.webhooks()
+            except commands.CommandInvokeError:
+                return await ctx.reply("I need `Manage Webhooks` perms for you to use the `--webhook` flag")
+    
+            webhook = [w for w in webhook if w.user == self.bot.get_user(858335663571992618)]
+            try:
+                webhook = webhook[0]
+            except:
+                webhook = webhook = await ctx.channel.create_webhook(name = "Horus Webhook", reason = f"Webhook for Poll. Invoked by {ctx.author}")
+            
+            view.message = await webhook.send(
+                content = f"{content}",
+                username = f"{ctx.author.display_name}", 
+                avatar_url = f"{ctx.author.avatar}" or f"{ctx.author.default_avatar}",
+                allowed_mentions = discord.AllowedMentions.none(),
+                view = view,
+                wait = True
+            )
+        
+        else:
+            view.message = await ctx.send(f"{content}", allowed_mentions = discord.AllowedMentions.none(), view = view)

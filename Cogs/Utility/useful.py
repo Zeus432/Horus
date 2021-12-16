@@ -30,5 +30,5 @@ class PollFlags(commands.FlagConverter, prefix = '--', delimiter = ' ', case_ins
     question: str = commands.flag(name = 'question', aliases = ["q","ques"])
     time: TimeConverter = 600.0
     yesno: bool = False
-    opt: List[str]  = commands.flag(name = 'option', aliases = ["opt"])
+    opt: List[str]  = commands.flag(name = 'option', aliases = ["opt"], default = [])
     webhook: bool = False
