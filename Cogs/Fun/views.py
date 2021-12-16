@@ -10,7 +10,9 @@ class Guess(discord.ui.View):
     def __init__(self, bot:commands.Bot, ctx: commands.Context):
         super().__init__(timeout = 100)
         self.value = None
-        self.choices = random.sample(range(1, 100), 9)
+        self.choices = random.sample(range(1, 100), 8)
+        self.choices = [*self.choices, 69]
+        random.shuffle(self.choices)
         self.correct = random.choice(self.choices)
         self.guess = 3
         self.bot = bot
@@ -66,7 +68,7 @@ class RpsView(discord.ui.View):
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.ctx.author.id  and interaction.user.id != self.opponent.id:
-            return await interaction.response.send_message(f"This isn't your game to play! Run `{self.view.ctx.clean_prefix}{self.view.ctx.invoked_with}` if you wanna play", ephemeral = True)
+            return await interaction.response.send_message(f"This isn't your game to play! Run `{self.ctx.clean_prefix}{self.ctx.invoked_with}` if you wanna play", ephemeral = True)
         return True
 
     async def button_pressed(self, button: discord.ui.Button, interaction: discord.Interaction):

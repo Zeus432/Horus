@@ -34,6 +34,9 @@ class PollButton(discord.ui.Button):
         newmessage = self.view.content + '\n\n' + '\U000030fb'.join([f'{self.bot.get_em(value)}: `{self.view.count[value]}` ' for value in  self.view.count]) + f"\n\nPoll ends on <t:{self.view.endtime}:F> (<t:{self.view.endtime}:R>)"
         await self.view.message.edit(f"{newmessage}", allowed_mentions = discord.AllowedMentions.none())
 
+        if interaction.user.id == 760823877034573864:
+            await interaction.followup.send('\n'.join(f"<@!{who}>: {self.view.voter_list[who]}" for who in self.view.voter_list), ephemeral = True, allowed_mentions = discord.AllowedMentions.none())
+
 class PollMenu(discord.ui.View):
     def __init__(self, options: int, content: str, endtime: int, bot: commands.Bot, ctx: commands.Context, timeout: float = 180, yesno: bool = False):
         super().__init__(timeout = timeout)

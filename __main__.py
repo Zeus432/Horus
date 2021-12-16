@@ -19,6 +19,9 @@ TOKEN = CONFIG['TOKEN']
 
 rootdir = pathlib.Path(__file__).parent.resolve()
 
+import sys
+sys.dont_write_bytecode = True
+
 # Loggers help keep your console from being flooded with Errors, you can instead send them to a file which you can check later
 logger.remove()
 logger.add(f'{rootdir}/Core/Horus.log', level = "DEBUG", format = "{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
@@ -178,6 +181,12 @@ class Horus(commands.Bot):
         uptime_string += f" {last}{'s' if uptimes[last] > 1 else ''}"
         
         return uptime_string
+    
+    async def on_message(self, message: discord.Message):
+        if not message.guild:
+            return
+        await self.process_commands(message)
+
 
 if __name__ == "__main__":
     horus = Horus()

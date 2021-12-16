@@ -85,7 +85,7 @@ class Utility(commands.Cog):
         Enter the time duration for the poll. It's 10 minutes by default
 
         **Options:**
-        `--o <option>`
+        `--opt <option>`
         Enter the options for the poll. Can have a maximum of 10 options per poll
 
         **Yes or No:**
@@ -262,7 +262,7 @@ class Utility(commands.Cog):
             return await ctx.send(f"There is nothing to clear in your todo list. You can add tasks to your todo by running `{ctx.clean_prefix}{ctx.invoked_with} add <task_here>`")
         
         view = ConfirmClear(user = ctx.author)
-        await ctx.reply(f'This will clear all your todo tasks (`{len(todo["data"])}`). Are you absolutely sure you want to clear your entire list {self.bot.get_em("concern")}?', view = view)
+        view.message = await ctx.reply(f'This will clear all your todo tasks (`{len(todo["data"])}`). Are you absolutely sure you want to clear your entire list {self.bot.get_em("concern")}?', view = view)
         await view.wait()
 
         if view.value:
