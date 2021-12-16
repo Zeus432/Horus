@@ -11,7 +11,7 @@ INITIAL_EXTENSIONS = [
     'Cogs.Admin',
     'Cogs.BotStuff',
     'Cogs.Fun',
-    'Cogs.Owner',
+    'Cogs.Dev',
     'Cogs.Sniper',
     'Cogs.Utility',
     'jishaku',
