@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 import discord
 from discord.ext import commands
+from discord.member import Member
 
 class PollButton(discord.ui.Button):
     def __init__(self, number: int, bot: commands.Bot, yesno: bool):
@@ -63,3 +64,35 @@ class PollMenu(discord.ui.View):
     
     async def on_timeout(self):
         await self.endpoll()
+
+class ConfirmClear(discord.ui.View):
+    def __init__(self, user: discord.Member):
+        super().__init__(timeout = 10)
+        self.value = None
+        self.user = user
+    
+    async def disableall(self, label: discord.ButtonStyle):
+        for item in self.children:
+            item.style = discord.ButtonStyle.gray if item.style != label else label
+            item.disabled = True
+    
+    @discord.ui.button(label = "Confirm", style = discord.ButtonStyle.blurple)
+    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return
+        await self.message.edit('I have cleared your todo list!')
+        self.value = True
+        self.stop()
+        await self.disableall(button.label)
+    
+    @discord.ui.button(label = "Cancel", style = discord.ButtonStyle.red)
+    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user.id != self.user.id:
+            return
+        await self.message.edit("Alright I won't clear your todo list then")
+        self.stop()
+        await self.disableall(button.label)
+    
+    async def on_timeout(self):
+        await self.message.edit("Alright I won't clear your todo list then")
+        await self.disableall(discord.ButtonStyle.red)

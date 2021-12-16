@@ -4,7 +4,7 @@ from discord.ext import commands
 from datetime import datetime
 
 from .useful import UserBadges, PollFlags
-from .menus import PollMenu
+from .menus import PollMenu, ConfirmClear
 
 class Utility(commands.Cog):
     """ Utility Commands that contain general information """ 
@@ -20,7 +20,7 @@ class Utility(commands.Cog):
         embed = discord.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour)
         embed.timestamp = ctx.message.created_at
         embed.set_thumbnail(url = user.display_avatar)
-        join_position = [m for m in sorted(ctx.guild.members, key = lambda u: u.joined_at)].index(ctx.author) + 1
+        join_position = [m for m in sorted(ctx.guild.members, key = lambda u: u.joined_at)].index(user) + 1
         embed.set_footer(text = f"Member #{join_position}\U000030fbID: {user.id}", icon_url = user.avatar if user.display_avatar != user.avatar else discord.Embed.Empty)
 
         embed.add_field(name = "Joined Discord:", value = f"<t:{round(user.created_at.timestamp())}:D>\n(<t:{round(user.created_at.timestamp())}:R>)\n\u200b")
@@ -68,7 +68,6 @@ class Utility(commands.Cog):
         await ctx.send(embed = embed, view = view)
     
     @commands.command(cooldown_after_parsing = True)
-    @commands.is_owner()
     @commands.cooldown(3, 60, commands.BucketType.guild)
     async def poll(self, ctx: commands.Context, *, flags: PollFlags):
         """ 
@@ -161,3 +160,111 @@ class Utility(commands.Cog):
         
         else:
             view.message = await ctx.send(f"{content}", allowed_mentions = discord.AllowedMentions.none(), view = view)
+
+    @commands.is_owner()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.group(name = "todo", brief = "Todo list related commands", invoke_without_command = True)
+    async def todo(self, ctx: commands.Context):
+        """ View your todo list """
+        try:
+            todo = self.todo_cache[ctx.author.id]
+        except KeyError:
+            todo = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
+            self.todo_cache[ctx.author.id] = todo
+
+        if not todo:
+            return await ctx.send(f"Your todo list is empty. You can add tasks to your todo by running `{ctx.clean_prefix}{ctx.invoked_with} add <task_here>`")
+        elif not todo['data']:
+            return await ctx.send(f"Your todo list is empty. You can add tasks to your todo by running `{ctx.clean_prefix}{ctx.invoked_with} add <task_here>`")
+        
+        stuff = todo['data']
+        neat_todo = [f"**[{index+1})]({stuff[task_id]['messagelink']})** {stuff[task_id]['stuff']}" for index, task_id in enumerate(stuff)]
+
+        embed = discord.Embed(title = f"**{ctx.author.display_name}**'s To Do List", description = "\n".join(neat_todo), color = self.bot.colour)
+        await ctx.reply(embed = embed, mention_author = False)
+    
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @todo.command(name = "add", brief = "Add todo task")
+    async def todo_add(self, ctx: commands.Context, *, task: str):
+        """ Add a todo task """
+        if len(task) > 150:
+            return await ctx.reply('Give me a task with less than 150 charecters')
+
+        try:
+            todo = self.todo_cache[ctx.author.id]
+        except KeyError:
+            todo = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
+        if todo is None:
+            todo = await self.bot.db.fetchrow(f'INSERT INTO todo(userid, lastupdated, data) VALUES($1, $2, $3) ON CONFLICT (userid) DO UPDATE SET lastupdated = $2 RETURNING *', ctx.author.id, int(datetime.now().timestamp()), {})
+        
+        self.todo_cache[ctx.author.id] = todo # Update Todo Cache
+
+        if len(todo['data']) >= 10:
+            return await ctx.reply('I was unable to add this task as Todo lists are currently limited to a maximum of `10` tasks.')
+        
+        todo['data'][ctx.message.id] = {'messagelink': f'{ctx.message.jump_url}', 'stuff': f'{task}'}
+        self.todo_cache[ctx.author.id] = todo
+
+        await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.now().timestamp()), todo['data'])
+        await ctx.reply('Your todo list has been updated!')
+
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @todo.command(name = "remove", brief = "Remove todo task")
+    async def todo_remove(self, ctx: commands.Context, id: int):
+        """ Remove a task from your todo list """
+        try:
+            todo = self.todo_cache[ctx.author.id]
+        except KeyError:
+            todo = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
+        
+        if id > len(todo['data']) or id <= 0:
+            return await ctx.reply(f"You don't have a task with ID:`{id}`")
+        
+        for index, task_id in enumerate(todo['data']):
+            if index + 1 == id:
+                deleted = todo['data'][task_id]
+                del todo['data'][task_id]
+                self.todo_cache[ctx.author.id] = todo
+                view = discord.ui.View()
+                view.add_item(discord.ui.Button(label = "Source", emoji = "\U0001f517", style = discord.ButtonStyle.link, url = f'{deleted["messagelink"]}'))
+                await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.now().timestamp()), todo['data'])
+                return await ctx.reply(f'I have removed this task from your todo list:\n  (**{id}**) {deleted["stuff"]}', view = view)
+
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @todo.command(name = "edit", brief = "Remove todo task", aliases = ['update'])
+    async def todo_edit(self, ctx: commands.Context, id: int, *, task:str):
+        """ Edit a task in your todo list """
+        try:
+            todo = self.todo_cache[ctx.author.id]
+        except KeyError:
+            todo = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
+        
+        if id > len(todo['data']) or id <= 0:
+            return await ctx.reply(f"You don't have a task with ID:`{id}`")
+        
+        for index, task_id in enumerate(todo['data']):
+            if index + 1 == id:
+                todo['data'][task_id]['stuff'] = task
+                await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.now().timestamp()), todo['data'])
+                return await ctx.reply(f'Task `{id}` updated!')
+    
+    @todo.command(name = "clear", brief = "Clear todo")
+    async def todo_clear(self, ctx: commands.Context):
+        """ Clear your todo list completely """
+        try:
+            todo = self.todo_cache[ctx.author.id]
+        except KeyError:
+            todo = await self.bot.db.fetchrow('SELECT * FROM todo WHERE userid = $1', ctx.author.id)
+        
+        if not todo:
+            return await ctx.send(f"There is nothing to clear in your todo list. You can add tasks to your todo by running `{ctx.clean_prefix}{ctx.invoked_with} add <task_here>`")
+        elif not todo['data']:
+            return await ctx.send(f"There is nothing to clear in your todo list. You can add tasks to your todo by running `{ctx.clean_prefix}{ctx.invoked_with} add <task_here>`")
+        
+        view = ConfirmClear(user = ctx.author)
+        await ctx.reply(f'This will clear all your todo tasks (`{len(todo["data"])}`). Are you absolutely sure you want to clear your entire list {self.bot.get_em("concern")}?', view = view)
+        await view.wait()
+
+        if view.value:
+            todo['data'].clear()
+            await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.now().timestamp()), todo['data'])
