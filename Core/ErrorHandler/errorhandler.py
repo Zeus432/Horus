@@ -6,7 +6,7 @@ from loguru import logger
 from .useful import send_error
 
 class ErrorHandler(commands.Cog, name = "ErrorHandler"):
-    """ Module for Global Error Handling and Logging"""
+    """ Global Error Handling """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot

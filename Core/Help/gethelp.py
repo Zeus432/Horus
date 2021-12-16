@@ -4,6 +4,7 @@ from discord.ext import commands
 from .menus import HelpView
 
 class NewHelp(commands.HelpCommand):
+    """ Custom Help Handling """
     def __init__(self):
         super().__init__(
             command_attrs = {
@@ -22,7 +23,7 @@ class NewHelp(commands.HelpCommand):
     # Get Help
     
     async def get_bot_help(self, mapping) -> discord.Embed:
-        embed = discord.Embed(title = 'Horus Help', colour = self.colour)
+        embed = discord.Embed(title = 'Horus Help Menu', colour = self.colour)
         embed.set_thumbnail(url = self.context.bot.user.avatar)
 
         for cog, commands in mapping.items():
@@ -35,6 +36,7 @@ class NewHelp(commands.HelpCommand):
             content = fl.read()
             if content:
                 embed.add_field(name = f"{self.context.bot.get_em('news')} Horus Updates", value = f"{content}")
+        embed.set_footer(icon_url = self.context.bot.user.avatar, text = self.get_ending_note())
         
         return embed
     

@@ -7,7 +7,7 @@ from .useful import UserBadges, PollFlags
 from .menus import PollMenu, ConfirmClear
 
 class Utility(commands.Cog):
-    """ Utility Commands that contain general information """ 
+    """ Utility Commands """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.todo_cache = {}

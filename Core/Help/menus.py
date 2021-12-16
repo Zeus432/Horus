@@ -16,6 +16,7 @@ class HelpSelect(discord.ui.Select):
 class HelpView(discord.ui.View):
     def __init__(self, user: discord.Member, embeds: dict[discord.Embed], original: str, timeout: float = 180):
         super().__init__(timeout = timeout)
+        self.user = user
         self.add_item(HelpSelect(embeds = embeds, original = original))
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:

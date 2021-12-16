@@ -22,7 +22,7 @@ from .useful import cleanup_code, plural, TabularData
 from .menus import ConfirmLeave, WhoAsked, GuildButtons
 
 class Owner(commands.Cog):
-    """ Overall bot related management stuff, or just for abuse commands """
+    """ Bot Management """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot

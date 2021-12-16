@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 class Admin(commands.Cog):
-    """ Management cmds mostly for Setup """
+    """ Server Management """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 

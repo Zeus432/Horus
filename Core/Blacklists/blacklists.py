@@ -4,7 +4,7 @@ from discord.ext import commands
 from Core.settings import BOTMODS
 
 class Blacklists(commands.Cog):
-    """ Blacklist dumb people and probably don't unblacklist them """
+    """ Blacklist people """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._mc = commands.MaxConcurrency(1, per = commands.BucketType.user, wait = False)

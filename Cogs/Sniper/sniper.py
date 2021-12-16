@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 class Sniper(commands.Cog):
-    """ Snipe the latest deleted or edited message """ 
+    """ Snipe deleted messages """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.delete_cache = {}

@@ -2,7 +2,7 @@ from discord.ext import commands
 from .gethelp import NewHelp
 
 class CustomHelp(commands.Cog):
-    """ Custom Help Handling for the Bot """
+    """ Custom Help Handling """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._original_help_command = bot.help_command

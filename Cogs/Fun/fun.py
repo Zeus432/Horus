@@ -4,7 +4,7 @@ from discord.ext import commands
 from .views import Guess, RpsView
 
 class Fun(commands.Cog):
-    """ Fun commands for everyone to use """ 
+    """ Fun commands """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
     

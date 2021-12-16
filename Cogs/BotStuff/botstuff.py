@@ -11,7 +11,7 @@ from .useful import total_stuff, pie_gen
 from .menus import InfoButtons
 
 class BotStuff(commands.Cog):
-    """ Bot Info, Stats and Stuff commands """ 
+    """ Bot Stats and Stuff """ 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
     

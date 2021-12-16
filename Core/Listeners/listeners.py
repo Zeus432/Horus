@@ -5,7 +5,7 @@ from Core.settings import BOTMODS
 from Core.Utils.useful import guildanalytics
 
 class Listeners(commands.Cog):
-    """ Listeners for bot commands, guild joins and stuff """
+    """ Bot Listeners """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
     
