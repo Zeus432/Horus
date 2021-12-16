@@ -21,7 +21,7 @@ from Core.settings import INITIAL_EXTENSIONS
 from .useful import cleanup_code, plural, TabularData
 from .menus import ConfirmLeave, WhoAsked, GuildButtons
 
-class Owner(commands.Cog):
+class Dev(commands.Cog):
     """ Bot Management """
 
     def __init__(self, bot: commands.Bot):

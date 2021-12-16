@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .owner import Owner
+from .dev import Dev
 
 def setup(bot: commands.Bot):
-    bot.add_cog(Owner(bot))
+    bot.add_cog(Dev(bot))
