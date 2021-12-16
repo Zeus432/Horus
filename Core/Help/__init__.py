@@ -8,7 +8,7 @@ class CustomHelp(commands.Cog):
         self._original_help_command = bot.help_command
         help_command = NewHelp()
         help_command.cog = self
-        #bot.help_command = help_command
+        bot.help_command = help_command
 
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
