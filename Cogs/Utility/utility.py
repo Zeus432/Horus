@@ -110,7 +110,7 @@ class Utility(commands.Cog):
         yesno = flags.yesno
         webhook = None
 
-        content = f"{ctx.author.mention} asks:\n{content}" if yesno else content
+        content = f"{ctx.author.mention} asks:\n{content}" if not yesno else content
 
         if len(options) < 2 and not yesno:
             return await ctx.reply("You need to give atleast 2 options!")
