@@ -17,25 +17,18 @@ class Listeners(commands.Cog):
     async def on_guild_join(self, guild: discord.Guild):
         embed = guildanalytics(bot = self.bot, guild = guild, type = 1)
         await self.bot.get_channel(874212184828297297).send(embed = embed)
-        # First send join embed then check if blacklisted
 
-        try:
-            blacklist = self.bot.blacklists[guild.id]
-        except KeyError:
-            blacklist = await self.bot.db.fetchval("SELECT blacklists->'blacklisted' FROM guilddata WHERE guildid = $1", guild.id)
-            if blacklist is None:
-                blacklist = await self.bot.db.fetchval("INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2 RETURNING blacklists->'blacklisted'", guild.id, {'prevbl': 0, 'blacklisted': False})
-
-            self.bot.blacklists[guild.id] = blacklist # Update Blacklist cache
+        # After sending join embed then check if blacklisted
+        if guild.id in self.bot.blacklists:
+            return await guild.leave()
         
-        if blacklist["blacklisted"]:
-            await guild.leave()
+        check_for_guild = await self.bot.db.fetchval("SELECT * FROM guilddata WHERE guildid = $1", guild.id)
+
+        if check_for_guild is None:
+            await self.bot.db.execute("INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2", guild.id, {'prevbl': 0, 'blacklisted': False})
     
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
-        try:
-            embed = guildanalytics(bot = self.bot, guild = guild, type = 3 if self.bot.blacklists[guild.id]["blacklisted"] else 2)
-        except:
-            embed = guildanalytics(bot = self.bot, type = 2, guild = guild)
-        
+        embed = guildanalytics(bot = self.bot, guild = guild, type = 3 if guild.id in self.bot.blacklists else 2)
+
         await self.bot.get_channel(874212184828297297).send(embed = embed)

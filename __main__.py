@@ -25,14 +25,16 @@ logger.add(f'{rootdir}/Core/Horus.log', level = "DEBUG", format = "{time:YYYY-MM
 
 class Horus(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.idle, case_insensitive = True, **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, **kwargs)
         self.description = CONFIG['description']
         self.config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
         self.noprefix = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
+        self.blacklists = []
         self.dev_mode = False
+        self.if_ready = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         # Load Initial Extensions
@@ -103,11 +105,18 @@ class Horus(commands.Bot):
         print(f'Channels: {len([1 for x in self.get_all_channels()])}')
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
 
+        # Build Blacklisted Guild & User Cache
+        bl_guilds = [guild['guildid'] for guild in await self.db.fetch("SELECT blacklists FROM guilddata WHERE blacklists->'blacklisted' @> 'true'")]
+        await asyncio.sleep(3) # Wait a while before next db request
+        bl_users = [user['userdid'] for user in await self.db.fetch("SELECT blacklists FROM userdata WHERE blacklists->'blacklisted' @> 'true'")]
+        self.blacklists.extend([*bl_guilds, *bl_users])
+
         await asyncio.sleep(10)
-        if not self.bot.dev_mode:
+        if not self.dev_mode:
             await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
 
         logger.info(f"{self.user} is Online!")
+        self.if_ready = True
     
     async def start(self, *args, **kwargs):
         self.session = aiohttp.ClientSession()
@@ -182,11 +191,14 @@ class Horus(commands.Bot):
         return uptime_string
     
     async def on_message(self, message: discord.Message):
-        if not message.guild:
-            return # Don't process commands if commands are in dms
+        if not (message.guild and self.if_ready):
+            return # Don't process commands if commands are in dms or if bot isn't ready yet
 
         if self.dev_mode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
+        
+        if (message.author.id in self.blacklists or message.guild in self.blacklists) and message.author.id not in self.owner_ids:
+            return # Don't process commands if server or user is blacklisted. But also make sure I don't fricking lock myself out of my own bot
 
         await self.process_commands(message)
 
