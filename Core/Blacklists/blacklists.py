@@ -16,15 +16,16 @@ class Blacklists(commands.Cog):
             command._max_concurrency = self._mc # Set Concurrency to all the commands
     
     def cog_check(self, ctx: commands.Context) -> bool:
-        return True if (ctx.author.id in BOTMODS) or self.bot.is_owner(ctx.author) else False
+        return ctx.author.id in BOTMODS or ctx.author.id in self.bot.owner_ids
     
     @commands.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Server / User")
     async def blacklist(self, ctx: commands.Context, what: Union[discord.Guild, discord.User]):
+        """ Blacklist a Server / User """
         what_type = "guild" if isinstance(what, discord.Guild) else "user"
         if what.id in self.bot.blacklists:
-            await ctx.reply(f'This {what_type} is already blacklisted!')
+            return await ctx.reply(f'This {what_type} is already blacklisted!')
 
-        view = ConfirmBl(what = f"{what}", action = "blacklist")
+        view = ConfirmBl(what = f"{what}", action = "blacklist", user = ctx.author)
         view.message = await ctx.reply(f"Are you sure you want to blacklist: `{what}`?", view = view)
         await view.wait()
 
@@ -47,11 +48,12 @@ class Blacklists(commands.Cog):
     
     @commands.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Server / User")
     async def unblacklist(self, ctx: commands.Context, what: Union[discord.Guild, discord.User]):
+        """ Unblacklist a Server / User """
         what_type = "guild" if isinstance(what, discord.Guild) else "user"
         if what.id not in self.bot.blacklists:
-            await ctx.reply(f'This {what_type} is not blacklisted!')
+            return await ctx.reply(f'This {what_type} is not blacklisted!')
         
-        view = ConfirmBl(what = f"{what}", action = "unblacklist")
+        view = ConfirmBl(what = f"{what}", action = "unblacklist", user = ctx.author)
         view.message = await ctx.reply(f"Are you sure you want to unblacklist: `{what}`?", view = view)
         await view.wait()
         

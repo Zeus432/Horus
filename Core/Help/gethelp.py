@@ -24,7 +24,7 @@ class NewHelp(commands.HelpCommand):
     
     async def get_bot_help(self, mapping) -> discord.Embed:
         get_em = self.context.bot.get_em
-        cog_emojis = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils')}
+        self.cog_emojis = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692'}
         embed = discord.Embed(title = 'Horus Help Menu', colour = self.colour)
         embed.set_thumbnail(url = self.context.bot.user.avatar)
 
@@ -32,7 +32,7 @@ class NewHelp(commands.HelpCommand):
             filtered = await self.filter_commands(commands, sort = True)
             if cog is not None and filtered:
                 if cog.qualified_name != 'CustomHelp':
-                    embed.add_field(name = f"{cog_emojis[cog.qualified_name]} {cog.qualified_name}", value = f"\n`{self.context.clean_prefix}{self.invoked_with} {cog.qualified_name}`\n" + (cog.description or "...") + "\n\u200b", inline = True)
+                    embed.add_field(name = f"{self.cog_emojis[cog.qualified_name]} {cog.qualified_name}", value = f"\n`{self.context.clean_prefix}{self.invoked_with} {cog.qualified_name}`\n" + (cog.description or "...") + "\n\u200b", inline = True)
         
         with open('Core/Help/botnews.txt') as fl:
             content = fl.read()

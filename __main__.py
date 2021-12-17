@@ -86,8 +86,7 @@ class Horus(commands.Bot):
 
         try:
             msg = self.get_channel(message[0]).get_partial_message(message[1])
-        except:
-            pass
+        except: pass
         else:
             await msg.edit(content = f"Restarted **{self.user.name}** in `{round(end - start, 2)}s`")
 
@@ -106,9 +105,9 @@ class Horus(commands.Bot):
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
 
         # Build Blacklisted Guild & User Cache
-        bl_guilds = [guild['guildid'] for guild in await self.db.fetch("SELECT blacklists FROM guilddata WHERE blacklists->'blacklisted' @> 'true'")]
+        bl_guilds = [guild['guildid'] for guild in await self.db.fetch("SELECT guildid FROM guilddata WHERE blacklists->'blacklisted' @> 'true'") if guild]
         await asyncio.sleep(3) # Wait a while before next db request
-        bl_users = [user['userdid'] for user in await self.db.fetch("SELECT blacklists FROM userdata WHERE blacklists->'blacklisted' @> 'true'")]
+        bl_users = [user['userid'] for user in await self.db.fetch("SELECT userid FROM userdata WHERE blacklists->'blacklisted' @> 'true'") if user]
         self.blacklists.extend([*bl_guilds, *bl_users])
 
         await asyncio.sleep(10)
@@ -197,7 +196,7 @@ class Horus(commands.Bot):
         if self.dev_mode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
         
-        if (message.author.id in self.blacklists or message.guild in self.blacklists) and message.author.id not in self.owner_ids:
+        if (message.author.id in self.blacklists or message.guild.id in self.blacklists) and message.author.id not in self.owner_ids:
             return # Don't process commands if server or user is blacklisted. But also make sure I don't fricking lock myself out of my own bot
 
         await self.process_commands(message)

@@ -4,7 +4,7 @@ from discord.ext import commands
 class HelpSelect(discord.ui.Select['HelpView']):
     def __init__(self, embeds: dict[discord.Embed], original: str, get_em):
         self.embeds = embeds
-        cog_emojis = {'Main Menu': get_em('core'), 'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils')}
+        cog_emojis = {'Main Menu': get_em('core'), 'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692'}
         options = [discord.SelectOption(label = option, description = embeds[option].description or discord.Embed.Empty, default = True if option == original else False, emoji = cog_emojis[option]) for option in embeds]
         super().__init__(placeholder = "Choose a Category", min_values = 1, max_values = 1, options = options)
 
