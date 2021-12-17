@@ -1,7 +1,7 @@
 .DS_Store
 __pycache__
-settings.py
 *.log
 Assets
-code/testing.py
 Releases
+config.json
+botnews.txt
