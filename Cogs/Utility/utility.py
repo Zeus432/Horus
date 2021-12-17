@@ -14,7 +14,7 @@ class Utility(commands.Cog):
     
     @commands.command(name = "userinfo", aliases = ['ui'], brief = "Get User Info", ignore_extra = True)
     @commands.cooldown(2, 5, commands.BucketType.user)
-    async def userinfo(self, ctx: commands.Context, user: discord.Member = None):
+    async def userinfo(self, ctx: commands.Context, *, user: discord.Member = None):
         """ Get information about a user """
         user = user or ctx.author
         embed = discord.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour)
@@ -36,7 +36,7 @@ class Utility(commands.Cog):
                 extra += 1
         
         roles = f"{roles}{f' and {extra} other roles . . .' if extra != 0 else ''}" if roles else "This user has no roles"
-        embed.add_field(name = "User's Roles:", value = f"{roles}", inline = False)
+        embed.add_field(name = "User's Roles:", value = f"{roles}\n\u200b", inline = False)
 
         # Badges here
         embed = UserBadges(ctx, self.bot, user, embed)
@@ -161,7 +161,6 @@ class Utility(commands.Cog):
         else:
             view.message = await ctx.send(f"{content}", allowed_mentions = discord.AllowedMentions.none(), view = view)
 
-    @commands.is_owner()
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.group(name = "todo", brief = "Todo list related commands", invoke_without_command = True)
     async def todo(self, ctx: commands.Context):

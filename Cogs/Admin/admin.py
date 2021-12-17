@@ -4,6 +4,10 @@ class Admin(commands.Cog):
     """ Server Management """
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+    
+    async def cog_check(self, ctx: commands.Context) -> bool:
+        user = ctx.guild.get_member(ctx.author.id)
+        return user.guild_permissions.administrator
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @commands.command(name = "setprefix", brief = "Set Server prefix")

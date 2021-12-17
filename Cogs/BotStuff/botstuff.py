@@ -47,7 +47,7 @@ class BotStuff(commands.Cog):
         end = time.perf_counter()
         postgres_ping = (end - start) * 1000
 
-        embed = discord.Embed(description = f"```yaml\nTyping: {round(typing_ping, 1)} ms\nWebsocket: {round(self.bot.latency*1000)} ms\nDatabase: {round(postgres_ping, 1)}```", colour = discord.Colour(0x2F3136))
+        embed = discord.Embed(description = f"```yaml\nTyping: {round(typing_ping, 1)} ms\nWebsocket: {round(self.bot.latency*1000)} ms\nDatabase: {round(postgres_ping, 1)} ms```", colour = discord.Colour(0x2F3136))
 
         await msg.edit(content = "Pong \U0001f3d3", embed = embed)
 
@@ -75,3 +75,14 @@ class BotStuff(commands.Cog):
         fp = discord.File(fp, filename = "piechart.png")
 
         await ctx.send(f"{self.bot.get_em('tick')} {prc}% of the server's members are bots.", file = fp)
+    
+    @commands.is_owner()
+    @commands.command(name = "prefix", brief = "Get Server prefix")
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def prefix(self, ctx: commands.Context):
+        """ Get a list of server prefixes """
+        embed = discord.Embed(colour = self.bot.colour, description = "`" + "`\n`".join([f'@{self.bot.user.name}', *(prefix for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
+        embed.set_author(name = f"{ctx.guild}", icon_url = ctx.guild.icon.url or discord.Embed.Empty)
+        embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}setprefix <prefix>`")
+
+        await ctx.reply(embed = embed, allowed_mentions = discord.AllowedMentions.none())
