@@ -63,7 +63,7 @@ class Admin(commands.Cog):
     
     @commands.is_owner()
     @commands.command(name = "unserverblacklist", aliases = ['unserverbl'], brief = "Unblacklist a Channel / User")
-    async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.User]):
+    async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
         """ Unblacklist a Channel, Role or User from using the bot in your server """
         what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
 
@@ -86,14 +86,12 @@ class Admin(commands.Cog):
         if view.value is True:
             if what.id not in blacklist:
                 return
-            print(2)
-
-            blacklist.remove(what.id)
-            self.bot.server_blacklists[ctx.guild.id] = blacklist
 
             if not blacklist:
-                await self.bot.db.execute('INSERT INTO guilddata(guildid, server_bls) VALUES($1, $2) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', ctx.guild.id, blacklist)
+                self.bot.server_blacklists[ctx.guild.id] = await self.bot.db.execute('INSERT INTO guilddata(guildid, server_bls) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET server_bls = $2 RETURNING server_bls', ctx.guild.id, blacklist)
             
             else:
+                blacklist.remove(what.id)
+                self.bot.server_blacklists[ctx.guild.id] = blacklist
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
