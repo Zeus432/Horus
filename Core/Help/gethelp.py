@@ -63,14 +63,14 @@ class NewHelp(commands.HelpCommand):
                 if cog.qualified_name != 'CustomHelp':
                     embeds_list[cog.qualified_name] = await self.get_cog_help(cog)
         
-        view = HelpView(user = self.context.author, embeds = embeds_list, original = 'Main Menu', get_em = self.context.bot.get_em)
+        view = HelpView(user = self.context.author, embeds = embeds_list, original = 'Main Menu', get_em = self.context.bot.get_em, old_self = self, mapping = mapping)
         view.message = await self.context.reply(embed = embed, view = view)
     
     async def send_cog_help(self, cog: commands.Cog):
-        mapping = self.get_bot_mapping()
         if not ((filtered := await self.filter_commands(cog.get_commands(), sort = True)) and cog):
             return
-
+        
+        mapping = self.get_bot_mapping()
         embed = await self.get_cog_help(cog)
         embeds_list = {'Main Menu': await self.get_bot_help(mapping)}
 
@@ -80,12 +80,13 @@ class NewHelp(commands.HelpCommand):
                 if another_cog.qualified_name != 'CustomHelp':
                     embeds_list[another_cog.qualified_name] = await self.get_cog_help(another_cog)
         
-        view = HelpView(user = self.context.author, embeds = embeds_list, original = f'{cog.qualified_name}', get_em = self.context.bot.get_em)
+        view = HelpView(user = self.context.author, embeds = embeds_list, original = f'{cog.qualified_name}', get_em = self.context.bot.get_em, old_self = self, mapping = mapping)
         view.message = await self.context.reply(embed = embed, view = view)
     
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
         except: return
+
         embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200ba")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.context.bot.user.avatar)
 
