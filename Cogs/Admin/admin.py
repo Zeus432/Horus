@@ -1,4 +1,9 @@
+import discord
 from discord.ext import commands
+
+from typing import Union
+
+from Core.Blacklists.menus import ConfirmBl
 
 class Admin(commands.Cog):
     """ Server Management """
@@ -19,3 +24,76 @@ class Admin(commands.Cog):
         self.bot.prefix_cache[ctx.guild.id] = [f"{prefix}"]
         await self.bot.db.execute('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, self.bot.prefix_cache[ctx.guild.id])
         await ctx.send(f'Prefix changed to: `{prefix}`')
+    
+    @commands.is_owner()
+    @commands.command(name = "serverblacklist", aliases = ['serverbl'], brief = "Blacklist a Channel / User")
+    async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
+        """ Blacklist a Channel, Role or User from using the bot in your server """
+        what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
+
+        try:
+            blacklist = self.bot.server_blacklists[ctx.guild.id]
+        except KeyError:
+            blacklist = await self.bot.db.fetchval("SELECT server_bls FROM guilddata WHERE guildid = $1", ctx.guild.id)
+            self.bot.server_blacklists[ctx.guild.id] = [] if blacklist is None else blacklist
+
+        if what.id in blacklist:
+            return await ctx.reply(f'This {what_type} is already server blacklisted!')
+        
+        if what.id == ctx.guild.id:
+            await ctx.send_help(ctx.command)
+
+        view = ConfirmBl(what = f"{what}", action = "server blacklist", user = ctx.author)
+        view.message = await ctx.reply(f"Are you sure you want to server blacklist: `{what}`?", view = view, allowed_mentions = discord.AllowedMentions(roles = False, users = False))
+        await view.wait()
+
+        if view.value is True:
+            if what.id in blacklist:
+                return
+
+            blacklist.append(what.id)
+            self.bot.server_blacklists[ctx.guild.id] = blacklist
+
+            if not blacklist:
+                await self.bot.db.execute('INSERT INTO guilddata(guildid, server_bls) VALUES($1, $2) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', ctx.guild.id, blacklist)
+            
+            else:
+                query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
+                await self.bot.db.execute(query, ctx.guild.id, blacklist)
+    
+    @commands.is_owner()
+    @commands.command(name = "unserverblacklist", aliases = ['unserverbl'], brief = "Unblacklist a Channel / User")
+    async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.User]):
+        """ Unblacklist a Channel, Role or User from using the bot in your server """
+        what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
+
+        try:
+            blacklist = self.bot.server_blacklists[ctx.guild.id]
+        except KeyError:
+            blacklist = await self.bot.db.fetchval("SELECT server_bls FROM guilddata WHERE guildid = $1", ctx.guild.id)
+            self.bot.server_blacklists[ctx.guild.id] = [] if blacklist is None else blacklist
+
+        if what.id not in blacklist:
+            return await ctx.reply(f'This {what_type} is not server blacklisted!')
+        
+        if what.id == ctx.guild.id:
+            await ctx.send_help(ctx.command)
+        
+        view = ConfirmBl(what = f"{what}", action = "server unblacklist", user = ctx.author)
+        view.message = await ctx.reply(f"Are you sure you want to server unblacklist: `{what}`?", view = view, allowed_mentions = discord.AllowedMentions(roles = False, users = False))
+        await view.wait()
+        
+        if view.value is True:
+            if what.id not in blacklist:
+                return
+            print(2)
+
+            blacklist.remove(what.id)
+            self.bot.server_blacklists[ctx.guild.id] = blacklist
+
+            if not blacklist:
+                await self.bot.db.execute('INSERT INTO guilddata(guildid, server_bls) VALUES($1, $2) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', ctx.guild.id, blacklist)
+            
+            else:
+                query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
+                await self.bot.db.execute(query, ctx.guild.id, blacklist)

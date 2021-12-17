@@ -33,6 +33,7 @@ class Horus(commands.Bot):
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
         self.blacklists = []
+        self.server_blacklists = {}
         self.dev_mode = False
         self.if_ready = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
@@ -198,6 +199,18 @@ class Horus(commands.Bot):
         
         if (message.author.id in self.blacklists or message.guild.id in self.blacklists) and message.author.id not in self.owner_ids:
             return # Don't process commands if server or user is blacklisted. But also make sure I don't fricking lock myself out of my own bot
+        
+        # Now check for server specific blacklists
+        try:
+            blacklist = self.server_blacklists[message.guild.id]
+        except KeyError:
+            blacklist = await self.db.fetchval("SELECT server_bls FROM guilddata WHERE guildid = $1", message.guild.id)
+            if blacklist is None:
+                blacklist = await self.db.fetchval('INSERT INTO guilddata(guildid) VALUES($1) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', message.guild.id)
+            self.server_blacklists[message.guild.id] = blacklist
+
+        if (message.author.id in blacklist or message.channel.id in blacklist, (True in [(role.id in blacklist) for role in message.author.roles]) ) and message.author.id not in self.owner_ids:
+            return # Return if user / channel is blocked in that server
 
         await self.process_commands(message)
 

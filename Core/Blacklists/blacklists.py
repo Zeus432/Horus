@@ -68,7 +68,7 @@ class Blacklists(commands.Cog):
                 default_bl = {'prevbl': 1, 'blacklisted': False}
                 query = f'INSERT INTO {what_type}data({what_type}id, blacklists) VALUES($1, $2) ON CONFLICT ({what_type}id) DO UPDATE SET blacklists = $2 RETURNING blacklists'
                 what_data = await self.bot.db.fetchval(query, what.id, default_bl)
-            
+
             else:
                 what_data['prevbl'] += 1
                 what_data['blacklisted'] = False
