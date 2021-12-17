@@ -14,7 +14,7 @@ class ConfirmLeave(discord.ui.View):
         self.bot = bot
         self.value = None
     
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+    @discord.ui.button(label = 'Confirm', style=discord.ButtonStyle.green)
     async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
                 return
@@ -31,7 +31,7 @@ class ConfirmLeave(discord.ui.View):
             await interaction.message.edit(embed = discord.Embed(description = f"I have left **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**, sucks for them {self.bot.get_em('shinobubully')}", color = discord.Colour.green()), view = self)
         self.stop()
 
-    @discord.ui.button(label='Cancel', style = discord.ButtonStyle.grey)
+    @discord.ui.button(label = 'Cancel', style = discord.ButtonStyle.grey)
     async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
             return
@@ -118,7 +118,7 @@ class GuildButtons(discord.ui.View):
             return await interaction.response.send_message(content = f"This is not your button to interact with", ephemeral = True)
         return True
 
-    @discord.ui.button(label= "Join Guild", style = discord.ButtonStyle.green)
+    @discord.ui.button(label = "Join Guild", style = discord.ButtonStyle.green)
     async def joinguild(self, button: discord.ui.Button, interaction: discord.Interaction):
         for chan in self.guild.text_channels:
             try:
@@ -130,7 +130,7 @@ class GuildButtons(discord.ui.View):
         if invite:
             await interaction.response.send_message(f"Invite Generated for **[{self.guild}]( {invite} )**", ephemeral = True)
   
-    @discord.ui.button(label= "Leave Guild", style = discord.ButtonStyle.red)
+    @discord.ui.button(label = "Leave Guild", style = discord.ButtonStyle.red)
     async def leaveguild(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user.id != self.user.id:
             return

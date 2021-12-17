@@ -38,7 +38,7 @@ class Guess(discord.ui.View):
             else:
                 self.view.guess -= 1
                 msg = f"`{self.label}` is not the correct number. Try again, you have `{self.view.guess}` guess{'es' if self.view.guess != 1 else ''} left" if self.view.guess else f"`{self.label}` is not the correct number either! The correct number was `{self.view.correct}`\nImagine not being able to choose the right even with 3 guesses lmao {get_em('kekexplode')}"
-                self.style,self.disabled = discord.ButtonStyle.red, True
+                self.style, self.disabled = discord.ButtonStyle.red, True
 
             if (not self.view.guess) or self.view.choices[self.index] == self.view.correct:
                 for item in self.view.children:
