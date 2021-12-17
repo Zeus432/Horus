@@ -32,6 +32,7 @@ class Horus(commands.Bot):
         self.noprefix = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
+        self.dev_mode = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         # Load Initial Extensions
@@ -103,7 +104,8 @@ class Horus(commands.Bot):
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
 
         await asyncio.sleep(10)
-        await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type=discord.ActivityType.watching, name = f"for @{self.user.name} help"))
+        if not self.bot.dev_mode:
+            await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
 
         logger.info(f"{self.user} is Online!")
     
@@ -181,9 +183,12 @@ class Horus(commands.Bot):
     
     async def on_message(self, message: discord.Message):
         if not message.guild:
-            return
-        await self.process_commands(message)
+            return # Don't process commands if commands are in dms
 
+        if self.dev_mode and message.author.id not in self.owner_ids:
+            return # Only Developers can run commands in dev mode
+
+        await self.process_commands(message)
 
 if __name__ == "__main__":
     horus = Horus()

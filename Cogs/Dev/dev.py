@@ -216,8 +216,8 @@ class Dev(commands.Cog):
         else:
             await ctx.send(endresult)
     
-    @commands.command(name = "error", aliases = ["err"], brief = "Manual Error")
-    async def error(self, ctx: commands.Context, error: commands.CommandError = commands.CommandError):
+    @commands.command(name = "invoke_error", aliases = ["err"], brief = "Manual Error")
+    async def invoke_error(self, ctx: commands.Context, error: commands.CommandError = commands.CommandError(message = "This is a test")):
         """ Manually Invoke an Error """
         raise error
     
@@ -356,6 +356,7 @@ class Dev(commands.Cog):
     
     @commands.command(name = "calc", aliases = ['+', 'math'], brief = "Do Meth")
     async def calc(self, ctx: commands.Context, *, equation: str):
+        """ Do some math, most normal mathematical signs are allowed """
         NSP = NumericStringParser()
         try:
             result = NSP.eval(num_string = equation.strip(" "))
@@ -363,3 +364,15 @@ class Dev(commands.Cog):
             await ctx.send("There was an error while trying to evaluate your equation.\nMake sure to check your input for any illegal characters and try again")
         else:
             await ctx.send(f"```coffeescript\n{equation}```\n> `{result}`")
+    
+    @commands.command(name = "devmode", brief = "Enter Devmode")
+    async def devmode(self, ctx: commands.Context):
+        """ Start Developer mode to test major commands without others interfering """
+        if self.bot.dev_mode:
+            self.bot.dev_mode = False
+            await self.bot.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.bot.user.name} help"))
+            return await ctx.reply('Developer Mode has been disabled!')
+        
+        self.bot.dev_mode = True
+        await self.bot.change_presence(status = discord.Status.invisible)
+        return await ctx.reply('Developer Mode has been enabled!')
