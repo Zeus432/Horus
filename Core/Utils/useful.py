@@ -132,7 +132,7 @@ def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwa
     """ An embed with useful information about a given guild """
     message = "I've joined this server" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
     colour = discord.Color.green() if type == 1 else discord.Color.red() if type == 2 else discord.Colour.dark_grey() if type == 3 else discord.Colour(0x9c9cff)
-    description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n{message}\n{f'I am currently in **{len([g.id for g in bot.guilds])}** servers now and **{len([g.id for g in bot.users])}** users now' if type else ''}"
+    description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n{message}\n{f'I am in **{len([g.id for g in bot.guilds])}** servers and I have **{len([g.id for g in bot.users])}** users now' if type else ''}"
     nsfw = len([chan for chan in guild.text_channels if chan.is_nsfw()])
 
     embed = discord.Embed(title = guild, colour = colour, description = description)

@@ -158,6 +158,22 @@ class Horus(commands.Bot):
             print(f"Connected to database ({round((time.perf_counter() - start) * 10, 2)}s)\n")
             self.run()
 
+            # To Initialise Databases
+
+            # guilddata_table = """ CREATE TABLE IF NOT EXISTS guilddata (
+            # guildid BIGINT UNIQUE PRIMARY KEY,
+            # prefix VARCHAR[] DEFAULT '{"h!"}',
+            # blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}',
+            # server_bls jsonb DEFAULT '{}'
+            # ); """
+
+            # userdata_table = """ CREATE TABLE IF NOT EXISTS userdata (
+            # userid BIGINT UNIQUE PRIMARY KEY,
+            # blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}'
+            # ); """
+
+            # todo_table = """
+
     def get_em(self, emoji: str | int) -> str:
         numdict = {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten'}
         if emoji in numdict:
@@ -209,7 +225,7 @@ class Horus(commands.Bot):
                 blacklist = await self.db.fetchval('INSERT INTO guilddata(guildid) VALUES($1) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', message.guild.id)
             self.server_blacklists[message.guild.id] = blacklist
 
-        if (message.author.id in blacklist or message.channel.id in blacklist or [role.id for role in message.author.roles if role.id in blacklist] ) and message.author.id not in self.owner_ids:
+        if (message.author.id in blacklist or message.channel.id in blacklist or [role.id for role in (await message.guild.fetch_member(message.author.id)).roles if role.id in blacklist] ) and message.author.id not in self.owner_ids:
             return # Return if user, role or channel is blocked in that server
 
         await self.process_commands(message)

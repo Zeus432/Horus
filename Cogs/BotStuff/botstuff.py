@@ -22,7 +22,7 @@ class BotStuff(commands.Cog):
         embed.add_field(name = "Developed By", value = f"**[{self.bot.zeus}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
         embed.add_field(name = "Coded in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`discord.py 2.0.0a`](https://github.com/Rapptz/discord.py)**")
         embed.add_field(name = "\u200b", value = "**Bot Analytics**", inline = False)
-        embed.add_field(name = "Running On", value = f"{self.bot.get_em('horus')} `v0.1.1-alpha`\n\u200b")
+        embed.add_field(name = "Running On", value = f"{self.bot.get_em('horus')} `{self.bot.config['version']}`\n\u200b")
         embed.add_field(name = "On Discord Since", value = f"<t:{round(self.bot.user.created_at.timestamp())}:D>")
         embed.add_field(name = "Bot Uptime", value = f"{self.bot.get_uptime()}")
         embed.add_field(name = "Statistics", value = f"```yaml\nUsers:    {len([g.id for g in self.bot.users])}\nServers:  {len([g.id for g in self.bot.guilds])}\nChannels: {sum([len([chan.id for chan in guild.channels]) for guild in self.bot.guilds])}\nCommands: {len(list(self.bot.walk_commands()))}```")
