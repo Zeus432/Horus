@@ -305,7 +305,7 @@ class Dev(commands.Cog):
             return await ctx.reply("You need to mention a guild to view!")
 
         async with ctx.typing():
-            embed = guildanalytics(bot = self.bot, guild = guild, join = 0)
+            embed = await guildanalytics(bot = self.bot, guild = guild, join = 0)
             view = GuildButtons(guild = guild, ctx = ctx, bot = self.bot)
             view.message = await ctx.reply(embed = embed,view = view)
         await view.wait()

@@ -120,17 +120,25 @@ def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
     if "THREADS_ENABLED" in  guild.features:
         featuresinfo += f"{bot.get_em('parrow')} Threads Enabled"
         featuresinfo = f"\n{bot.get_em('parrow')} Threads Enabled"
-        featuresinfo += f"\n   {bot.get_em('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
-        featuresinfo += f"\n   {bot.get_em('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
-        featuresinfo += f"\n   {bot.get_em('replyend')} Archive time limit: "
+        featuresinfo += f"\n\U00002005{bot.get_em('replycont')} New Thread Permissions Enabled" if "NEW_THREAD_PERMISSIONS" in guild.features else ""
+        featuresinfo += f"\n\U00002005{bot.get_em('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
+        featuresinfo += f"\n\U00002005{bot.get_em('replyend')} Archive time limit: "
         featuresinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
     
     feature_list =  "\n".join(f"{bot.get_em('parrow')} {features[feature]}" for feature in guild.features if "THREAD" not in feature) + featuresinfo
     return feature_list or "No Features Availabe"
 
-def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwargs) -> discord.Embed:
+async def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwargs) -> discord.Embed:
     """ An embed with useful information about a given guild """
-    message = "I've joined this server" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
+    add_user = "Unknown"
+    if type == 1: # Try to check who added the bot
+        try:
+            async for entry in guild.audit_logs(limit = 10, action = discord.AuditLogAction.bot_add):
+                if entry.target == bot.user:
+                    add_user = f"{entry.user}"
+        except: pass
+
+    message = f"I've joined this server. I was invited to it by {add_user}" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
     colour = discord.Color.green() if type == 1 else discord.Color.red() if type == 2 else discord.Colour.dark_grey() if type == 3 else discord.Colour(0x9c9cff)
     description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n{message}\n{f'I am in **{len([g.id for g in bot.guilds])}** servers and I have **{len([g.id for g in bot.users])}** users now' if type else ''}"
     nsfw = len([chan for chan in guild.text_channels if chan.is_nsfw()])

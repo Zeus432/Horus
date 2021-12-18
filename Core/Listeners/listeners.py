@@ -15,7 +15,7 @@ class Listeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        embed = guildanalytics(bot = self.bot, guild = guild, type = 1)
+        embed = await guildanalytics(bot = self.bot, guild = guild, type = 1)
         await self.bot.get_channel(874212184828297297).send(embed = embed)
 
         # After sending join embed then check if blacklisted
@@ -29,6 +29,6 @@ class Listeners(commands.Cog):
     
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
-        embed = guildanalytics(bot = self.bot, guild = guild, type = 3 if guild.id in self.bot.blacklists else 2)
+        embed = await guildanalytics(bot = self.bot, guild = guild, type = 3 if guild.id in self.bot.blacklists else 2)
 
         await self.bot.get_channel(874212184828297297).send(embed = embed)
