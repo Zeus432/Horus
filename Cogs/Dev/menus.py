@@ -103,6 +103,11 @@ class WhoAsked(discord.ui.View):
         button.label = "◉━━━━━" if button.label == "━━━━━◉" else "━━━━━◉"
         button.emoji = "\U0001f507" if button.label != "━━━━━◉" else "\U0001f50a"
         await self.message.edit(view = self)
+    
+    async def on_timeout(self) -> None:
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(view = self)
 
 class GuildButtons(discord.ui.View):
     """ View for getguild """
