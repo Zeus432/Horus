@@ -27,7 +27,7 @@ class Horus(commands.Bot):
         self.dev_mode = False
         self.if_ready = False
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
-        self.test = "test"
+        self.test = "testtt"
 
         # Load Initial Extensions
         for extension in INITIAL_EXTENSIONS:
