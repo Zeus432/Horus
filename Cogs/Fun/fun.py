@@ -1,11 +1,12 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from .views import Guess, RpsView
 
 class Fun(commands.Cog):
     """ Fun commands """ 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
     
     @commands.command(name = "gtn", aliases = ['guess','guessthenumber'], brief = "Guess the Number")
@@ -20,7 +21,7 @@ class Fun(commands.Cog):
     @commands.max_concurrency(1, commands.BucketType.user)
     async def rps(self, ctx, opponent: discord.Member):
         """ Play a game of Rock Paper Scissors with someone """
-        if opponent.bot or (ctx.author.id == opponent.id):
+        if opponent.bot:
             return await ctx.send(f"You can't play with bots dude, they'll never respond {self.bot.get_em('yikes')}")
 
         if ctx.author.id == opponent.id:

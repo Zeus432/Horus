@@ -1,4 +1,5 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 import random
@@ -7,7 +8,7 @@ from Core.Utils.useful import get_em
 
 class Guess(discord.ui.View):
     """ View for Guess the number """
-    def __init__(self, bot:commands.Bot, ctx: commands.Context):
+    def __init__(self, bot: Horus, ctx: commands.Context):
         super().__init__(timeout = 100)
         self.value = None
         self.choices = random.sample(range(1, 100), 8)

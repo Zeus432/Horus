@@ -1,4 +1,5 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from datetime import datetime
@@ -8,7 +9,7 @@ from .menus import PollMenu, ConfirmClear
 
 class Utility(commands.Cog):
     """ Utility Commands """ 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
         self.todo_cache = {}
     

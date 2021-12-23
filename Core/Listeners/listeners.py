@@ -1,4 +1,5 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from Core.settings import BOTMODS
@@ -6,7 +7,7 @@ from Core.Utils.useful import guildanalytics
 
 class Listeners(commands.Cog):
     """ Bot Listeners """
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
     
    # @commands.Cog.listener()

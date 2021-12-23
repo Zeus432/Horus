@@ -1,5 +1,5 @@
 import discord
-from discord.channel import _threaded_channel_factory
+from bot import Horus
 from discord.ext import commands
 
 from contextlib import redirect_stdout
@@ -24,7 +24,7 @@ from .menus import ConfirmLeave, WhoAsked, GuildButtons
 class Dev(commands.Cog):
     """ Bot Management """
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
         self._last_result = None
     

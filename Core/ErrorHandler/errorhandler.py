@@ -1,4 +1,5 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from loguru import logger
@@ -8,7 +9,7 @@ from .useful import send_error
 class ErrorHandler(commands.Cog, name = "ErrorHandler"):
     """ Global Error Handling """
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
         logger.info("Error Handler Logged in")
         self.logger = logger

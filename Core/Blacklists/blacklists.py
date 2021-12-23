@@ -1,4 +1,5 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from typing import Union
@@ -8,7 +9,7 @@ from .menus import ConfirmBl
 
 class Blacklists(commands.Cog):
     """ Blacklist people """
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
         self._mc = commands.MaxConcurrency(1, per = commands.BucketType.user, wait = False)
 

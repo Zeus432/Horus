@@ -130,15 +130,15 @@ def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
 
 async def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwargs) -> discord.Embed:
     """ An embed with useful information about a given guild """
-    add_user = "Unknown"
     if type == 1: # Try to check who added the bot
+        add_user = "I don't know who invited me"
         try:
             async for entry in guild.audit_logs(limit = 10, action = discord.AuditLogAction.bot_add):
                 if entry.target == bot.user:
-                    add_user = f"{entry.user}"
+                    add_user = f"I was invited by {entry.user}"
         except: pass
 
-    message = f"I've joined this server. I was invited to it by {add_user}" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
+    message = f"I've joined this server. {add_user}" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
     colour = discord.Color.green() if type == 1 else discord.Color.red() if type == 2 else discord.Colour.dark_grey() if type == 3 else discord.Colour(0x9c9cff)
     description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n{message}\n{f'I am in **{len([g.id for g in bot.guilds])}** servers and I have **{len([g.id for g in bot.users])}** users now' if type else ''}"
     nsfw = len([chan for chan in guild.text_channels if chan.is_nsfw()])

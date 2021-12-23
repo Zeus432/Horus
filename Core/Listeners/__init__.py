@@ -1,5 +1,5 @@
-from discord.ext import commands
+from bot import Horus
 from .listeners import Listeners
 
-def setup(bot: commands.Bot):
+def setup(bot: Horus):
     bot.add_cog(Listeners(bot))

@@ -1,5 +1,5 @@
-from discord.ext import commands
+from bot import Horus
 from .botstuff import BotStuff
 
-def setup(bot: commands.Bot):
+def setup(bot: Horus):
     bot.add_cog(BotStuff(bot))

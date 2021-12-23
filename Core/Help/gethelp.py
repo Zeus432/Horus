@@ -1,4 +1,5 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from .menus import HelpView
@@ -13,6 +14,7 @@ class NewHelp(commands.HelpCommand):
             }
         )
         self.colour = discord.Colour(0x9c9cff)
+        self.footer = "https://cdn.discordapp.com/avatars/858335663571992618/358132def732d61ce9ed7dbfb8f9a6c1.png?size=1024"
     
     def get_ending_note(self):
         return f'Use {self.context.clean_prefix}{self.invoked_with} [command] for more info on a command.'
@@ -26,7 +28,7 @@ class NewHelp(commands.HelpCommand):
         get_em = self.context.bot.get_em
         self.cog_emojis = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692'}
         embed = discord.Embed(title = 'Horus Help Menu', colour = self.colour)
-        embed.set_thumbnail(url = self.context.bot.user.avatar)
+        embed.set_thumbnail(url = self.footer)
 
         for cog, commands in mapping.items():
             filtered = await self.filter_commands(commands, sort = True)
@@ -35,10 +37,10 @@ class NewHelp(commands.HelpCommand):
                     embed.add_field(name = f"{self.cog_emojis[cog.qualified_name]} {cog.qualified_name}", value = f"\n`{self.context.clean_prefix}{self.invoked_with} {cog.qualified_name}`\n" + (cog.description or "...") + "\n\u200b", inline = True)
         
         with open('Core/Help/botnews.txt') as fl:
-            content = fl.read()
+            content = fl.read().replace('[prefix]', f"{self.context.clean_prefix}")
             if content:
                 embed.add_field(name = f"{self.context.bot.get_em('news')} Horus Updates", value = f"{content}", inline = False)
-        embed.set_footer(icon_url = self.context.bot.user.avatar, text = self.get_ending_note())
+        embed.set_footer(icon_url = self.footer, text = self.get_ending_note())
         return embed
     
     async def get_cog_help(self, cog: commands.Cog) -> discord.Embed:
@@ -85,10 +87,10 @@ class NewHelp(commands.HelpCommand):
     
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
-        except: return
+        except: return # Return if user can't run this group commands
 
-        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200ba")
-        embed.set_footer(text = self.get_ending_note(), icon_url = self.context.bot.user.avatar)
+        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200b")
+        embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in group.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
@@ -101,9 +103,9 @@ class NewHelp(commands.HelpCommand):
     
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
-        except: return
+        except: return # Return if user can't run this command
         embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n{command.help or 'No documentation'}")
-        embed.set_footer(text = self.get_ending_note(), icon_url = self.context.bot.user.avatar)
+        embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in command.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)

@@ -1,9 +1,10 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 class Sniper(commands.Cog):
     """ Snipe deleted messages """ 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
         self.delete_cache = {}
         self.edit_cache = {}

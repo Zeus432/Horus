@@ -1,13 +1,15 @@
 import discord
+from bot import Horus
 from discord.ext import commands
 
 from typing import Union
 
 from Core.Blacklists.menus import ConfirmBl
+from .useful import BlType
 
 class Admin(commands.Cog):
     """ Server Management """
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Horus):
         self.bot = bot
     
     async def cog_check(self, ctx: commands.Context) -> bool:
@@ -25,8 +27,11 @@ class Admin(commands.Cog):
         await self.bot.db.execute('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, self.bot.prefix_cache[ctx.guild.id])
         await ctx.send(f'Prefix changed to: `{prefix}`')
     
-    @commands.is_owner()
-    @commands.command(name = "serverblacklist", aliases = ['serverbl'], brief = "Blacklist a Channel / User")
+    @commands.group(name = "server", brief = "Server Blacklist and Management Commands", invoke_without_command = True)
+    async def server(self, ctx: commands.Context):
+        await ctx.send_help(ctx.command)
+
+    @server.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Channel / User")
     async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
         """ Blacklist a Channel, Role or User from using the bot in your server """
         what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
@@ -60,9 +65,8 @@ class Admin(commands.Cog):
             else:
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
-    
-    @commands.is_owner()
-    @commands.command(name = "unserverblacklist", aliases = ['unserverbl'], brief = "Unblacklist a Channel / User")
+
+    @server.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Channel / User")
     async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
         """ Unblacklist a Channel, Role or User from using the bot in your server """
         what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
@@ -95,3 +99,14 @@ class Admin(commands.Cog):
                 self.bot.server_blacklists[ctx.guild.id] = blacklist
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
+    
+    @commands.is_owner()
+    @server.command(name = "showblacklists", aliases = ["showbls"], brief = "Show a list of blacklisted users, channels and roles")
+    async def showblacklists(self, ctx: commands.Context, category: BlType = None):
+        """
+        You can filter your bl list by specifying a category:
+        `-` user
+        `-` role
+        `-` channel
+        """
+        bltype = category if category else "all"

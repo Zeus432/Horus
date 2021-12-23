@@ -1,5 +1,5 @@
-from discord.ext import commands
+from bot import Horus
 from .errorhandler import ErrorHandler
 
-def setup(bot: commands.Bot):
+def setup(bot: Horus):
     bot.add_cog(ErrorHandler(bot))
