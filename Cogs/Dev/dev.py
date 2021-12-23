@@ -18,7 +18,7 @@ from Core.Utils.math import NumericStringParser
 from Core.Utils.views import Confirm
 from Core.settings import INITIAL_EXTENSIONS
 
-from .useful import cleanup_code, plural, TabularData
+from .useful import cleanup_code, plural, TabularData, get_reply
 from .menus import ConfirmLeave, WhoAsked, GuildButtons
 
 class Dev(commands.Cog):
@@ -62,6 +62,7 @@ class Dev(commands.Cog):
             'author': ctx.author,
             'guild': ctx.guild,
             'message': ctx.message,
+            'reply': get_reply(ctx),
             '_': self._last_result
         }
 

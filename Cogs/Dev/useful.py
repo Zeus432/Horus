@@ -1,3 +1,5 @@
+from discord.ext import commands
+
 def cleanup_code(content) -> str:
     """Automatically removes code blocks from the code."""
     if content.startswith('```') and content.endswith('```'):
@@ -74,3 +76,8 @@ class TabularData:
 
         to_draw.append(sep)
         return '\n'.join(to_draw)
+
+def get_reply(ctx: commands.Context):
+    if ctx.message.reference:
+        return ctx.message.reference.resolved
+    return None
