@@ -1,28 +1,28 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
-class HelpSelect(discord.ui.Select['HelpView']):
-    def __init__(self, embeds: dict[discord.Embed], original: str, get_em):
+class HelpSelect(disnake.ui.Select['HelpView']):
+    def __init__(self, embeds: dict[disnake.Embed], original: str, get_em):
         self.embeds = embeds
         cog_emojis = {'Main Menu': get_em('core'), 'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692'}
-        options = [discord.SelectOption(label = option, description = embeds[option].description or discord.Embed.Empty, default = True if option == original else False, emoji = cog_emojis[option]) for option in embeds]
+        options = [disnake.SelectOption(label = option, description = embeds[option].description or disnake.Embed.Empty, default = True if option == original else False, emoji = cog_emojis[option]) for option in embeds]
         super().__init__(placeholder = "Choose a Category", min_values = 1, max_values = 1, options = options)
 
-    async def callback(self, interaction: discord.Interaction):
+    async def callback(self, interaction: disnake.Interaction):
         for option in self.options:
             option.default = True if self.values[0] == option.label else False
 
         return await interaction.response.edit_message(embed = self.embeds[self.values[0]], view = self.view)
     
-class HelpView(discord.ui.View):
-    def __init__(self, user: discord.Member, embeds: dict[discord.Embed], old_self, mapping, original: str, get_em, timeout: float = 180):
+class HelpView(disnake.ui.View):
+    def __init__(self, user: disnake.Member, embeds: dict[disnake.Embed], old_self, mapping, original: str, get_em, timeout: float = 180):
         super().__init__(timeout = timeout)
         self.user = user
         self.old_self = old_self
         self.mapping = mapping
         self.add_item(HelpSelect(embeds = embeds, original = original, get_em = get_em))
     
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: disnake.Interaction) -> bool:
         if interaction.user.id == self.user.id:
             return True
 

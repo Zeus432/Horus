@@ -1,60 +1,60 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 import asyncio
 
 from Core.Utils.useful import get_em
 
-class ConfirmLeave(discord.ui.View):
+class ConfirmLeave(disnake.ui.View):
     """ View to Confirm Leave """
-    def __init__(self, ctx: commands.Context, guild: discord.Guild, bot: commands.Bot, timeout: float = 180.0) -> bool:
+    def __init__(self, ctx: commands.Context, guild: disnake.Guild, bot: commands.Bot, timeout: float = 180.0) -> bool:
         super().__init__(timeout = timeout)
         self.ctx = ctx
         self.guild = guild
         self.bot = bot
         self.value = None
     
-    @discord.ui.button(label = 'Confirm', style=discord.ButtonStyle.green)
-    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = 'Confirm', style=disnake.ButtonStyle.green)
+    async def confirm(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if interaction.user != self.ctx.author:
                 return
         for item in self.children:
             item.disabled = True
-        button.style = discord.ButtonStyle.green
+        button.style = disnake.ButtonStyle.green
         try:
             await self.guild.leave()
         except:
-            button.style = discord.ButtonStyle.red
-            await interaction.message.edit(embed = discord.Embed(description = f"I was unable to leave **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**!", color = discord.Colour.red()), view = self)
+            button.style = disnake.ButtonStyle.red
+            await interaction.message.edit(embed = disnake.Embed(description = f"I was unable to leave **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**!", color = disnake.Colour.red()), view = self)
         else:
             self.value = True
-            await interaction.message.edit(embed = discord.Embed(description = f"I have left **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**, sucks for them {self.bot.get_em('shinobubully')}", color = discord.Colour.green()), view = self)
+            await interaction.message.edit(embed = disnake.Embed(description = f"I have left **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**, sucks for them {self.bot.get_em('shinobubully')}", color = disnake.Colour.green()), view = self)
         self.stop()
 
-    @discord.ui.button(label = 'Cancel', style = discord.ButtonStyle.grey)
-    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = 'Cancel', style = disnake.ButtonStyle.grey)
+    async def cancel(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if interaction.user != self.ctx.author:
             return
         for item in self.children:
             item.disabled = True
-            item.style = discord.ButtonStyle.red if item == button else discord.ButtonStyle.gray
+            item.style = disnake.ButtonStyle.red if item == button else disnake.ButtonStyle.gray
         self.value = False
-        await interaction.message.edit(embed = discord.Embed(description = f"Guess I'm not leaving **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})** today", colour = discord.Colour.red()), view = self)
+        await interaction.message.edit(embed = disnake.Embed(description = f"Guess I'm not leaving **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})** today", colour = disnake.Colour.red()), view = self)
         self.stop()
     
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
-            item.style = discord.ButtonStyle.red if item.label == "Cancel" else discord.ButtonStyle.gray
+            item.style = disnake.ButtonStyle.red if item.label == "Cancel" else disnake.ButtonStyle.gray
         self.value = False
-        await self.message.edit(embed = discord.Embed(description = f"You took too long to respond!", colour = discord.Colour.red()), view = self)
+        await self.message.edit(embed = disnake.Embed(description = f"You took too long to respond!", colour = disnake.Colour.red()), view = self)
 
-class WhoAsked(discord.ui.View):
+class WhoAsked(disnake.ui.View):
     """ View for Whoasked """
     def __init__(self, *, timeout: float = 180):
         super().__init__(timeout = timeout)
         self.playing = False
-        self.message: discord.Message
+        self.message: disnake.Message
     
     async def playmusic(self, wait: bool = True):
         self.playing = True
@@ -79,27 +79,27 @@ class WhoAsked(discord.ui.View):
         self.playing = False
         await self.message.edit(view = self)
 
-    @discord.ui.button(label = "◄◄", style = discord.ButtonStyle.gray, custom_id = 'prevtrack')
-    async def prevtrack(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "◄◄", style = disnake.ButtonStyle.gray, custom_id = 'prevtrack')
+    async def prevtrack(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         pass
 
-    @discord.ui.button(label = "▶", style = discord.ButtonStyle.gray, custom_id = 'play')
-    async def play(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "▶", style = disnake.ButtonStyle.gray, custom_id = 'play')
+    async def play(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if self.playing:
             return
         await interaction.response.defer()
         await self.playmusic()
 
-    @discord.ui.button(label = "►►", style = discord.ButtonStyle.gray, custom_id = 'nextrack')
-    async def nexttrack(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "►►", style = disnake.ButtonStyle.gray, custom_id = 'nextrack')
+    async def nexttrack(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         pass
 
-    @discord.ui.button(label = "0:00 / 3:56", style = discord.ButtonStyle.gray, custom_id = 'time')
-    async def time(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "0:00 / 3:56", style = disnake.ButtonStyle.gray, custom_id = 'time')
+    async def time(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         pass
 
-    @discord.ui.button(label= "━━━━━◉", emoji = "\U0001f50a", style = discord.ButtonStyle.gray, custom_id = 'sound')
-    async def sound(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label= "━━━━━◉", emoji = "\U0001f50a", style = disnake.ButtonStyle.gray, custom_id = 'sound')
+    async def sound(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         button.label = "◉━━━━━" if button.label == "━━━━━◉" else "━━━━━◉"
         button.emoji = "\U0001f507" if button.label != "━━━━━◉" else "\U0001f50a"
         await self.message.edit(view = self)
@@ -109,22 +109,22 @@ class WhoAsked(discord.ui.View):
             item.disabled = True
         await self.message.edit(view = self)
 
-class GuildButtons(discord.ui.View):
+class GuildButtons(disnake.ui.View):
     """ View for getguild """
-    def __init__(self, ctx: commands.Context, bot: commands.Bot, guild: discord.Guild):
+    def __init__(self, ctx: commands.Context, bot: commands.Bot, guild: disnake.Guild):
         super().__init__(timeout = 90)
         self.ctx = ctx
         self.bot = bot
         self.guild = guild
         self.user = ctx.author
     
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: disnake.Interaction) -> bool:
         if interaction.user.id != self.user.id:
             return await interaction.response.send_message(content = f"This is not your button to interact with", ephemeral = True)
         return True
 
-    @discord.ui.button(label = "Join Guild", style = discord.ButtonStyle.green)
-    async def joinguild(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "Join Guild", style = disnake.ButtonStyle.green)
+    async def joinguild(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         for chan in self.guild.text_channels:
             try:
                 invite = await chan.create_invite(reason = f"Requested by {self.user}", max_age = 7, temporary = True)
@@ -135,19 +135,19 @@ class GuildButtons(discord.ui.View):
         if invite:
             await interaction.response.send_message(f"Invite Generated for **[{self.guild}]( {invite} )**", ephemeral = True)
   
-    @discord.ui.button(label = "Leave Guild", style = discord.ButtonStyle.red)
-    async def leaveguild(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "Leave Guild", style = disnake.ButtonStyle.red)
+    async def leaveguild(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if interaction.user.id != self.user.id:
             return
         if not self.bot.get_guild(self.guild.id):
-            await self.ctx.send(embed = discord.Embed(description = f"Error Bot is not in **[{self.guild}]({self.guild.icon})**", color = discord.Color.red()))
+            await self.ctx.send(embed = disnake.Embed(description = f"Error Bot is not in **[{self.guild}]({self.guild.icon})**", color = disnake.Color.red()))
             return
         await interaction.response.defer()
         command = self.bot.get_command("leave")
         await command(self.ctx, self.guild)
 
-    @discord.ui.button(emoji = get_em("trash"), style = discord.ButtonStyle.blurple)
-    async def delete(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(emoji = get_em("trash"), style = disnake.ButtonStyle.blurple)
+    async def delete(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if interaction.user.id != self.user.id:
             return
         await interaction.message.delete()

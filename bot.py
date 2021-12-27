@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
@@ -15,10 +15,10 @@ from Core.settings import INITIAL_EXTENSIONS, OWNER_IDS
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict,  *args, **kwargs):
-        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = disnake.Intents.all(), activity = disnake.Game(name = "Waking Up"), status = disnake.Status.online, case_insensitive = True, **kwargs)
         self.description = CONFIG['description']
         self.config = CONFIG
-        self.colour = discord.Colour(0x9c9cff)
+        self.colour = disnake.Colour(0x9c9cff)
         self.noprefix = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
@@ -40,7 +40,7 @@ class Horus(commands.Bot):
         if restart:
             self.loop.create_task(self.restartcheck(**restart))
     
-    async def getprefix(self, bot: commands.Bot, message: discord.Message):
+    async def getprefix(self, bot: commands.Bot, message: disnake.Message):
         # Check for prefix in cache, if not then get from db and build cache
         prefix = self.config['prefix'] # Default prefix
         devprefix = []
@@ -103,7 +103,7 @@ class Horus(commands.Bot):
 
         await asyncio.sleep(10)
         if not self.dev_mode:
-            await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
+            await self.change_presence(status = disnake.Status.idle, activity = disnake.Activity(type = disnake.ActivityType.watching, name = f"for @{self.user.name} help"))
 
         logger.info(f"{self.user} is Online!")
         self.if_ready = True
@@ -162,7 +162,16 @@ class Horus(commands.Bot):
             # blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}'
             # ); """
 
-            # todo_table = """
+            # todo_table =  """ """
+            # 
+            # tags_table = """ CREATE TABLE IF NOT EXISTS tags (
+            # name VARCHAR NOT NULL,
+            # serverid BIGINT NOT NULL,
+            # content TEXT NOT NULL,
+            # usage BIGINT DEFAULT 0,
+            # info jsonb DEFAULT '{"owner":null, "created_at": null}',
+            # aliases VARCHAR[] DEFAULT '{}'
+            # ); """
 
     def get_em(self, emoji: str | int) -> str:
         numdict = {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten'}
@@ -196,9 +205,15 @@ class Horus(commands.Bot):
         
         return uptime_string
     
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: disnake.Message):
         if not (message.guild and self.if_ready):
             return # Don't process commands if commands are in dms or if bot isn't ready yet
+        
+        try:
+            user = message.guild.get_member(message.author.id)
+            if not user:
+                return
+        except: return
 
         if self.dev_mode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
@@ -215,7 +230,7 @@ class Horus(commands.Bot):
                 blacklist = await self.db.fetchval('INSERT INTO guilddata(guildid) VALUES($1) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', message.guild.id)
             self.server_blacklists[message.guild.id] = blacklist
 
-        if (message.author.id in blacklist or message.channel.id in blacklist or [role.id for role in message.author.roles if role.id in blacklist] ) and message.author.id not in self.owner_ids:
+        if (message.author.id in blacklist or message.channel.id in blacklist or [role.id for role in user.roles if role.id in blacklist] ) and message.author.id not in self.owner_ids:
             return # Return if user, role or channel is blocked in that server
 
         await self.process_commands(message)

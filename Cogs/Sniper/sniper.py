@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 class Sniper(commands.Cog):
     """ Snipe deleted messages """ 
@@ -11,16 +11,16 @@ class Sniper(commands.Cog):
 
     @commands.command(name = "snipe", brief = "Snipe Deleted Messges")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def snipe(self, ctx: commands.Context, channel: discord.TextChannel = None):
+    async def snipe(self, ctx: commands.Context, channel: disnake.TextChannel = None):
         """ Snipe the latest deleted message in the current or specified channel """
         channel = channel or ctx.channel
 
         try:
-            message: discord.Message = self.delete_cache[channel.id]
+            message: disnake.Message = self.delete_cache[channel.id]
         except KeyError:
             return await ctx.reply("There are no messages to snipe!")
 
-        embed = discord.Embed(description = f"{message.content}", colour = discord.Colour(0x2F3136))
+        embed = disnake.Embed(description = f"{message.content}", colour = disnake.Colour(0x2F3136))
         embed.set_author(icon_url = f"{message.author.display_avatar or message.author.default_avatar}", name = f"{message.author} ({message.author.id})")
         if message.attachments:
             embed.add_field(name = "Attachments:", value = "\n".join([f"\U000030fb **[{file.filename}]({file.url})**" for file in message.attachments]), inline = False)
@@ -30,16 +30,16 @@ class Sniper(commands.Cog):
     
     @commands.command(name = "esnipe", brief = "Snipe Edited Messges")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def esnipe(self, ctx: commands.Context, channel: discord.TextChannel = None):
+    async def esnipe(self, ctx: commands.Context, channel: disnake.TextChannel = None):
         """ Snipe the latest edited message in the current or specified channel """
         channel = channel or ctx.channel
 
         try:
-            message: discord.Message = self.edit_cache[channel.id]["before"]
+            message: disnake.Message = self.edit_cache[channel.id]["before"]
         except KeyError:
             return await ctx.reply("There are no messages to snipe!")
 
-        embed = discord.Embed(description = f"{message.content}", colour = discord.Colour(0x2F3136))
+        embed = disnake.Embed(description = f"{message.content}", colour = disnake.Colour(0x2F3136))
         embed.set_author(icon_url = f"{message.author.display_avatar or message.author.default_avatar}", name = f"{message.author} ({message.author.id})")
         if message.attachments:
             embed.add_field(name = "Attachments:", value = "\n".join([f"\U000030fb **[{file.filename}]({file.url})**" for file in message.attachments]), inline = False)
@@ -48,14 +48,14 @@ class Sniper(commands.Cog):
         await ctx.reply(embed = embed)
     
     @commands.Cog.listener()
-    async def on_message_delete(self, message: discord.Message):
+    async def on_message_delete(self, message: disnake.Message):
         if message.author.bot:
             return
 
         self.delete_cache[message.channel.id] = message
     
     @commands.Cog.listener()
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+    async def on_message_edit(self, before: disnake.Message, after: disnake.Message):
         if before.author.bot:
             return
 

@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from .menus import HelpView
 
@@ -13,7 +13,7 @@ class NewHelp(commands.HelpCommand):
                 'help': 'Shows help about the bot, a command, or a category'
             }
         )
-        self.colour = discord.Colour(0x9c9cff)
+        self.colour = disnake.Colour(0x9c9cff)
         self.footer = "https://cdn.discordapp.com/avatars/858335663571992618/358132def732d61ce9ed7dbfb8f9a6c1.png?size=1024"
     
     def get_ending_note(self):
@@ -24,10 +24,10 @@ class NewHelp(commands.HelpCommand):
     
     # Get Help
     
-    async def get_bot_help(self, mapping) -> discord.Embed:
+    async def get_bot_help(self, mapping) -> disnake.Embed:
         get_em = self.context.bot.get_em
         self.cog_emojis = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692'}
-        embed = discord.Embed(title = 'Horus Help Menu', colour = self.colour)
+        embed = disnake.Embed(title = 'Horus Help Menu', colour = self.colour)
         embed.set_thumbnail(url = self.footer)
 
         for cog, commands in mapping.items():
@@ -43,8 +43,8 @@ class NewHelp(commands.HelpCommand):
         embed.set_footer(icon_url = self.footer, text = self.get_ending_note())
         return embed
     
-    async def get_cog_help(self, cog: commands.Cog) -> discord.Embed:
-        embed = discord.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
+    async def get_cog_help(self, cog: commands.Cog) -> disnake.Embed:
+        embed = disnake.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
         filtered = await self.filter_commands(cog.get_commands(), sort = True)
 
         for command in filtered:
@@ -89,7 +89,7 @@ class NewHelp(commands.HelpCommand):
         try: await group.can_run(self.context)
         except: return # Return if user can't run this group commands
 
-        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200b")
+        embed = disnake.Embed(colour = self.colour, title = f"{group.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200b")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in group.aliases):
@@ -104,7 +104,7 @@ class NewHelp(commands.HelpCommand):
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
         except: return # Return if user can't run this command
-        embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n{command.help or 'No documentation'}")
+        embed = disnake.Embed(colour = self.colour, title = f"{command.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n{command.help or 'No documentation'}")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in command.aliases):

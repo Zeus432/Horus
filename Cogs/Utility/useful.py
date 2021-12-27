@@ -1,12 +1,12 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from typing import List
 
 from Core.Utils.useful import TimeConverter
 
-def UserBadges(ctx: commands.Context, bot: Horus, user: discord.Member, embed: discord.Embed) -> discord.Embed:
+def UserBadges(ctx: commands.Context, bot: Horus, user: disnake.Member, embed: disnake.Embed) -> disnake.Embed:
     """ Adds member badges to the userinfo embed, if user has any """
     badges = []
 

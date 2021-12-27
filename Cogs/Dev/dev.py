@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -51,7 +51,7 @@ class Dev(commands.Cog):
         `channel` - the current channel object
         `author` - command author's member object
         `message` - the command's message object
-        `discord` - discord.py library
+        `disnake` - disnake.py library
         `_` - The result of the last dev command.
         """
 
@@ -106,7 +106,7 @@ class Dev(commands.Cog):
     @commands.command(name="shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
     async def shutdown(self, ctx: commands.Context):
         # Define some confirm buttons functions
-        async def onconfirm(view: discord.ui.View, button: discord.Button, interaction: discord.Interaction):
+        async def onconfirm(view: disnake.ui.View, button: disnake.Button, interaction: disnake.Interaction):
             if interaction.user != ctx.author:
                 return
             await view.message.edit("https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502", view = None)
@@ -117,19 +117,19 @@ class Dev(commands.Cog):
             view.stop()
             await self.bot.close()
 
-        async def oncancel(view: discord.ui.View, button: discord.Button, interaction: discord.Interaction):
+        async def oncancel(view: disnake.ui.View, button: disnake.Button, interaction: disnake.Interaction):
             if interaction.user != ctx.author:
                 return
             for item in view.children:
                 item.disabled = True
-                item.style = discord.ButtonStyle.red if item == button else discord.ButtonStyle.gray 
+                item.style = disnake.ButtonStyle.red if item == button else disnake.ButtonStyle.gray 
             await view.message.edit("Cancelled Shutdown...",view = view)
             view.stop()
 
-        async def ontimeout(view: discord.ui.View):
+        async def ontimeout(view: disnake.ui.View):
             for item in view.children:
                 item.disabled = True
-                item.style = discord.ButtonStyle.red if item.label == "Cancel" else discord.ButtonStyle.gray 
+                item.style = disnake.ButtonStyle.red if item.label == "Cancel" else disnake.ButtonStyle.gray 
             await view.message.edit("Cancelled Shutdown...",view = view)
 
         view = Confirm(onconfirm, oncancel, ontimeout, 60)
@@ -213,7 +213,7 @@ class Dev(commands.Cog):
         endresult = f'```\n{render}\n```\n*Returned {plural(rows):row} in {exectime:.2f}ms*'
         if len(endresult) > 2000:
             file = io.BytesIO(endresult.encode('utf-8'))
-            await ctx.send('Too many results...', file=discord.File(file, 'results.txt'))
+            await ctx.send('Too many results...', file=disnake.File(file, 'results.txt'))
         else:
             await ctx.send(endresult)
     
@@ -223,13 +223,13 @@ class Dev(commands.Cog):
         raise error
     
     @commands.command(name = "leave", brief = "Leave Guild")
-    async def leave(self, ctx: commands.Context, guild: discord.Guild = None):
+    async def leave(self, ctx: commands.Context, guild: disnake.Guild = None):
         """ Leave a guild, for I dunno whatever the reason is """
         guild = guild or ctx.guild
         if guild is None:
             return await ctx.reply("You need to mention a guild to leave!")
 
-        embed = discord.Embed(description = f"Are you sure you want to leave **[{guild}]({guild.icon})**?", colour = discord.Colour(0x2F3136))
+        embed = disnake.Embed(description = f"Are you sure you want to leave **[{guild}]({guild.icon})**?", colour = disnake.Colour(0x2F3136))
 
         view = ConfirmLeave(ctx, guild, self.bot, timeout = 90)
         view.message = await ctx.reply(embed = embed, view = view)
@@ -244,8 +244,8 @@ class Dev(commands.Cog):
         await ctx.reply(f"No prefix has been {state}")
     
     @commands.command(brief = "Dm a user")
-    async def dm(self, ctx: commands.Context, user: discord.User, *, message: str = None):
-        def check(m: discord.Message):
+    async def dm(self, ctx: commands.Context, user: disnake.User, *, message: str = None):
+        def check(m: disnake.Message):
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
         if not message:
             await ctx.reply("Enter the message you want to send")
@@ -262,10 +262,10 @@ class Dev(commands.Cog):
             await ctx.reply("Dmed this user!")
     
     @commands.command(aliases = ["wa","whoevenaskedbro"], brief = "Who even asked bro")
-    async def whoasked(self, ctx: commands.Context, what: Union[discord.Member, discord.Message, str] = None):
-        message = what.id if isinstance(what, discord.Message) else None
+    async def whoasked(self, ctx: commands.Context, what: Union[disnake.Member, disnake.Message, str] = None):
+        message = what.id if isinstance(what, disnake.Message) else None
 
-        if isinstance(what, discord.Member):
+        if isinstance(what, disnake.Member):
             chanmsgs = await ctx.channel.history(limit=20).flatten()
             for m in chanmsgs:
                 if m.author.id == what.id:
@@ -298,7 +298,7 @@ class Dev(commands.Cog):
             await ctx.send(f"```glsl\n{guilds}```")
     
     @commands.command(brief = "Get Guild Info")
-    async def getguild(self, ctx: commands.Context, guild: discord.Guild = None):
+    async def getguild(self, ctx: commands.Context, guild: disnake.Guild = None):
         """ Get all information and staistics about the specified guild """
         guild = ctx.guild if not guild else guild
 
@@ -371,9 +371,9 @@ class Dev(commands.Cog):
         """ Start Developer mode to test major commands without others interfering """
         if self.bot.dev_mode:
             self.bot.dev_mode = False
-            await self.bot.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.bot.user.name} help"))
+            await self.bot.change_presence(status = disnake.Status.idle, activity = disnake.Activity(type = disnake.ActivityType.watching, name = f"for @{self.bot.user.name} help"))
             return await ctx.reply('Developer Mode has been disabled!')
         
         self.bot.dev_mode = True
-        await self.bot.change_presence(status = discord.Status.invisible)
+        await self.bot.change_presence(status = disnake.Status.invisible)
         return await ctx.reply('Developer Mode has been enabled!')

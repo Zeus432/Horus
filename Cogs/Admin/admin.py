@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from typing import Union
 
@@ -32,9 +32,9 @@ class Admin(commands.Cog):
         await ctx.send_help(ctx.command)
 
     @server.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Channel / User")
-    async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
+    async def serverblacklist(self, ctx: commands.Context, what: Union[disnake.TextChannel, disnake.Role, disnake.User]):
         """ Blacklist a Channel, Role or User from using the bot in your server """
-        what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
+        what_type = "channel" if isinstance(what, disnake.TextChannel) else "role" if isinstance(what, disnake.Role) else "user"
 
         try:
             blacklist = self.bot.server_blacklists[ctx.guild.id]
@@ -49,7 +49,7 @@ class Admin(commands.Cog):
             await ctx.send_help(ctx.command)
 
         view = ConfirmBl(what = f"{what}", action = "server blacklist", user = ctx.author)
-        view.message = await ctx.reply(f"Are you sure you want to server blacklist: `{what}`?", view = view, allowed_mentions = discord.AllowedMentions(roles = False, users = False))
+        view.message = await ctx.reply(f"Are you sure you want to server blacklist: `{what}`?", view = view, allowed_mentions = disnake.AllowedMentions(roles = False, users = False))
         await view.wait()
 
         if view.value is True:
@@ -67,9 +67,9 @@ class Admin(commands.Cog):
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
 
     @server.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Channel / User")
-    async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
+    async def unserverblacklist(self, ctx: commands.Context, what: Union[disnake.TextChannel, disnake.Role, disnake.User]):
         """ Unblacklist a Channel, Role or User from using the bot in your server """
-        what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
+        what_type = "channel" if isinstance(what, disnake.TextChannel) else "role" if isinstance(what, disnake.Role) else "user"
 
         try:
             blacklist = self.bot.server_blacklists[ctx.guild.id]
@@ -84,7 +84,7 @@ class Admin(commands.Cog):
             await ctx.send_help(ctx.command)
         
         view = ConfirmBl(what = f"{what}", action = "server unblacklist", user = ctx.author)
-        view.message = await ctx.reply(f"Are you sure you want to server unblacklist: `{what}`?", view = view, allowed_mentions = discord.AllowedMentions(roles = False, users = False))
+        view.message = await ctx.reply(f"Are you sure you want to server unblacklist: `{what}`?", view = view, allowed_mentions = disnake.AllowedMentions(roles = False, users = False))
         await view.wait()
         
         if view.value is True:

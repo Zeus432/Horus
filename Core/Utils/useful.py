@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 from datetime import datetime
 import asyncio
@@ -24,7 +24,7 @@ class CheckAsync(commands.Converter):
             return self
         raise commands.BadArgument("Argument is meant to be a coroutine function!")
 
-async def try_add_reaction(message: discord.Message, emoji: str):
+async def try_add_reaction(message: disnake.Message, emoji: str):
     try:
         await message.add_reaction(emoji)
     except:
@@ -115,7 +115,7 @@ def get_em(emoji: str | int) -> str:
     except:
         return emojis["error"]
 
-def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
+def get_features(bot: commands.Bot, guild: disnake.Guild) -> str:
     featuresinfo = ""
     if "THREADS_ENABLED" in  guild.features:
         featuresinfo += f"{bot.get_em('parrow')} Threads Enabled"
@@ -128,25 +128,25 @@ def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
     feature_list =  "\n".join(f"{bot.get_em('parrow')} {features[feature]}" for feature in guild.features if "THREAD" not in feature) + featuresinfo
     return feature_list or "No Features Availabe"
 
-async def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0, **kwargs) -> discord.Embed:
+async def guildanalytics(bot: commands.Bot, guild: disnake.Guild, type: int = 0, **kwargs) -> disnake.Embed:
     """ An embed with useful information about a given guild """
     if type == 1: # Try to check who added the bot
         add_user = "I don't know who invited me"
         try:
-            async for entry in guild.audit_logs(limit = 10, action = discord.AuditLogAction.bot_add):
+            async for entry in guild.audit_logs(limit = 10, action = disnake.AuditLogAction.bot_add):
                 if entry.target == bot.user:
                     add_user = f"I was invited by {entry.user}"
         except: pass
 
     message = f"I've joined this server. {add_user}" if type == 1 else f"I've left this server{' as it is blacklisted' if type == 3 else ''}" if type >= 2 else f'I joined this server on <t:{round(guild.me.joined_at.timestamp())}:D>'
-    colour = discord.Color.green() if type == 1 else discord.Color.red() if type == 2 else discord.Colour.dark_grey() if type == 3 else discord.Colour(0x9c9cff)
+    colour = disnake.Color.green() if type == 1 else disnake.Color.red() if type == 2 else disnake.Colour.dark_grey() if type == 3 else disnake.Colour(0x9c9cff)
     description = f"Server was created on <t:{round(guild.created_at.timestamp())}:D>\n{message}\n{f'I am in **{len([g.id for g in bot.guilds])}** servers and I have **{len([g.id for g in bot.users])}** users now' if type else ''}"
     nsfw = len([chan for chan in guild.text_channels if chan.is_nsfw()])
 
-    embed = discord.Embed(title = guild, colour = colour, description = description)
+    embed = disnake.Embed(title = guild, colour = colour, description = description)
 
     embed.set_thumbnail(url = guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
-    embed.set_footer(icon_url = "https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text = "Verified Discord Server" if "VERIFIED" in guild.features else "Discord Partnered Server" if "PARTNERED" in guild.features else discord.Embed.Empty)
+    embed.set_footer(icon_url = "https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else disnake.Embed.Empty, text = "Verified Discord Server" if "VERIFIED" in guild.features else "Discord Partnered Server" if "PARTNERED" in guild.features else disnake.Embed.Empty)
     if guild.banner:
         embed.set_image(url = guild.banner)
 
