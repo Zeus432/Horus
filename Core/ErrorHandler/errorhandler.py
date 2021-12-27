@@ -27,7 +27,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.ExpectedClosingQuoteError)
+        ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.ExpectedClosingQuoteError, commands.NotOwner)
         error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):
@@ -38,12 +38,9 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
 
         elif isinstance(error, commands.MissingRequiredArgument):
             return await ctx.send_help(ctx.command)
-        
-        elif isinstance(error, commands.NotOwner):
-            return await ctx.reply(f"These are Bot Owner only commands and I don't see you on the list \U0001f440", mention_author = False)
 
         elif isinstance(error, commands.CheckFailure):
-            return await ctx.reply(f"Missing Permissions!")
+            return await ctx.reply(f"{error}")
         
         elif isinstance(error, commands.GuildNotFound):
             return await ctx.send(f'Could not find guild: `{error.argument}`')
