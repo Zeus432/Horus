@@ -77,7 +77,7 @@ class RpsView(disnake.ui.View):
             if not self.user_answer:
                 self.user_answer = button.label
                 self.message.content += f'\n**{self.ctx.author.name}** has chosen'
-                await self.message.edit(self.message.content)
+                await self.message.edit(content = self.message.content)
                 await interaction.response.send_message(f"You have chosen **{button.label}**!", ephemeral = True)
             else:
                 await interaction.response.send_message(f"You've already chosen `{self.user_answer}`, It's too late to change it now {get_em('kermitslap')}", ephemeral = True)
@@ -86,7 +86,7 @@ class RpsView(disnake.ui.View):
             if not self.opponent_answer:
                 self.opponent_answer = button.label
                 self.message.content += f'\n**{self.opponent.name}** has chosen'
-                await self.message.edit(self.message.content)
+                await self.message.edit(content = self.message.content)
                 await interaction.response.send_message(f"You have chosen **{button.label}**!", ephemeral = True)
             else:
                 await interaction.response.send_message(f"You've already chosen `{self.opponent_answer}`, It's too late to change it now {get_em('kermitslap')}", ephemeral = True)
@@ -105,7 +105,7 @@ class RpsView(disnake.ui.View):
                 item.disabled = True
             
             self.message.content = f"{self.ctx.author.mention} vs {self.opponent.mention}\n**{self.ctx.author}** chose {self.user_answer}\n**{self.opponent}** chose {self.opponent_answer}\n\n> {result}"
-            await self.message.edit(self.message.content, view = self)
+            await self.message.edit(content = self.message.content, view = self)
             self.stop()
     
     @disnake.ui.button(style=disnake.ButtonStyle.primary, label="Rock", emoji = "\U0001faa8")
@@ -126,5 +126,5 @@ class RpsView(disnake.ui.View):
             item.disabled = True
         self.message : disnake.Message
         self.message.content += '\n\n> You took too long to respond'
-        await self.message.edit(self.message.content, view = self)
+        await self.message.edit(content = self.message.content, view = self)
         self.stop()

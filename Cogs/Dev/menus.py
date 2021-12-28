@@ -72,7 +72,7 @@ class WhoAsked(disnake.ui.View):
             await asyncio.sleep(1)
             try:
                 button.label = f"{timeline[x]} / 3:56"
-                await self.message.edit("Now playing: \nWho Asked (Feat. Nobody Did)\n" + "────"*x + "⬤" + "────"*(4-x), view = self)
+                await self.message.edit(content = "Now playing: \nWho Asked (Feat. Nobody Did)\n" + "────"*x + "⬤" + "────"*(4-x), view = self)
             except: pass
         
         playpause.label = "▶"
@@ -155,3 +155,42 @@ class GuildButtons(disnake.ui.View):
 
     async def on_timeout(self):
         await self.message.edit(view = None)
+
+class ConfirmShutdown(disnake.ui.View):
+    """ Confirm Shutdown """
+    def __init__(self, bot: commands.Bot, ctx: commands.Context, timeout: float = 180.0, **kwargs):
+        super().__init__(timeout = timeout)
+        self.kwargs = kwargs
+        self.user = ctx.author
+        self.bot = bot
+        self.ctx = ctx
+    
+    async def interaction_check(self, interaction: disnake.MessageInteraction) -> bool:
+        if self.user.id == interaction.user.id:
+            await interaction.response.defer()
+            return True
+        return await interaction.response.send_message('This is not your button to click!', ephemeral = True)
+    
+    @disnake.ui.button(label = 'Confirm', style = disnake.ButtonStyle.green)
+    async def confirm(self, button: disnake.ui.Button, interaction: disnake.Interaction):
+        await interaction.response.edit_message(content = "https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502", view = None)
+        try:
+            await self.ctx.message.add_reaction(self.bot.get_em('tick'))
+        except:
+            pass
+        self.stop()
+        await self.bot.close()
+    
+    @disnake.ui.button(label = 'Cancel', style = disnake.ButtonStyle.grey)
+    async def cancel(self, button: disnake.ui.Button, interaction: disnake.Interaction):
+        for item in self.children:
+            item.disabled = True
+            item.style = disnake.ButtonStyle.red if item == button else disnake.ButtonStyle.gray 
+        self.stop()
+        await self.message.edit(content = "Cancelled Shutdown...", view = self)
+    
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+            item.style = disnake.ButtonStyle.red if item.label == "Cancel" else disnake.ButtonStyle.gray 
+        await self.message.edit(content = "Cancelled Shutdown...", view = self)

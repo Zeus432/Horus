@@ -90,10 +90,10 @@ class ConfirmClear(disnake.ui.View):
     
     @disnake.ui.button(label = "Cancel", style = disnake.ButtonStyle.red)
     async def cancel(self, button: disnake.ui.Button, interaction: disnake.Interaction):
-        await self.message.edit("Alright I won't clear your todo list then")
+        await self.message.edit(content = "Alright I won't clear your todo list then")
         self.stop()
         await self.disableall(button.style)
     
     async def on_timeout(self):
-        await self.message.edit("You took too long to respond!")
+        await self.message.edit(content = "You took too long to respond!")
         await self.disableall(disnake.ButtonStyle.red)

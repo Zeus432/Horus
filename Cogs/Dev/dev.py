@@ -19,7 +19,7 @@ from Core.Utils.views import Confirm
 from Core.settings import INITIAL_EXTENSIONS
 
 from .useful import cleanup_code, plural, TabularData, get_reply
-from .menus import ConfirmLeave, WhoAsked, GuildButtons
+from .menus import ConfirmLeave, ConfirmShutdown, WhoAsked, GuildButtons
 
 class Dev(commands.Cog):
     """ Bot Management """
@@ -106,33 +106,7 @@ class Dev(commands.Cog):
     @commands.command(name="shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
     async def shutdown(self, ctx: commands.Context):
         # Define some confirm buttons functions
-        async def onconfirm(view: disnake.ui.View, button: disnake.Button, interaction: disnake.Interaction):
-            if interaction.user != ctx.author:
-                return
-            await view.message.edit("https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502", view = None)
-            try:
-                await ctx.message.add_reaction(self.bot.get_em('tick'))
-            except:
-                pass
-            view.stop()
-            await self.bot.close()
-
-        async def oncancel(view: disnake.ui.View, button: disnake.Button, interaction: disnake.Interaction):
-            if interaction.user != ctx.author:
-                return
-            for item in view.children:
-                item.disabled = True
-                item.style = disnake.ButtonStyle.red if item == button else disnake.ButtonStyle.gray 
-            await view.message.edit("Cancelled Shutdown...",view = view)
-            view.stop()
-
-        async def ontimeout(view: disnake.ui.View):
-            for item in view.children:
-                item.disabled = True
-                item.style = disnake.ButtonStyle.red if item.label == "Cancel" else disnake.ButtonStyle.gray 
-            await view.message.edit("Cancelled Shutdown...",view = view)
-
-        view = Confirm(onconfirm, oncancel, ontimeout, 60)
+        view = ConfirmShutdown(self.bot, ctx, 60)
         view.message = await ctx.reply("Are you sure you want to shutdown?", view = view)
     
     @commands.command(brief = "Restart Bot")
