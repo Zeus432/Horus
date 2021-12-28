@@ -40,8 +40,8 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.send_help(ctx.command)
 
         elif isinstance(error, commands.CheckFailure):
-            return await ctx.reply(f"{error}")
-        
+            return await ctx.reply(f"{error}", mention_author = False)
+
         elif isinstance(error, commands.GuildNotFound):
             return await ctx.send(f'Could not find guild: `{error.argument}`')
 

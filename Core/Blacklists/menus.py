@@ -33,6 +33,6 @@ class ConfirmBl(disnake.ui.View):
         await self.message.edit(f"Cancelled {self.action}ing `{self.what}`", view = self)
     
     async def on_timeout(self):
-        await self.message.edit("You took too long to respond!")
+        await self.message.edit(content = "You took too long to respond!")
         await self.disableall(disnake.ButtonStyle.red)
-        await self.message.edit("You took too long to respond!", view = self)
+        await self.message.edit(content = "You took too long to respond!", view = self)
