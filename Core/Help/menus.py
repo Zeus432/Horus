@@ -14,10 +14,12 @@ class HelpSelect(disnake.ui.Select['HelpView']):
         return await interaction.response.edit_message(embed = self.embeds[self.values[0]], view = self.view)
     
 class HelpView(disnake.ui.View):
-    def __init__(self, user: disnake.Member, embeds: dict[disnake.Embed], old_self, mapping, original: str, cog_emojis, bot, timeout: float = 180):
+    def __init__(self, user: disnake.Member, embeds: dict[disnake.Embed], old_self, mapping, original: str, cog_emojis, bot: commands.Bot, timeout: float = 180):
         super().__init__(timeout = timeout)
         self.user = user
         self.old_self = old_self
+        self.cog_emojis = cog_emojis
+        self.bot = bot
         self.mapping = mapping
         self.add_item(HelpSelect(embeds = embeds, original = original, cog_emojis = cog_emojis, bot = bot))
     
@@ -37,7 +39,7 @@ class HelpView(disnake.ui.View):
                 if cog.qualified_name != 'CustomHelp':
                     embeds_list[cog.qualified_name] = await self.old_self.get_cog_help(cog)
         
-        view = HelpView(user = interaction.user, embeds = embeds_list, original = 'Main Menu', get_em = self.old_self.context.bot.get_em, old_self = self.old_self, mapping = self.mapping)
+        view = HelpView(user = interaction.user, embeds = embeds_list, original = 'Main Menu', cog_emojis = self.cog_emojis, old_self = self.old_self, bot = self.bot, mapping = self.mapping)
         view.message = await interaction.response.send_message(f"{interaction.user.mention} here is your help menu!", embed = embed, view = view, ephemeral = True)
 
     

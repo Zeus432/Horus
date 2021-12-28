@@ -173,7 +173,7 @@ class ConfirmShutdown(disnake.ui.View):
     
     @disnake.ui.button(label = 'Confirm', style = disnake.ButtonStyle.green)
     async def confirm(self, button: disnake.ui.Button, interaction: disnake.Interaction):
-        await interaction.response.edit_message(content = "https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502", view = None)
+        await self.message.edit(content = "https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502", view = None)
         try:
             await self.ctx.message.add_reaction(self.bot.get_em('tick'))
         except:
