@@ -1,6 +1,6 @@
-import disnake
+import discord
 from bot import Horus
-from disnake.ext import commands
+from discord.ext import commands
 
 from loguru import logger
 
@@ -52,7 +52,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.reply(f'Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds')
         
         elif isinstance(error, commands.MissingPermissions):
-            if isinstance(ctx.channel, disnake.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
+            if isinstance(ctx.channel, discord.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
                 senderror = True
             else: pass
         else:

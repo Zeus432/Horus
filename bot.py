@@ -1,5 +1,5 @@
-import disnake
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
@@ -15,10 +15,10 @@ from Core.settings import INITIAL_EXTENSIONS, OWNER_IDS
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict,  *args, **kwargs):
-        super().__init__(command_prefix = self.getprefix,  intents = disnake.Intents.all(), activity = disnake.Game(name = "Waking Up"), status = disnake.Status.online, case_insensitive = True, **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, **kwargs)
         self.description = CONFIG['description']
         self.config = CONFIG
-        self.colour = disnake.Colour(0x9c9cff)
+        self.colour = discord.Colour(0x9c9cff)
         self.noprefix = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
@@ -40,7 +40,7 @@ class Horus(commands.Bot):
         if restart:
             self.loop.create_task(self.restartcheck(**restart))
     
-    async def getprefix(self, bot: commands.Bot, message: disnake.Message):
+    async def getprefix(self, bot: commands.Bot, message: discord.Message):
         # Check for prefix in cache, if not then get from db and build cache
         prefix = self.config['prefix'] # Default prefix
         devprefix = []
@@ -103,7 +103,7 @@ class Horus(commands.Bot):
 
         await asyncio.sleep(10)
         if not self.dev_mode:
-            await self.change_presence(status = disnake.Status.idle, activity = disnake.Activity(type = disnake.ActivityType.watching, name = f"for @{self.user.name} help"))
+            await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
 
         logger.info(f"{self.user} is Online!")
         self.if_ready = True
@@ -205,7 +205,7 @@ class Horus(commands.Bot):
         
         return uptime_string
     
-    async def on_message(self, message: disnake.Message):
+    async def on_message(self, message: discord.Message):
         if not (message.guild and self.if_ready):
             return # Don't process commands if commands are in dms or if bot isn't ready yet
         

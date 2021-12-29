@@ -1,20 +1,20 @@
-import disnake
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
-class HelpSelect(disnake.ui.Select['HelpView']):
-    def __init__(self, embeds: dict[disnake.Embed], original: str, cog_emojis, bot):
+class HelpSelect(discord.ui.Select['HelpView']):
+    def __init__(self, embeds: dict[discord.Embed], original: str, cog_emojis, bot):
         self.embeds = embeds
-        options = [disnake.SelectOption(label = option, description = embeds[option].description or disnake.Embed.Empty, default = True if option == original else False, emoji = cog_emojis(bot, option)) for option in embeds]
+        options = [discord.SelectOption(label = option, description = embeds[option].description or discord.Embed.Empty, default = True if option == original else False, emoji = cog_emojis(bot, option)) for option in embeds]
         super().__init__(placeholder = "Choose a Category", min_values = 1, max_values = 1, options = options)
 
-    async def callback(self, interaction: disnake.Interaction):
+    async def callback(self, interaction: discord.Interaction):
         for option in self.options:
             option.default = True if self.values[0] == option.label else False
 
         return await interaction.response.edit_message(embed = self.embeds[self.values[0]], view = self.view)
     
-class HelpView(disnake.ui.View):
-    def __init__(self, user: disnake.Member, embeds: dict[disnake.Embed], old_self, mapping, original: str, cog_emojis, bot: commands.Bot, timeout: float = 180):
+class HelpView(discord.ui.View):
+    def __init__(self, user: discord.Member, embeds: dict[discord.Embed], old_self, mapping, original: str, cog_emojis, bot: commands.Bot, timeout: float = 180):
         super().__init__(timeout = timeout)
         self.user = user
         self.old_self = old_self
@@ -23,7 +23,7 @@ class HelpView(disnake.ui.View):
         self.mapping = mapping
         self.add_item(HelpSelect(embeds = embeds, original = original, cog_emojis = cog_emojis, bot = bot))
     
-    async def interaction_check(self, interaction: disnake.Interaction) -> bool:
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id == self.user.id:
             return True
 

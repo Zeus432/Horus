@@ -1,4 +1,4 @@
-from disnake.ext import commands
+from discord.ext import commands
 
 class BlType(commands.Converter):
     async def convert(self, ctx: commands.Context, argument) -> str | None:
