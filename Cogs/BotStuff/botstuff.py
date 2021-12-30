@@ -20,7 +20,7 @@ class BotStuff(commands.Cog):
     async def info(self, ctx):
         embed = discord.Embed(title = "About Horus",  description = f"Horus is a private bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now\nIt has Simple Utility, Fun Commands. Run `{ctx.clean_prefix}help` to get started. For bot support join the support server by clicking the button below\n\u200b", colour = self.bot.colour)
         embed.add_field(name = "Developed By", value = f"**[{self.bot.zeus}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
-        embed.add_field(name = "Coded in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`discord.py 2.3.0`](https://github.com/DisnakeDev/disnake)**")
+        embed.add_field(name = "Coded in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`disnake.py 2.3.0`](https://github.com/DisnakeDev/disnake)**")
         embed.add_field(name = "\u200b", value = "**Bot Analytics**", inline = False)
         embed.add_field(name = "Running On", value = f"{self.bot.get_em('horus')} `{self.bot.config['version']}`\n\u200b")
         embed.add_field(name = "On Discord Since", value = f"<t:{round(self.bot.user.created_at.timestamp())}:D>")

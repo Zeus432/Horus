@@ -8,6 +8,9 @@ def total_stuff(root: str) -> int:
     lines, files = 0, 0
     fl = [file for file in os.listdir(f'{root}')]
     for file in os.listdir(f'{root}'):
+        if "env" in f"{file}":
+            continue # skip if its the env
+
         if os.path.isdir(f"{root}/{file}"):
             result = total_stuff(root = f"{root}/{file}")
             files += result[0]
