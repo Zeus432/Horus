@@ -13,7 +13,7 @@ import sys
 import io
 import os
 
-from Core.Utils.useful import try_add_reaction, write_json, guildanalytics, get_commits
+from Core.Utils.useful import write_json, guildanalytics, get_commits
 from Core.Utils.math import NumericStringParser
 from Core.settings import INITIAL_EXTENSIONS
 

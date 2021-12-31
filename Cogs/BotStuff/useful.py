@@ -1,6 +1,7 @@
 from discord.ext import commands
 
 import matplotlib.figure
+import pathlib
 import io
 import os
 
@@ -40,3 +41,24 @@ async def pie_gen(ctx: commands.Context):
     fp.seek(0)
 
     return [fp, prc]
+
+def linecount(path: str = './') -> dict:
+    p = pathlib.Path(f'{path}')
+    cm = cr = fn = cl = ls = fc = 0
+    for f in p.rglob('*.py'):
+        if str(f).startswith("horus-env"):
+            continue
+        fc += 1
+        with f.open() as of:
+            for l in of.readlines():
+                l = l.strip()
+                if l.startswith('class'):
+                    cl += 1
+                if l.startswith('def'):
+                    fn += 1
+                if l.startswith('async def'):
+                    cr += 1
+                if '#' in l:
+                    cm += 1
+                ls += 1
+    return {"file": f"{fc}", "line": f"{ls:,}", "class": f"{cl}", "function": f"{fn}", "coroutine": f"{cr}", "comment": f"{cm:,}"}
