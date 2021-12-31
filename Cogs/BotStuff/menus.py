@@ -43,7 +43,7 @@ class InfoButtons(discord.ui.View):
         embed = discord.Embed(title = "Latest Commits", description = "\n".join(commit_list), colour = self.bot.colour)
         await interaction.response.send_message(embed = embed, ephemeral = True)
 
-    @discord.ui.button(label = "Request Bot Invite", style = discord.ButtonStyle.blurple)
+    @discord.ui.button(label = "Bot Invite", style = discord.ButtonStyle.blurple)
     async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
         await interaction.response.defer()
         embed = discord.Embed( description = f"Bot isn't fully set up yet {self.bot.get_em('hadtodoittoem')}", colour = self.bot.colour)
