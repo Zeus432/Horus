@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from datetime import datetime
+import subprocess
 import asyncio
 import json
 import re
@@ -23,12 +24,6 @@ class CheckAsync(commands.Converter):
         if asyncio.iscoroutinefunction(self):
             return self
         raise commands.BadArgument("Argument is meant to be a coroutine function!")
-
-async def try_add_reaction(message: discord.Message, emoji: str):
-    try:
-        await message.add_reaction(emoji)
-    except:
-        pass
 
 def _size(num):
     """ Convert Size from Bytes to appropriate size."""
@@ -199,3 +194,43 @@ def display_time(seconds: int, granularity: int = 4):
             result.append("{} {}".format(value, name))
 
     return ', '.join(result[:granularity])
+
+leading_4_spaces = re.compile('^    ')
+
+
+def get_commits():
+    lines = subprocess.check_output(
+        ['git', 'log'], stderr = subprocess.STDOUT
+    ).decode("utf-8").split('\n')
+    commits = []
+    current_commit = {}
+
+    def save_current_commit():
+        title = current_commit['message'][0]
+        message = current_commit['message'][1:]
+        if message and message[0] == '':
+            del message[0]
+        current_commit['title'] = title
+        current_commit['message'] = '\n'.join(message)
+        commits.append(current_commit)
+
+    for line in lines:
+        if not line.startswith(' '):
+            if line.startswith('commit '):
+                if current_commit:
+                    save_current_commit()
+                    current_commit = {}
+                current_commit['hash'] = line.split('commit ')[1]
+            else:
+                try:
+                    key, value = line.split(':', 1)
+                    current_commit[key.lower()] = value.strip()
+                except ValueError:
+                    pass
+        else:
+            current_commit.setdefault(
+                'message', []
+            ).append(leading_4_spaces.sub('', line))
+    if current_commit:
+        save_current_commit()
+    return commits

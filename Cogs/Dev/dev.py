@@ -13,9 +13,8 @@ import sys
 import io
 import os
 
-from Core.Utils.useful import try_add_reaction, write_json, guildanalytics
+from Core.Utils.useful import try_add_reaction, write_json, guildanalytics, get_commits
 from Core.Utils.math import NumericStringParser
-from Core.Utils.views import Confirm
 from Core.settings import INITIAL_EXTENSIONS
 
 from .useful import cleanup_code, plural, TabularData, get_reply
@@ -89,7 +88,7 @@ class Dev(commands.Cog):
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
             value = stdout.getvalue()
-            await try_add_reaction(ctx.message, self.bot.get_em("tick"))
+            await ctx.try_add_reaction(self.bot.get_em("tick"))
 
             if ret is None:
                 if value:

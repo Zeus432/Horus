@@ -13,6 +13,13 @@ import time
 from Core.Utils.useful import load_json, write_json
 from Core.settings import INITIAL_EXTENSIONS, OWNER_IDS
 
+class HorusCtx(commands.Context):
+    async def try_add_reaction(self, *args, **kwargs):
+        try:
+            await self.message.add_reaction(*args, **kwargs)
+        except: pass
+
+
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict,  *args, **kwargs):
         super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, **kwargs)
@@ -205,6 +212,9 @@ class Horus(commands.Bot):
         
         return uptime_string
     
+    async def get_context(self, message: discord.Message, *, cls = HorusCtx):
+        return await super().get_context(message, cls = cls)
+
     async def on_message(self, message: discord.Message):
         if not (message.guild and self.if_ready):
             return # Don't process commands if commands are in dms or if bot isn't ready yet
@@ -217,6 +227,9 @@ class Horus(commands.Bot):
 
         if self.dev_mode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
+
+        if not (message.channel.permissions_for(message.guild.me).send_messages and message.channel.permissions_for(message.guild.me).embed_links):
+            return # return if bot doesn't have send messages and embed links permissions
         
         if (message.author.id in self.blacklists or message.guild.id in self.blacklists) and message.author.id not in self.owner_ids:
             return # Don't process commands if server or user is blacklisted. But also make sure I don't fricking lock myself out of my own bot
