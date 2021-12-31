@@ -15,6 +15,7 @@ class NewHelp(commands.HelpCommand):
         )
         self.colour = discord.Colour(0x9c9cff)
         self.footer = "https://cdn.discordapp.com/avatars/858335663571992618/358132def732d61ce9ed7dbfb8f9a6c1.png?size=1024"
+
         def cog_emojis(bot, cog):
             get_em = bot.get_em
             dct = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Moderation' : get_em('mod'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692', 'Main Menu': get_em('core')}
@@ -24,6 +25,10 @@ class NewHelp(commands.HelpCommand):
                 return get_em('error')
 
         self.cog_emojis = cog_emojis
+
+        with open('Core/Help/botnews.md') as fl:
+            self.bot_news = fl.read()
+
     
     def get_ending_note(self):
         return f'Use {self.context.clean_prefix}{self.invoked_with} [command] for more info on a command.'
@@ -43,10 +48,8 @@ class NewHelp(commands.HelpCommand):
                 if cog.qualified_name != 'CustomHelp':
                     embed.add_field(name = f"{self.cog_emojis(self.context.bot, cog.qualified_name)} {cog.qualified_name}", value = f"\n`{self.context.clean_prefix}{self.invoked_with} {cog.qualified_name}`\n" + (cog.description or "...") + "\n\u200b", inline = True)
         
-        with open('Core/Help/botnews.txt') as fl:
-            content = fl.read().replace('[prefix]', f"{self.context.clean_prefix}")
-            if content:
-                embed.add_field(name = f"{self.context.bot.get_em('news')} Horus Updates", value = f"{content}", inline = False)
+        if self.bot_news:
+            embed.add_field(name = f"{self.context.bot.get_em('news')} Horus Updates", value = f"{self.bot_news.replace('[prefix]', f'{self.context.clean_prefix}')}", inline = False)
         embed.set_footer(icon_url = self.footer, text = self.get_ending_note())
         return embed
     
