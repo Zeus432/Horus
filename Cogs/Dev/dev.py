@@ -214,9 +214,16 @@ class Dev(commands.Cog):
     @commands.command(name = "noprefix", brief = "Toggle Noprefix")
     async def noprefix(self, ctx: commands.Context):
         """ Enable/Disable Noprefix for Bot Owners """
-        self.bot.noprefix = False if self.bot.noprefix else True
-        state = f"disabled, use default prefixes now {self.bot.get_em('hadtodoittoem')}" if not self.bot.noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
+        self.bot._noprefix = False if self.bot._noprefix else True
+        state = f"disabled, use default prefixes now {self.bot.get_em('hadtodoittoem')}" if not self.bot._noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
+
+    @commands.command(name = "bypasscooldown", aliases = ['bypasscd'], brief = "Toggle Bypassing Cooldown")
+    async def noprefix(self, ctx: commands.Context):
+        """ Enable/Disable Bypassing Cooldowns for Bot Owners """
+        self.bot._bypass_cooldowns = False if self.bot._bypass_cooldowns else True
+        state = f"disabled" if not self.bot._bypass_cooldowns else f"enabled"
+        await ctx.reply(f"Cooldown bypassing has been {state} for bot owners!")
     
     @commands.command(brief = "Dm a user")
     async def dm(self, ctx: commands.Context, user: discord.User, *, message: str = None):

@@ -49,6 +49,12 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.send_help(ctx.command)
         
         elif isinstance(error, commands.errors.CommandOnCooldown):
+            if self.bot._bypass_cooldowns and ctx.author.id in self.bot.owner_ids:
+                ctx.command.reset_cooldown(ctx)
+                new_ctx = await self.bot.get_context(ctx.message)
+                await self.bot.invoke(new_ctx)
+                return
+
             return await ctx.reply(f'Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds')
         
         elif isinstance(error, commands.MissingPermissions):

@@ -26,7 +26,8 @@ class Horus(commands.Bot):
         self.description = CONFIG['description']
         self.config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
-        self.noprefix = False
+        self._noprefix = False
+        self._bypass_cooldowns = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
         self.blacklists = []
@@ -66,7 +67,7 @@ class Horus(commands.Bot):
         if await self.is_owner(message.author):
             if "h!" not in prefix:
                 devprefix.append("h!")
-            if self.noprefix == True:
+            if self._noprefix == True:
                 devprefix.append("")
 
         return commands.when_mentioned_or(*prefix, *devprefix)(bot, message) # Return Prefix
