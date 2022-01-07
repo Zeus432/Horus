@@ -1,4 +1,4 @@
-aiohttp==3.7.4.post0
+aiohttp==3.8.1
 asyncpg==0.24.0
 disnake==2.3.0
 disnake-jishaku==2.6.5
