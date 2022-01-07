@@ -1,6 +1,6 @@
 import disnake as discord
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from Core.settings import BOTMODS
 from Core.Utils.useful import guildanalytics

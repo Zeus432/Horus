@@ -1,5 +1,5 @@
 import disnake as discord
-from discord.ext import commands
+from disnake.ext import commands
 
 class ConfirmBl(discord.ui.View):
     def __init__(self, what: str, action: str, user: discord.Member, timeout: float = 30):

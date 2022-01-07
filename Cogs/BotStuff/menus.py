@@ -1,6 +1,6 @@
 import disnake as discord
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 import humanize
 import psutil

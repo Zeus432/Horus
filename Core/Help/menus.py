@@ -1,5 +1,5 @@
 import disnake as discord
-from discord.ext import commands
+from disnake.ext import commands
 
 class HelpSelect(discord.ui.Select['HelpView']):
     def __init__(self, embeds: dict[discord.Embed], original: str, cog_emojis, bot):

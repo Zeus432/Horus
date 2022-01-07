@@ -1,7 +1,7 @@
 from datetime import datetime
 import disnake as discord
-from discord.ext import commands
-from discord.member import Member
+from disnake.ext import commands
+from disnake.member import Member
 
 class PollButton(discord.ui.Button):
     def __init__(self, number: int, bot: commands.Bot, yesno: bool):

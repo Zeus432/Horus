@@ -1,5 +1,5 @@
 import disnake as discord
-from discord.ext import commands
+from disnake.ext import commands
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
