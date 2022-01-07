@@ -1,3 +1,5 @@
+import disnake # Useless import just for symbolism sake
+
 from loguru import logger
 import pathlib
 
