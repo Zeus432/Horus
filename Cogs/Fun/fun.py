@@ -32,13 +32,14 @@ class Fun(commands.Cog):
         view.message = await ctx.send(f"{ctx.author.mention} vs {opponent.mention}", view = view)
         await view.wait()
     
-    @commands.command(name = "memorygame", alises = ["memory"], brief = "Play memory game")
+    @commands.command(name = "memorygame", aliases = ["memory"], brief = "Play memory game")
     @commands.max_concurrency(1, commands.BucketType.user)
-    async def memory(self, ctx: commands.Context, mode: ModeConverter = "easy"):
+    async def memorygame(self, ctx: commands.Context, mode: ModeConverter = "easy"):
         """ 
         Play memory game
         __Modes__: `easy`, `medium` and `hard`
         """
-        view = MatchView(user = ctx.author, mode = mode, total = {"easy": 10, "medium": 20, "hard": 30}[mode])
-        view.message = await ctx.send(content = "Test", view = view)
+        total = {"easy": 10, "medium": 20, "hard": 30}[mode]
+        view = MatchView(user = ctx.author, mode = mode, total = total)
+        view.message = await ctx.send(content = f"Here is your `{mode}` memory game. You have **{30 + total * 2}** seconds to finish it!", view = view)
         await view.wait()

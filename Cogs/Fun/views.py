@@ -141,6 +141,9 @@ class MatchView(discord.ui.View):
         self.mode = mode
         self.timer_start = time.perf_counter()
         self.last_used_button = None
+        def key(interaction: discord.Interaction):
+            return interaction.user
+        self._cd = commands.CooldownMapping.from_cooldown(2, 2.0, key)
 
         emojis = random.sample(
             ['<:AphosHoardingCats:877268478493597696>','<:CheckList:879961726865522688>','<a:DevBadge:873866720530534420>','<a:BoostBadge:873866459451904010>','<:MuichiroLurking:921111418206572584>','<:Rules:879780637417041970>','<a:TokitoSip:875425433980645416>','<:Utils:877796922876919808>','<:angelpray:873863602023596082>','<:YouWantItToMoveButItWont:873921001023500328>','<:Yikes:877267180662714428>','<:games:873863717585059970>','<:hadtodoittoem:874263602897502208>','<a:inspect:886257382575988766>','<a:kekwiggle:879997954444890142>','<:mylife:880692470021763102>','<a:FloatingBoost:920999518990893097>','<a:idrk:897066077043965972>','<:PensiveApple:890044889281228841>','<:hsupport:893556630820618251>'],
@@ -160,6 +163,8 @@ class MatchView(discord.ui.View):
         async def callback(self, interaction: discord.MessageInteraction):
             await interaction.response.defer()
 
+            self.view.pressed += 1
+
             self.emoji = self.payload
             self.disabled = True
 
@@ -172,7 +177,7 @@ class MatchView(discord.ui.View):
                     self.style = discord.ButtonStyle.green
 
                     await self.view.message.edit(view = self.view)
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(0.5)
 
                     self.view.last_used_button.style = discord.ButtonStyle.blurple
                     self.style = discord.ButtonStyle.blurple
@@ -184,7 +189,7 @@ class MatchView(discord.ui.View):
                     self.style = discord.ButtonStyle.red
 
                     await self.view.message.edit(view = self.view)
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(0.5)
 
                     self.view.last_used_button.emoji = "<:BlankSpace:929004286078226492>"
                     self.view.last_used_button.style = discord.ButtonStyle.gray
@@ -207,7 +212,11 @@ class MatchView(discord.ui.View):
     async def interaction_check(self, interaction: discord.MessageInteraction):
         if interaction.user.id != self.user.id:
             return await interaction.response.send_message(content = "Not your button to click!", ephemeral = True)
-        self.pressed += 1
+
+        retry_after = self._cd.update_rate_limit(interaction)
+        if retry_after:
+            return await interaction.response.send_message(content = f"You're clicking too fast! Try again in `{round(retry_after, 1)}s`", ephemeral = True)
+
         return True
     
     async def on_timeout(self):
