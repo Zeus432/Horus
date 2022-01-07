@@ -1,8 +1,9 @@
-import disnake as discord
 from bot import Horus
+import disnake as discord
 from disnake.ext import commands
 
-from .views import Guess, RpsView
+from Core.Utils.converters import ModeConverter
+from .views import Guess, MatchView, RpsView
 
 class Fun(commands.Cog):
     """ Fun commands """ 
@@ -29,4 +30,15 @@ class Fun(commands.Cog):
         
         view = RpsView(ctx, opponent, timeout = 30)
         view.message = await ctx.send(f"{ctx.author.mention} vs {opponent.mention}", view = view)
+        await view.wait()
+    
+    @commands.command(name = "memorygame", alises = ["memory"], brief = "Play memory game")
+    @commands.max_concurrency(1, commands.BucketType.user)
+    async def memory(self, ctx: commands.Context, mode: ModeConverter = "easy"):
+        """ 
+        Play memory game
+        __Modes__: `easy`, `medium` and `hard`
+        """
+        view = MatchView(user = ctx.author, mode = mode, total = {"easy": 10, "medium": 20, "hard": 30}[mode])
+        view.message = await ctx.send(content = "Test", view = view)
         await view.wait()

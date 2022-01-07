@@ -2,7 +2,9 @@ import disnake as discord
 from bot import Horus
 from disnake.ext import commands
 
+import asyncio
 import random
+import time
 
 from Core.Utils.useful import get_em
 
@@ -128,3 +130,87 @@ class RpsView(discord.ui.View):
         self.message.content += '\n\n> You took too long to respond'
         await self.message.edit(content = self.message.content, view = self)
         self.stop()
+    
+class MatchView(discord.ui.View):
+    def __init__(self, mode: str, user: discord.Member, total: int):
+        super().__init__(timeout = 30 + total * 2)
+        self.user = user
+        self.matches = 0
+        self.pressed = 0
+        self.total = total
+        self.mode = mode
+        self.timer_start = time.perf_counter()
+        self.last_used_button = None
+
+        emojis = random.sample(
+            ['<:AphosHoardingCats:877268478493597696>','<:CheckList:879961726865522688>','<a:DevBadge:873866720530534420>','<a:BoostBadge:873866459451904010>','<:MuichiroLurking:921111418206572584>','<:Rules:879780637417041970>','<a:TokitoSip:875425433980645416>','<:Utils:877796922876919808>','<:angelpray:873863602023596082>','<:YouWantItToMoveButItWont:873921001023500328>','<:Yikes:877267180662714428>','<:games:873863717585059970>','<:hadtodoittoem:874263602897502208>','<a:inspect:886257382575988766>','<a:kekwiggle:879997954444890142>','<:mylife:880692470021763102>','<a:FloatingBoost:920999518990893097>','<a:idrk:897066077043965972>','<:PensiveApple:890044889281228841>','<:hsupport:893556630820618251>'],
+            k = int(total/2)
+        )
+        emojis.extend(emojis)
+        random.shuffle(emojis)
+
+        for num in range(0, total):
+            self.add_item(self.MatchButton(payload = emojis[num]))
+    
+    class MatchButton(discord.ui.Button):
+        def __init__(self, payload: str):
+            super().__init__(style = discord.ButtonStyle.gray, emoji = "<:BlankSpace:929004286078226492>")
+            self.payload = payload
+
+        async def callback(self, interaction: discord.MessageInteraction):
+            await interaction.response.defer()
+
+            self.emoji = self.payload
+            self.disabled = True
+
+            if self.view.last_used_button is None:
+                self.view.last_used_button = self
+            
+            else:
+                if self.view.last_used_button.payload == self.payload:
+                    self.view.last_used_button.style = discord.ButtonStyle.green
+                    self.style = discord.ButtonStyle.green
+
+                    await self.view.message.edit(view = self.view)
+                    await asyncio.sleep(1)
+
+                    self.view.last_used_button.style = discord.ButtonStyle.blurple
+                    self.style = discord.ButtonStyle.blurple
+
+                    self.view.matches += 1
+
+                else:
+                    self.view.last_used_button.style = discord.ButtonStyle.red
+                    self.style = discord.ButtonStyle.red
+
+                    await self.view.message.edit(view = self.view)
+                    await asyncio.sleep(1)
+
+                    self.view.last_used_button.emoji = "<:BlankSpace:929004286078226492>"
+                    self.view.last_used_button.style = discord.ButtonStyle.gray
+                    self.view.last_used_button.disabled = False
+
+                    self.emoji = "<:BlankSpace:929004286078226492>"
+                    self.style = discord.ButtonStyle.gray
+                    self.disabled = False
+
+                self.view.last_used_button = None
+
+            await self.view.message.edit(view = self.view)
+
+            if self.view.matches * 2 >= self.view.total:
+                self.view.stop()
+                accuracy = self.view.total/self.view.pressed * 100
+                timer = (time.perf_counter() - self.view.timer_start)
+                await self.view.message.edit(content = f"Finished this `{self.view.mode}` puzzle in `{round(timer, 2)}s` with about `{round(accuracy, 2)}%` accuracy!")
+
+    async def interaction_check(self, interaction: discord.MessageInteraction):
+        if interaction.user.id != self.user.id:
+            return await interaction.response.send_message(content = "Not your button to click!", ephemeral = True)
+        self.pressed += 1
+        return True
+    
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(content = "You took too long to finish this puzzle, Better luck next time!", view = self)
