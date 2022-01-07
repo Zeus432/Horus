@@ -23,8 +23,9 @@ class HorusCtx(commands.Context):
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict,  *args, **kwargs):
         super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, **kwargs)
+        self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self.description = CONFIG['description']
-        self.config = CONFIG
+        self._config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
         self._noprefix = False
         self._bypass_cooldowns = False
@@ -34,7 +35,6 @@ class Horus(commands.Bot):
         self.server_blacklists = {}
         self.dev_mode = False
         self.if_ready = False
-        self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         # Load Initial Extensions
         for extension in INITIAL_EXTENSIONS:
@@ -44,13 +44,13 @@ class Horus(commands.Bot):
                 print(f'\nFailed to load extension {extension}\n{type(e).__name__}: {e}')
         
         # Edit restart message if exists
-        restart = self.config["restart"]
+        restart = self._config["restart"]
         if restart:
             self.loop.create_task(self.restartcheck(**restart))
     
     async def getprefix(self, bot: commands.Bot, message: discord.Message):
         # Check for prefix in cache, if not then get from db and build cache
-        prefix = self.config['prefix'] # Default prefix
+        prefix = self._config['prefix'] # Default prefix
         devprefix = []
 
         if message.guild:
@@ -60,7 +60,7 @@ class Horus(commands.Bot):
                 prefix = await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id)
 
             if not prefix:
-                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix', message.guild.id, self.config['prefix'])
+                prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix', message.guild.id, self._config['prefix'])
 
             self.prefix_cache[message.guild.id] = prefix # Update Cache
 
@@ -74,9 +74,9 @@ class Horus(commands.Bot):
     
     async def restartcheck(self, **kwargs):
         await self.wait_until_ready()
-        self.config['restart'] = {}
-        self.config = self.config
-        write_json(f'Core/config.json', self.config)
+        self._config['restart'] = {}
+        self._config = self._config
+        write_json(f'Core/config.json', self._config)
 
         message = kwargs.pop("message")
         invoke = kwargs.pop("invoke")
@@ -115,6 +115,16 @@ class Horus(commands.Bot):
 
         logger.info(f"{self.user} is Online!")
         self.if_ready = True
+
+        self._notif_webhook = await self.fetch_webhook(self._config["webhook"])
+        await self._notif_webhook.send(
+            f'{self.user.mention} is now online!\n'
+            f'```py\nGuilds: {len(self.guilds)}\n'
+            f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
+            f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
+            f'Members: {len(list(self.get_all_members()))}\n'
+            f'Channels: {len([1 for x in self.get_all_channels()])}```'
+        )
     
     async def start(self, *args, **kwargs):
         self.session = aiohttp.ClientSession()
@@ -122,10 +132,20 @@ class Horus(commands.Bot):
     
     async def close(self):
         await self.session.close()
+
+        await self._notif_webhook.send(
+            f'{self.user.mention} is now going offline!\n'
+            f'```prolog\nGuilds: {len(self.guilds)}\n'
+            f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
+            f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
+            f'Members: {len(list(self.get_all_members()))}\n'
+            f'Channels: {len([1 for x in self.get_all_channels()])}```'
+        )
+
         await super().close()
     
     def run(self):
-        super().run(self.config['TOKEN'], reconnect = True)
+        super().run(self._config['TOKEN'], reconnect = True)
     
     def starter(self):
         try:
@@ -140,7 +160,7 @@ class Horus(commands.Bot):
                     )
             pg_pool = self.loop.run_until_complete(
                 asyncpg.create_pool(
-                    init = init_connection, **self.config["db"]
+                    init = init_connection, **self._config["db"]
                 )
             )
             self.db = pg_pool

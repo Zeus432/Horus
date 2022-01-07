@@ -20,7 +20,7 @@ class BotStuff(commands.Cog):
         embed.add_field(name = "Written in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`disnake.py 2.3.0`](https://github.com/DisnakeDev/disnake)**")
         with open('Core/Help/botnews.md') as fl:
             embed.add_field(name = f"{self.bot.get_em('news')} Horus Updates", value = f"{fl.read().replace('[prefix]', f'{ctx.clean_prefix}')}\n\u200b", inline = False)
-        embed.add_field(name = "Running On", value = f"{self.bot.get_em('horus')} `{self.bot.config['version']}`")
+        embed.add_field(name = "Running On", value = f"{self.bot.get_em('horus')} `{self.bot._config['version']}`")
         embed.add_field(name = "On Discord Since", value = f"<t:{round(self.bot.user.created_at.timestamp())}:D>")
         embed.add_field(name = "Bot Uptime", value = f"{self.bot.get_uptime()}")
         embed.set_thumbnail(url = self.bot.user.display_avatar)

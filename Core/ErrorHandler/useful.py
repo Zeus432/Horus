@@ -37,7 +37,7 @@ async def send_error(bot: commands.Bot, ctx: commands.Context, error):
             split_error = ""
     final_error.append(split_error)
 
-    error_channel = bot.get_channel(bot.config["errorchannel"])
+    error_channel = bot.get_channel(bot._config["errorchannel"])
     await error_channel.send(embed = embed)
     for e in final_error:
         await error_channel.send(f"```py\n{e}```")

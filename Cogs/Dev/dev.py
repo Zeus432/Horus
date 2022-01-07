@@ -122,12 +122,12 @@ class Dev(commands.Cog):
         except:
             pass
         try:
-            self.bot.config['restart'] = {
+            self.bot._config['restart'] = {
                 "start": datetime.utcnow().timestamp(),
                 "message": [message.channel.id, message.id],
                 "invoke": [ctx.message.channel.id, ctx.message.id]
             }
-            write_json('Core/config.json', self.bot.config)
+            write_json('Core/config.json', self.bot._config)
             restart_program()
         except:
             await message.add_reaction(self.bot.get_em('cross'))
