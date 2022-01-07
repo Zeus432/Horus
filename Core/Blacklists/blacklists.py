@@ -1,4 +1,4 @@
-import discord
+import disnake as discord
 from bot import Horus
 from discord.ext import commands
 

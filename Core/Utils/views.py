@@ -1,4 +1,4 @@
-import discord
+import disnake as discord
 from .useful import CheckAsync
 
 class Confirm(discord.ui.View):

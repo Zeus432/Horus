@@ -1,5 +1,5 @@
 from datetime import datetime
-import discord
+import disnake as discord
 from discord.ext import commands
 from discord.member import Member
 
