@@ -30,7 +30,8 @@ class Admin(commands.Cog):
     @commands.group(name = "server", brief = "Server Blacklist and Management Commands", invoke_without_command = True)
     async def server(self, ctx: commands.Context):
         await ctx.send_help(ctx.command)
-
+    
+    @commands.is_owner()
     @server.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Channel / User")
     async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
         """ Blacklist a Channel, Role or User from using the bot in your server """
@@ -65,7 +66,8 @@ class Admin(commands.Cog):
             else:
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
-
+    
+    @commands.is_owner()
     @server.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Channel / User")
     async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
         """ Unblacklist a Channel, Role or User from using the bot in your server """
