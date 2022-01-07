@@ -3,9 +3,11 @@ from bot import Horus
 from disnake.ext import commands
 
 from datetime import datetime
+import json
+from io import BytesIO
 
-from .checks import CheckHierarchy1, CheckHierarchy2, RoleHierarchy
 from Core.Utils.useful import TimeConverter
+from .checks import CheckHierarchy1, CheckHierarchy2, RoleHierarchy
 
 class Moderation(commands.Cog):
     """ Moderation Commands """ 
@@ -71,3 +73,12 @@ class Moderation(commands.Cog):
     async def timeout_view(self, ctx: commands.Context, user: discord.Member):
         """ View the time left for a user's time if they have any"""
         await ctx.send(f"{user.mention} is timed out until <t:{int(user.current_timeout.timestamp())}>!" if user.current_timeout else "This is user is not timed out currently!", allowed_mentions = discord.AllowedMentions(users = False))
+
+    @commands.message_command(name = "Raw Embed Data", default_permission = True)
+    async def embed_data(self, interaction: discord.MessageCommandInteraction, message: discord.Message):
+        if not message.embeds:
+            return await interaction.response.send_message(content = f"This message has no embeds to view!", ephemeral = True)
+
+        embed_files = [discord.File(BytesIO(json.dumps(embed.to_dict(), indent = 2).encode('utf-8')), filename = f'embed-{index + 1}.json') for index, embed in enumerate(message.embeds)]
+
+        await interaction.response.send_message(content = f"Here is the raw embed data in json", files = embed_files, ephemeral = True)

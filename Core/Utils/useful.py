@@ -234,3 +234,16 @@ def get_commits():
     if current_commit:
         save_current_commit()
     return commits
+
+def sanitize(input: str | int) -> str | int:
+    if isinstance(input, int):
+        return input
+
+    input = input.replace("\U0000005c", "\U0000005c\U0000005c")
+    input = input.replace("`", "\`")
+    input = input.replace("~", "\~")
+    input = input.replace("_", "\_")
+    input = input.replace("*", "\*")
+    input = input.replace("|", "\|")
+
+    return input
