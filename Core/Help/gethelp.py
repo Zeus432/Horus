@@ -18,7 +18,7 @@ class NewHelp(commands.HelpCommand):
 
         def cog_emojis(bot, cog):
             get_em = bot.get_em
-            dct = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Moderation' : get_em('mod'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692', 'Main Menu': get_em('core')}
+            dct = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Image Api': '\U0001f5bc\U0000fe0f', 'Moderation' : get_em('mod'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692', 'Main Menu': get_em('core')}
             try:
                 return dct[cog]
             except:

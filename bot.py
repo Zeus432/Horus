@@ -4,6 +4,7 @@ from disnake.ext import commands
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from loguru import logger
+import vacefron
 import aiohttp
 import asyncio
 import asyncpg
@@ -127,6 +128,7 @@ class Horus(commands.Bot):
     
     async def start(self, *args, **kwargs):
         self.session = aiohttp.ClientSession()
+        self.vac_api = vacefron.Client(session = self.session)
         await super().start(*args, **kwargs)
     
     async def close(self):

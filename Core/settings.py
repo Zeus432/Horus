@@ -9,6 +9,7 @@ INITIAL_EXTENSIONS = [
     'Cogs.BotStuff',
     'Cogs.Fun',
     'Cogs.Dev',
+    'Cogs.ImageApi',
     'Cogs.Moderation',
     'Cogs.Sniper',
     'Cogs.Utility',
