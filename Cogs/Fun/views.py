@@ -133,7 +133,7 @@ class RpsView(discord.ui.View):
     
 class MatchView(discord.ui.View):
     def __init__(self, mode: str, user: discord.Member, total: int):
-        super().__init__(timeout = 30 + total * 2)
+        super().__init__(timeout = 30 + (total * 5))
         self.user = user
         self.matches = 0
         self.pressed = 0
@@ -154,6 +154,13 @@ class MatchView(discord.ui.View):
 
         for num in range(0, total):
             self.add_item(self.MatchButton(payload = emojis[num]))
+
+    async def start(self):  
+        await asyncio.sleep(30 + (self.total * 5))
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(content = "You took too long to finish this puzzle, Better luck next time!", view = self)
+        self.stop()
     
     class MatchButton(discord.ui.Button):
         def __init__(self, payload: str):

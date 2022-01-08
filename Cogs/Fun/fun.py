@@ -37,9 +37,12 @@ class Fun(commands.Cog):
     async def memorygame(self, ctx: commands.Context, mode: ModeConverter = "easy"):
         """ 
         Play memory game
-        __Modes__: `easy`, `medium` and `hard`
+        **Modes**: 
+        - `easy`: 2x5
+        - `hard`: 4x5
         """
-        total = {"easy": 10, "medium": 20, "hard": 30}[mode]
+        total = {"easy": 10, "hard": 20}[mode]
         view = MatchView(user = ctx.author, mode = mode, total = total)
-        view.message = await ctx.send(content = f"Here is your `{mode}` memory game. You have **{30 + total * 2}** seconds to finish it!", view = view)
+        view.message = await ctx.send(content = f"Here is your `{mode}` memory game. You have **{30 + (total * 5)}** seconds to finish it!", view = view)
+        await view.start()
         await view.wait()
