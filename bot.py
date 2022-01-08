@@ -132,6 +132,7 @@ class Horus(commands.Bot):
         await super().start(*args, **kwargs)
     
     async def close(self):
+        await self.vac_api.close()
         await self.session.close()
 
         await self._notif_webhook.send(
