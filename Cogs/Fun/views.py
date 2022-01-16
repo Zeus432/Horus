@@ -123,11 +123,13 @@ class RpsView(discord.ui.View):
         await self.button_pressed(button, interaction)
 
     async def on_timeout(self):
-        await self.message.reply("You both took too long to respond")
+        who_late = f'{self.ctx.author.mention}' if not self.user_answer else f'{self.opponent.mention}' if not self.opponent_answer else 'You both'
+
+        await self.message.reply(f"{who_late} took too long to respond", allowed_mentions = discord.AllowedMentions.none())
         for item in self.children:
             item.disabled = True
         self.message : discord.Message
-        self.message.content += '\n\n> You took too long to respond'
+        self.message.content += f'\n\n> {who_late} too long to respond'
         await self.message.edit(content = self.message.content, view = self)
         self.stop()
     
@@ -157,6 +159,8 @@ class MatchView(discord.ui.View):
 
     async def start(self):  
         await asyncio.sleep(30 + (self.total * 5))
+        if self.matches * 2 >= self.total:
+            return
         for item in self.children:
             item.disabled = True
         await self.message.edit(content = "You took too long to finish this puzzle, Better luck next time!", view = self)
