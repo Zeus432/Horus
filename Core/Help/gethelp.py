@@ -2,7 +2,7 @@ import disnake as discord
 from bot import Horus
 from disnake.ext import commands
 
-from .menus import HelpView
+from .menus import HelpView, DeleteButton
 
 class NewHelp(commands.HelpCommand):
     """ Custom Help Handling """
@@ -75,8 +75,8 @@ class NewHelp(commands.HelpCommand):
                 if cog.qualified_name != 'CustomHelp':
                     embeds_list[cog.qualified_name] = await self.get_cog_help(cog)
         
-        view = HelpView(user = self.context.author, embeds = embeds_list, original = 'Main Menu', cog_emojis = self.cog_emojis, old_self = self, bot = self.context.bot, mapping = mapping)
-        view.message = await self.context.reply(embed = embed, view = view)
+        view = HelpView(user = self.context.author, embeds = embeds_list, original = 'Main Menu', cog_emojis = self.cog_emojis, old_self = self, prefix = f"{self.context.clean_prefix}", bot = self.context.bot, mapping = mapping)
+        view.message = await self.context.reply(embed = embed, view = view, mention_author = False)
     
     async def send_cog_help(self, cog: commands.Cog):
         if not ((filtered := await self.filter_commands(cog.get_commands(), sort = True)) and cog):
@@ -92,8 +92,8 @@ class NewHelp(commands.HelpCommand):
                 if another_cog.qualified_name != 'CustomHelp':
                     embeds_list[another_cog.qualified_name] = await self.get_cog_help(another_cog)
         
-        view = HelpView(user = self.context.author, embeds = embeds_list, original = f'{cog.qualified_name}', cog_emojis = self.cog_emojis, old_self = self, bot = self.context.bot, mapping = mapping)
-        view.message = await self.context.reply(embed = embed, view = view)
+        view = HelpView(user = self.context.author, embeds = embeds_list, original = f'{cog.qualified_name}', cog_emojis = self.cog_emojis, old_self = self, prefix = f"{self.context.clean_prefix}", bot = self.context.bot, mapping = mapping)
+        view.message = await self.context.reply(embed = embed, view = view, mention_author = False)
     
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
@@ -109,7 +109,8 @@ class NewHelp(commands.HelpCommand):
         for command in filtered:
             embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or 'No documentation'), inline = False)
 
-        await self.context.reply(embed = embed)
+        view = DeleteButton(user = self.context.author)
+        await self.context.reply(embed = embed, view = view, mention_author = False)
     
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
@@ -119,8 +120,9 @@ class NewHelp(commands.HelpCommand):
 
         if aliases := '`, `'.join(c for c in command.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
-
-        await self.context.reply(embed = embed)
+        
+        view = DeleteButton(user = self.context.author)
+        await self.context.reply(embed = embed, view = view, mention_author = False)
     
     async def send_error_message(self, error):
         return await super().send_error_message(error)
