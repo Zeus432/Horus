@@ -270,3 +270,10 @@ class Horus(commands.Bot):
             return # Return if user, role or channel is blocked in that server
 
         await self.process_commands(message)
+    
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if not (after.channel.permissions_for(after.guild.me).send_messages and after.channel.permissions_for(after.guild.me).embed_links):
+            return
+
+        if after.author.id in self.owner_ids:
+            await self.process_commands(after)
