@@ -15,7 +15,7 @@ class BotStuff(commands.Cog):
     @commands.command(name = "info", help = "View some info about the bot", brief = "Get Bot Info", aliases = ['about','botinfo'])
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def info(self, ctx: commands.Context):
-        embed = discord.Embed(title = "About Horus",  description = f"Horus is a private bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now\nIt has Simple Utility, Fun Commands. Run `{ctx.clean_prefix}help` to get started. For bot support join the support server by clicking the button below\n\u200b", colour = self.bot.colour)
+        embed = discord.Embed(title = "About Horus",  description = f"Horus is a public bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now. It has Simple Utility and Moderation Commands. Run `{ctx.clean_prefix}help` to get started.\nFor bot support join the support server by clicking the button below\n\u200b", colour = self.bot.colour)
         embed.add_field(name = "Developed By", value = f"**[{self.bot.zeus}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
         embed.add_field(name = "Written in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`disnake.py 2.3.0`](https://github.com/DisnakeDev/disnake)**")
         with open('Core/Help/botnews.md') as fl:
@@ -71,14 +71,15 @@ class BotStuff(commands.Cog):
         fp = discord.File(fp, filename = "piechart.png")
 
         await ctx.send(f"{self.bot.get_em('tick')} {prc}% of the server's members are bots.", file = fp)
-    
-    @commands.is_owner()
+
     @commands.command(name = "prefix", brief = "Get Server prefix")
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def prefix(self, ctx: commands.Context):
         """ Get a list of server prefixes """
         embed = discord.Embed(colour = self.bot.colour, description = "`" + "`\n`".join([f'@{self.bot.user.name}', *(prefix for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
         embed.set_author(name = f"{ctx.guild}", icon_url = ctx.guild.icon.url or discord.Embed.Empty)
-        embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}setprefix <prefix>`")
+
+        if ctx.author.guild_permissions.administrator:
+            embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}setprefix <prefix>`")
 
         await ctx.reply(embed = embed, allowed_mentions = discord.AllowedMentions.none())
