@@ -1,3 +1,4 @@
+import re
 import disnake as discord
 from disnake.ext import commands
 
@@ -275,8 +276,13 @@ class Horus(commands.Bot):
             if item not in blacklist:
                 blacklist[item] = []
 
-        if (message.author.id in blacklist['user'] or message.channel.id in blacklist['channel'] or [role.id for role in user.roles if role.id in blacklist['role']] ) and message.author.id not in self.owner_ids:
-            return # Return if user, role or channel is blocked in that server
+        if (message.author.id in blacklist['user'] or message.channel.id in blacklist['channel']) and message.author.id not in self.owner_ids:
+            return # Return if user or channel is blocked in that server
+
+        user_roles = user.roles
+        if user_roles:
+            if [role.id for role in user_roles if role.id in blacklist['role']] != [] and message.author.id not in self.owner_ids:
+                return # Return if role is blocked in that server
 
         await self.process_commands(message)
     

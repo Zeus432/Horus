@@ -16,6 +16,7 @@ class InfoButtons(discord.ui.View):
         self.user = ctx.author
         self.bot = bot
         self.ctx = ctx
+        self.add_item(discord.ui.Button(label = "Invite Horus", style = discord.ButtonStyle.link, url = f"{self.bot._config['invite']['normal']}"))
         self.add_item(discord.ui.Button(label = "Horus Support", style = discord.ButtonStyle.link, url = f"https://discord.gg/8BQMHAbJWk"))
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
@@ -42,15 +43,8 @@ class InfoButtons(discord.ui.View):
         
         embed = discord.Embed(title = "Latest Commits", description = "\n".join(commit_list), colour = self.bot.colour)
         await interaction.response.send_message(embed = embed, ephemeral = True)
-
-    @discord.ui.button(label = "Bot Invite", style = discord.ButtonStyle.blurple)
-    async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer()
-        embed = discord.Embed( description = f"Bot isn't fully set up yet {self.bot.get_em('hadtodoittoem')}", colour = self.bot.colour)
-        embed.set_image(url = "https://c.tenor.com/Z6gmDPeM6dgAAAAC/dance-moves.gif")
-        await self.ctx.reply(embed = embed)
             
     async def on_timeout(self):
         for item in self.children:
-            item.disabled = True
+            item.disabled = True if item.style != discord.ButtonStyle.link else False 
         await self.message.edit(view = self)

@@ -59,7 +59,7 @@ class BotStuff(commands.Cog):
     async def support(self, ctx: commands.Context):
         """ Get an Invite to Horus' Support Server """
         msg = "<#892767470379749456>: For bot support and For reporting bugs" if ctx.guild.id == 873127663840137256 else "Here is an invite to my Support Server.\n**[ https://discord.gg/8BQMHAbJWk ]**"
-        await ctx.reply(msg)
+        await ctx.reply(msg, mention_author = False)
     
     @commands.command(name = "pie-bot", brief = "Bot/Member ratio")
     @commands.cooldown(2, 5, commands.BucketType.user)
@@ -83,3 +83,13 @@ class BotStuff(commands.Cog):
             embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}setprefix <prefix>`")
 
         await ctx.reply(embed = embed, allowed_mentions = discord.AllowedMentions.none())
+    
+    @commands.command(name = 'invite', brief = "Bot Invite")
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def support(self, ctx: commands.Context):
+        """ Invite Horus to your server """
+        embed = discord.Embed(description = f"\U000030fb**[Normal Perms]({self.bot._config['invite']['normal']})**\n\U000030fb**[Moderator Perms]({self.bot._config['invite']['mod']})**\n\U000030fb**[Admin Perms]({self.bot._config['invite']['admin']})**")
+        embed.colour = self.bot.colour
+        embed.set_author(name = 'Invite Horus with')
+        embed.set_thumbnail(url = self.bot.user.display_avatar.url)
+        await ctx.reply(embed = embed, mention_author = False)
