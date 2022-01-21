@@ -141,7 +141,7 @@ async def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0,
 
     embed = discord.Embed(title = guild, colour = colour, description = description)
 
-    embed.set_thumbnail(url = guild.icon if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
+    embed.set_thumbnail(url = f"{guild.icon}" if guild.icon else "https://cdn.discordapp.com/embed/avatars/1.png")
     embed.set_footer(icon_url = "https://cdn.discordapp.com/emojis/457879292152381443.png" if "VERIFIED" in guild.features else "https://cdn.discordapp.com/emojis/508929941610430464.png"if "PARTNERED" in guild.features else discord.Embed.Empty, text = "Verified Discord Server" if "VERIFIED" in guild.features else "Discord Partnered Server" if "PARTNERED" in guild.features else discord.Embed.Empty)
     if guild.banner:
         embed.set_image(url = guild.banner)

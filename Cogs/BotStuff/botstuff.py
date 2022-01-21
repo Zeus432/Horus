@@ -77,7 +77,7 @@ class BotStuff(commands.Cog):
     async def prefix(self, ctx: commands.Context):
         """ Get a list of server prefixes """
         embed = discord.Embed(colour = self.bot.colour, description = "`" + "`\n`".join([f'@{self.bot.user.name}', *(prefix for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
-        embed.set_author(name = f"{ctx.guild}", icon_url = ctx.guild.icon.url or discord.Embed.Empty)
+        embed.set_author(name = f"{ctx.guild}", icon_url = f"{ctx.guild.icon}")
 
         if ctx.author.guild_permissions.administrator:
             embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}setprefix <prefix>`")

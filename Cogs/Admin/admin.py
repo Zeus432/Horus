@@ -141,7 +141,7 @@ class Admin(commands.Cog):
         
         while items:
             embed = discord.Embed(description = "\n".join([f'**{(page*20) + index + 1})** {start}{item}> (`{item}`)' for index, item in enumerate(items[:20])]), colour = self.bot.colour)
-            embed.set_author(name = f"Server Blacklisted {category.capitalize()}s", icon_url = ctx.guild.icon.url if ctx.guild.icon else discord.Embed.Empty)
+            embed.set_author(name = f"Server Blacklisted {category.capitalize()}s", icon_url = f"{ctx.guild.icon}")
             embed.set_footer(text = f"Page {page + 1}/{total}")
 
             embeds.append(embed)

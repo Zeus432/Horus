@@ -1,4 +1,5 @@
 import disnake as discord
+from matplotlib.pyplot import title
 from bot import Horus
 from disnake.ext import commands
 
@@ -83,7 +84,7 @@ class Utility(commands.Cog):
         user = user or ctx.author
         colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour
         embed = discord.Embed(title = f"Avatar for {user}", colour = colour, timestamp = ctx.message.created_at)
-        embed.set_footer(text = f"{ctx.guild}", icon_url = ctx.guild.icon)
+        embed.set_footer(text = f"{ctx.guild}", icon_url = f"{ctx.guild.icon}")
 
         avatar = user.display_avatar.with_static_format('png')
         jpgav = user.display_avatar.with_static_format('jpg')
