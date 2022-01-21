@@ -219,7 +219,7 @@ class Dev(commands.Cog):
         await ctx.reply(f"No prefix has been {state}")
 
     @commands.command(name = "bypasscooldown", aliases = ['bypasscd'], brief = "Toggle Bypassing Cooldown")
-    async def noprefix(self, ctx: commands.Context):
+    async def bypasscd(self, ctx: commands.Context):
         """ Enable/Disable Bypassing Cooldowns for Bot Owners """
         self.bot._bypass_cooldowns = False if self.bot._bypass_cooldowns else True
         state = f"disabled" if not self.bot._bypass_cooldowns else f"enabled"
