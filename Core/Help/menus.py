@@ -131,7 +131,7 @@ class SyntaxHelp(discord.ui.View):
         try: 
             await self.message.edit(view = self)
         except: 
-            await self.clear_items()
+            pass
 
 class DeleteButton(discord.ui.View):
     def __init__(self, user: discord.Member | discord.User):
