@@ -270,8 +270,12 @@ class Horus(commands.Bot):
             if blacklist is None:
                 blacklist = await self.db.fetchval('INSERT INTO guilddata(guildid) VALUES($1) ON CONFLICT (guildid) DO NOTHING RETURNING server_bls', message.guild.id)
             self.server_blacklists[message.guild.id] = blacklist
+        
+        for item in ['user', 'channel', 'role']:
+            if item not in blacklist:
+                blacklist[item] = []
 
-        if (message.author.id in blacklist or message.channel.id in blacklist or [role.id for role in user.roles if role.id in blacklist] ) and message.author.id not in self.owner_ids:
+        if (message.author.id in blacklist['user'] or message.channel.id in blacklist['channel'] or [role.id for role in user.roles if role.id in blacklist['role']] ) and message.author.id not in self.owner_ids:
             return # Return if user, role or channel is blocked in that server
 
         await self.process_commands(message)

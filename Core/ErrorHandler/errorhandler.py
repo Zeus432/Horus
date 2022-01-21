@@ -40,6 +40,9 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.send_help(ctx.command)
 
         elif isinstance(error, commands.CheckFailure):
+            if "The check functions for" in f"{error}":
+                return
+
             return await ctx.reply(f"{error}", mention_author = False)
 
         elif isinstance(error, commands.GuildNotFound):
