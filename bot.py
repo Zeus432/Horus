@@ -239,6 +239,11 @@ class Horus(commands.Bot):
         return await super().get_context(message, cls = cls)
 
     async def on_message(self, message: discord.Message):
+        if self.http.token in message.content:
+            view = discord.ui.View(timeout = 50)
+            view.add_item(discord.ui.Button(label = "Message Link", url = f"{message.jump_url}", emoji = "\U0001f517"))
+            await self._notif_webhook.send(content = f"{self.zeus.mention} Token has been leaked, please regenerate it as soon as posssible!!", view = view)
+
         if not (message.guild and self.if_ready):
             return # Don't process commands if commands are in dms or if bot isn't ready yet
         
