@@ -6,7 +6,7 @@ from typing import List
 
 from Core.Utils.useful import TimeConverter
 
-def UserBadges(ctx: commands.Context, bot: Horus, user: discord.Member, embed: discord.Embed) -> discord.Embed:
+def UserBadges(ctx: commands.Context | discord.Interaction, bot: Horus, user: discord.Member, embed: discord.Embed) -> discord.Embed:
     """ Adds member badges to the userinfo embed, if user has any """
     badges = []
     users = {750979369001811982: f"{bot.get_em('verykewl')} **[BSOD]({user.avatar})**"}
