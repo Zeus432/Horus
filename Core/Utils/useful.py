@@ -72,6 +72,7 @@ verif = {
             "medium": "2 - Medium",
             "high": "3 - High",
             "extreme": "4 - Extreme",
+            "highest": "4 - Extreme"
         }
 features = {
             "ANIMATED_ICON": "Animated Icon",
