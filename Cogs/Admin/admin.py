@@ -132,14 +132,16 @@ class Admin(commands.Cog):
         start = "<@!" if category == "user" else "<#" if category == "channel" else "<@&"
         total = (len(items) // 20) + 1
         embeds = []
+        page = 0
         
         while items:
-            embed = discord.Embed(description = "\n".join([f'{start}{item}> (`{item}`)' for item in items[:20]]))
-            embed.set_author(name = f"Server Blacklisted {category.capitalize()}", icon_url = ctx.guild.icon.url if ctx.guild.icon else discord.Embed.Empty)
-            embed.set_footer(text = f"Page 1/{total}")
+            embed = discord.Embed(description = "\n".join([f'**{(page*20) + index + 1})** {start}{item}> (`{item}`)' for index, item in enumerate(items[:20])]), colour = self.bot.colour)
+            embed.set_author(name = f"Server Blacklisted {category.capitalize()}s", icon_url = ctx.guild.icon.url if ctx.guild.icon else discord.Embed.Empty)
+            embed.set_footer(text = f"Page {page + 1}/{total}")
 
             embeds.append(embed)
             items = items[20:]
+            page += 1
         
         view = TestPagination(embeds =  embeds, user = ctx.author)
 
