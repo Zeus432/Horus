@@ -126,6 +126,11 @@ class Admin(commands.Cog):
         query = f"SELECT server_bls -> '{category}' FROM guilddata WHERE guildid = $1"
         items = await self.bot.db.fetchval(query, ctx.guild.id)
 
+        if ctx.guild.id not in self.bot.server_blacklists:
+            self.bot.server_blacklists[ctx.guild.id] = {}
+        
+        self.bot.server_blacklists[ctx.guild.id][category] = items
+
         if not items:
             return await ctx.send(f'No {category} has been blacklisted in this server!')
 
@@ -143,7 +148,7 @@ class Admin(commands.Cog):
             items = items[20:]
             page += 1
         
-        view = TestPagination(embeds =  embeds, user = ctx.author)
+        view = TestPagination(embeds =  embeds, user = ctx.author, bot = self.bot)
 
         view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
         await view.wait()
