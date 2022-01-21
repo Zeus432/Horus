@@ -5,6 +5,7 @@ from disnake.ext import commands
 
 from datetime import datetime
 
+from Core.Utils.useful import verif
 from .useful import UserBadges, PollFlags
 from .menus import PollMenu, ConfirmClear
 
@@ -98,6 +99,23 @@ class Utility(commands.Cog):
         view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, url = f"{webpav}", label = ".webp"))
 
         await ctx.send(embed = embed, view = view)
+
+    @commands.command(name = "serverinfo", brief = "Get Server Info", aliases = ['si'])
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def serverinfo(self, ctx: commands.Context):
+        """ Get some useful stats about this server """
+        embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.guild}", description = f"Server was created on <t:{round(ctx.guild.created_at.timestamp())}:D>\nServer ID: `{ctx.guild.id}`\nOwner: {ctx.guild.owner.mention} (`{ctx.guild.owner.id}`)\nVerif Level: {verif[str(ctx.guild.verification_level)]}")
+        embed.set_thumbnail(url = f"{ctx.guild.icon}")
+
+        text_channels = f"{self.bot.get_em('text')} **{len(ctx.guild.text_channels)}** Text Channel{'s' if len(ctx.guild.text_channels) != 1 else ''}\n" if len(ctx.guild.text_channels) > 0 else ""
+        voice_channels = f"{self.bot.get_em('voice')} **{len(ctx.guild.voice_channels)}** Voice Channels{'s' if len(ctx.guild.voice_channels) != 1 else ''}\n" if len(ctx.guild.voice_channels) > 0 else ""
+        stage_channels = f"{self.bot.get_em('stage')} **{len(ctx.guild.stage_channels)}** Stage Channels{'s' if len(ctx.guild.stage_channels) != 1 else ''}" if len(ctx.guild.stage_channels) > 0 else ""
+
+        embed.add_field(name = "Channels", value = f"{text_channels}{voice_channels}{stage_channels}", inline = False)
+        embed.add_field(name = "Misc", value = f"**{len([member for member in ctx.guild.members if member.bot])}** Bots\n**{len([member for member in ctx.guild.members if not member.bot])}** Humans\n**{len(ctx.guild.roles)}** Roles")
+        embed.add_field(name = "Prefixes", value = "`" + "`\n`".join([f'@{self.bot.user.name}', *((prefix if prefix else '\u200b') for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
+
+        await ctx.send(embed = embed)
     
     @commands.command(cooldown_after_parsing = True)
     @commands.cooldown(3, 60, commands.BucketType.guild)
