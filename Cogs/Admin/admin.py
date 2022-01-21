@@ -6,7 +6,7 @@ from typing import Union
 
 from Core.Blacklists.menus import ConfirmBl
 from Core.Utils.pagination import TestPagination
-from .useful import BlType, format_items
+from .useful import BlType
 
 class Admin(commands.Cog):
     """ Server Management """
@@ -15,7 +15,7 @@ class Admin(commands.Cog):
     
     async def cog_check(self, ctx: commands.Context) -> bool:
         user = ctx.guild.get_member(ctx.author.id)
-        return user.guild_permissions.administrator
+        return user.guild_permissions.administrator or await self.bot.is_owner(ctx.author)
 
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @commands.command(name = "setprefix", brief = "Set Server prefix")
@@ -31,8 +31,7 @@ class Admin(commands.Cog):
     @commands.group(name = "server", brief = "Server Blacklist and Management Commands", invoke_without_command = True)
     async def server(self, ctx: commands.Context):
         await ctx.send_help(ctx.command)
-    
-    @commands.is_owner()
+
     @server.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Channel, User or Role")
     async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.Member]):
         """ Blacklist a Channel, Role or User from using the bot in your server """
@@ -70,8 +69,7 @@ class Admin(commands.Cog):
             else:
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
-    
-    @commands.is_owner()
+
     @server.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Channel, User or Role")
     async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User, int]):
         """ Unblacklist a Channel, Role or User from using the bot in your server """
@@ -113,8 +111,7 @@ class Admin(commands.Cog):
                 self.bot.server_blacklists[ctx.guild.id] = blacklist
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
-    
-    @commands.is_owner()
+
     @server.command(name = "showblacklists", aliases = ["showbls"], brief = "Show a list of blacklisted users, channels and roles")
     async def showblacklists(self, ctx: commands.Context, category: BlType):
         """
@@ -148,8 +145,7 @@ class Admin(commands.Cog):
 
         view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
         await view.wait()
-    
-    @commands.is_owner()
+
     @server.command(name = "checkblacklist", aliases = ["checkbl"], brief = "Check if an user, channel or role")
     async def checkblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User, int]):
         """
@@ -162,7 +158,7 @@ class Admin(commands.Cog):
         query = f"SELECT server_bls FROM guilddata WHERE guildid = $1"
         items = await self.bot.db.fetchval(query, ctx.guild.id)
 
-        for item in items:
+        for type, item in items.values():
             if what in item:
                 return await ctx.reply(f'This {item} is server blacklisted!', mention_author = False)
         

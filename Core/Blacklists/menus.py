@@ -16,6 +16,7 @@ class ConfirmBl(discord.ui.View):
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id == self.user.id:
+            await interaction.response.defer()
             return True
         return await interaction.response.defer()
     
@@ -24,13 +25,13 @@ class ConfirmBl(discord.ui.View):
         self.value = True
         self.stop()
         await self.disableall(button.style)
-        await self.message.edit(f'`{self.what}` has been {self.action}ed!', view = self)
+        await self.message.edit(content = f'`{self.what}` has been {self.action}ed!', view = self)
     
     @discord.ui.button(label = "Cancel", style = discord.ButtonStyle.red)
     async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
         self.stop()
         await self.disableall(button.style)
-        await self.message.edit(f"Cancelled {self.action}ing `{self.what}`", view = self)
+        await self.message.edit(content = f"Cancelled {self.action}ing `{self.what}`", view = self)
     
     async def on_timeout(self):
         await self.message.edit(content = "You took too long to respond!")
