@@ -49,7 +49,7 @@ class Utility(commands.Cog):
         await ctx.send(embed = embed)
     
     @commands.user_command(name = "View User Info", default_permission = True)
-    async def embed_data(self, interaction: discord.MessageCommandInteraction, user: discord.User):
+    async def user_data(self, interaction: discord.MessageCommandInteraction, user: discord.User):
         embed = discord.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour)
         embed.set_thumbnail(url = user.display_avatar)
         join_position = [m for m in sorted(interaction.guild.members, key = lambda u: u.joined_at)].index(user) + 1
@@ -75,7 +75,7 @@ class Utility(commands.Cog):
 
         embed.add_field(name = "Servers:", value = f"{len([guild.id for guild in self.bot.guilds if guild.get_member(user.id)])} shared")
 
-        await interaction.response.send_message(embed = embed, mention_author = False)
+        await interaction.response.send_message(embed = embed)
 
 
     @commands.command(name = "avatar", brief = "Get User Avatar", aliases = ['av'])
