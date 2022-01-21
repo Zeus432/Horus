@@ -2,7 +2,7 @@ import disnake as discord
 from disnake.ext import commands
 
 class TestPagination(discord.ui.View):
-    def __init__(self, embeds: list, user, current_page:int = 1):
+    def __init__(self, embeds: list, user: discord.User | discord.Member, current_page:int = 1):
         super().__init__(timeout = None)
         self.user = user
         self.embeds = embeds
