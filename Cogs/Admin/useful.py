@@ -1,4 +1,5 @@
 from disnake.ext import commands
+import disnake as discord
 
 class BlType(commands.Converter):
     async def convert(self, ctx: commands.Context, argument) -> str | None:
@@ -12,3 +13,9 @@ class BlType(commands.Converter):
             return "role"
         
         return None
+
+def format_items(category: str, items: list):
+    start = "<@!" if category == "user" else "<#" if category == "channel" else "<@&"
+
+    for item in items:
+        print()

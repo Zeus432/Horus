@@ -5,7 +5,8 @@ from disnake.ext import commands
 from typing import Union
 
 from Core.Blacklists.menus import ConfirmBl
-from .useful import BlType
+from Core.Utils.pagination import TestPagination
+from .useful import BlType, format_items
 
 class Admin(commands.Cog):
     """ Server Management """
@@ -32,8 +33,8 @@ class Admin(commands.Cog):
         await ctx.send_help(ctx.command)
     
     @commands.is_owner()
-    @server.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Channel / User")
-    async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
+    @server.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Channel, User or Role")
+    async def serverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.Member]):
         """ Blacklist a Channel, Role or User from using the bot in your server """
         what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
 
@@ -41,10 +42,13 @@ class Admin(commands.Cog):
             blacklist = self.bot.server_blacklists[ctx.guild.id]
         except KeyError:
             blacklist = await self.bot.db.fetchval("SELECT server_bls FROM guilddata WHERE guildid = $1", ctx.guild.id)
-            self.bot.server_blacklists[ctx.guild.id] = [] if blacklist is None else blacklist
+            self.bot.server_blacklists[ctx.guild.id] = {} if blacklist is None else blacklist
+        
+        if what_type not in blacklist:
+            blacklist[what_type] = []
 
-        if what.id in blacklist:
-            return await ctx.reply(f'This {what_type} is already server blacklisted!')
+        if what.id in blacklist[what_type]:
+            return await ctx.reply(f'`{what}` is already server blacklisted!')
         
         if what.id == ctx.guild.id:
             await ctx.send_help(ctx.command)
@@ -54,10 +58,10 @@ class Admin(commands.Cog):
         await view.wait()
 
         if view.value is True:
-            if what.id in blacklist:
+            if what.id in blacklist[what_type]:
                 return
 
-            blacklist.append(what.id)
+            blacklist[what_type].append(what.id)
             self.bot.server_blacklists[ctx.guild.id] = blacklist
 
             if not blacklist:
@@ -68,21 +72,29 @@ class Admin(commands.Cog):
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
     
     @commands.is_owner()
-    @server.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Channel / User")
-    async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User]):
+    @server.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Channel, User or Role")
+    async def unserverblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User, int]):
         """ Unblacklist a Channel, Role or User from using the bot in your server """
         what_type = "channel" if isinstance(what, discord.TextChannel) else "role" if isinstance(what, discord.Role) else "user"
+
+        if not isinstance(what, int):
+            what_id = what.id
+        else:
+            what_id = what
 
         try:
             blacklist = self.bot.server_blacklists[ctx.guild.id]
         except KeyError:
             blacklist = await self.bot.db.fetchval("SELECT server_bls FROM guilddata WHERE guildid = $1", ctx.guild.id)
-            self.bot.server_blacklists[ctx.guild.id] = [] if blacklist is None else blacklist
-
-        if what.id not in blacklist:
-            return await ctx.reply(f'This {what_type} is not server blacklisted!')
+            self.bot.server_blacklists[ctx.guild.id] = {} if blacklist else blacklist
         
-        if what.id == ctx.guild.id:
+        if what_type not in blacklist:
+            blacklist[what_type] = []
+
+        if what_id not in blacklist[what_type]:
+            return await ctx.reply(f'`{what}` is not server blacklisted!')
+        
+        if what_id == ctx.guild.id:
             await ctx.send_help(ctx.command)
         
         view = ConfirmBl(what = f"{what}", action = "server unblacklist", user = ctx.author)
@@ -90,25 +102,68 @@ class Admin(commands.Cog):
         await view.wait()
         
         if view.value is True:
-            if what.id not in blacklist:
+            if what_id not in blacklist[what_type]:
                 return
 
             if not blacklist:
                 self.bot.server_blacklists[ctx.guild.id] = await self.bot.db.execute('INSERT INTO guilddata(guildid, server_bls) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET server_bls = $2 RETURNING server_bls', ctx.guild.id, blacklist)
             
             else:
-                blacklist.remove(what.id)
+                blacklist[what_type].remove(what_id)
                 self.bot.server_blacklists[ctx.guild.id] = blacklist
                 query = f'UPDATE guilddata SET server_bls = $2 WHERE guildid = $1'
                 await self.bot.db.execute(query, ctx.guild.id, blacklist)
     
     @commands.is_owner()
     @server.command(name = "showblacklists", aliases = ["showbls"], brief = "Show a list of blacklisted users, channels and roles")
-    async def showblacklists(self, ctx: commands.Context, category: BlType = None):
+    async def showblacklists(self, ctx: commands.Context, category: BlType):
         """
         You can filter your bl list by specifying a category:
         `-` user
         `-` role
         `-` channel
         """
-        bltype = category if category else "all"
+        if not category:
+            return await ctx.send('Mention a specific type to view!')
+        
+        query = f"SELECT server_bls -> '{category}' FROM guilddata WHERE guildid = $1"
+        items = await self.bot.db.fetchval(query, ctx.guild.id)
+
+        if not items:
+            return await ctx.send(f'No {category} has been blacklisted in this server!')
+
+        start = "<@!" if category == "user" else "<#" if category == "channel" else "<@&"
+        total = (len(items) // 20) + 1
+        embeds = []
+        
+        while items:
+            embed = discord.Embed(description = "\n".join([f'{start}{item}> (`{item}`)' for item in items[:20]]))
+            embed.set_author(name = f"Server Blacklisted {category.capitalize()}", icon_url = ctx.guild.icon.url if ctx.guild.icon else discord.Embed.Empty)
+            embed.set_footer(text = f"Page 1/{total}")
+
+            embeds.append(embed)
+            items = items[20:]
+        
+        view = TestPagination(embeds =  embeds, user = ctx.author)
+
+        view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
+        await view.wait()
+    
+    @commands.is_owner()
+    @server.command(name = "checkblacklist", aliases = ["checkbl"], brief = "Check if an user, channel or role")
+    async def checkblacklist(self, ctx: commands.Context, what: Union[discord.TextChannel, discord.Role, discord.User, int]):
+        """
+        Check if a user, channel or role is blacklisted.
+        Accepts id too if it is deleted
+        """
+        if not isinstance(what, int):
+            what = what.id
+
+        query = f"SELECT server_bls FROM guilddata WHERE guildid = $1"
+        items = await self.bot.db.fetchval(query, ctx.guild.id)
+
+        for item in items:
+            if what in item:
+                return await ctx.reply(f'This {item} is server blacklisted!', mention_author = False)
+        
+        await ctx.send(f'`{what}` doesn\'t seem to be on the server blacklist!', mention_author = False)
