@@ -13,7 +13,27 @@ class ButtonRoles(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
+        self.bot.loop.create_task(self.initialize())
     
+    async def initialize(self):
+        await self.bot.wait_until_ready()
+
+        query = "SELECT * FROM buttonroles"
+        allitems = await self.bot.db.fetch(query)
+
+        for item in allitems:
+            try:
+                channel = await self.bot.fetch_channel(item["channelid"])
+                await channel.fetch_message(item["messageid"])
+            
+            except:
+                query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
+                await self.bot.db.execute(query, item["guildid"], item["messageid"])
+
+            else:
+                view = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], blacklists = item["blacklists"])
+                self.bot.add_view(view, message_id = item["messageid"])
+
     async def cog_check(self, ctx: commands.Context):
         result = await self.bot.is_owner(ctx.author)
         if result:
@@ -28,6 +48,12 @@ class ButtonRoles(commands.Cog):
     @commands.bot_has_permissions(add_reactions = True)
     @commands.max_concurrency(1, commands.BucketType.guild)
     async def buttonroles_make(self, ctx: commands.Context, message: discord.Message = None):
+        query = "SELECT * FROM buttonroles WHERE guildid = $1"
+        prev = await self.bot.db.fetch(query, ctx.guild.id)
+
+        if len(prev) > 9:
+            return await ctx.reply(f'Currently Guilds are limited to a maximum of 10 button roles!\nYou can free up some space by deleting unnecessary button roles using `{ctx.clean_prefix}buttonroles delete`')
+
         if message is None:
             def check(m: discord.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
@@ -120,5 +146,33 @@ class ButtonRoles(commands.Cog):
             except:
                 return await ctx.reply('I was unable to edit the given message, maybe it was deleted?')
         
-        
+        message = view.message
+        self.bot.add_view(view, message_id = message.id)
+
+        query = "INSERT INTO buttonroles(guildid, messageid, channelid, role_emoji) VALUES($1, $2, $3, $4) ON CONFLICT (messageid) DO NOTHING"
+        await self.bot.db.execute(query, message.guild.id, message.id, message.channel.id, role_emoji)
+
         await ctx.try_add_reaction(self.bot.get_em('tick'))
+
+    @buttonroles.command(name = "delete")
+    @commands.max_concurrency(1, commands.BucketType.guild)
+    async def buttonroles_delete(self, ctx: commands.Context, message: discord.Message):
+        query = "SELECT * FROM buttonroles WHERE guildid = $1 AND messageid = $2"
+        item = await self.bot.db.fetch(query, message.guild.id, message.id)
+
+        if item is None:
+            return await ctx.send(content = f'I could not find a buttonroles menu with message ID: `{message.id}`')
+        
+        try:
+            msg = await message.channel.fetch_message(message.id)
+            await msg.edit(view = None)
+        except:
+            pass
+
+        query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
+        await self.bot.db.execute(query, message.guild.id, message.id)
+    
+    def cog_unload(self):
+        for item in self.bot.persistent_views:
+            if isinstance(item, RolesView):
+                self.bot.persistent_views.remove(item)

@@ -194,7 +194,7 @@ class Horus(commands.Bot):
             # ); """
 
             # todo_table =  """ """
-            # 
+
             # tags_table = """ CREATE TABLE IF NOT EXISTS tags (
             # name VARCHAR NOT NULL,
             # serverid BIGINT NOT NULL,
@@ -202,6 +202,14 @@ class Horus(commands.Bot):
             # usage BIGINT DEFAULT 0,
             # info jsonb DEFAULT '{"owner":null, "created_at": null}',
             # aliases VARCHAR[] DEFAULT '{}'
+            # ); """
+            
+            # buttonroles_table = """ CREATE TABLE IF NOT EXISTS buttonroles (
+            # guildid BIGINT NOT NULL,
+            # messageid BIGINT PRIMARY KEY,
+            # channelid BIGINT NOT NULL,
+            # role_emoji jsonb DEFAULT '{}',
+            # blacklists VARCHAR[] DEFAULT '{}'
             # ); """
 
     def get_em(self, emoji: str | int) -> str:
