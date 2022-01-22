@@ -24,7 +24,7 @@ class HorusCtx(commands.Context):
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict,  *args, **kwargs):
-        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, sync_permissions = True, description = CONFIG['description'], **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, sync_commands_on_cog_unload = True, sync_permissions = True, description = CONFIG['description'], **kwargs)
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self._config = CONFIG
         self.colour = discord.Colour(0x9c9cff)
