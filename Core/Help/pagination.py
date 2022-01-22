@@ -125,13 +125,13 @@ class HelpView(discord.ui.View):
     @discord.ui.button(label = "Delete", emoji = "<:TrashCan:873917151961026601>", style = discord.ButtonStyle.red, row = 1)
     async def support_link(self, button: discord.ui.Button, interaction: discord.Interaction):
         await interaction.response.defer()
-        await interaction.message.delete()
+        await self.message.delete()
 
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
 
-        if self.message and self._dont_delete: 
+        if self.message and not self._dont_delete: 
             await self.message.edit(view = self)
 
 class DeleteButton(discord.ui.View):
