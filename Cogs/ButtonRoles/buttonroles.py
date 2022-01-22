@@ -6,6 +6,8 @@ from disnake.ext import commands
 import asyncio
 import time
 
+from .views import RolesView
+
 class ButtonRoles(commands.Cog):
     """ Button Roles """
 
@@ -39,6 +41,8 @@ class ButtonRoles(commands.Cog):
         
             def check(m: discord.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+            
+            button_message = msg.content
         
             await ctx.reply("Enter the channel to send the message in!")
 
@@ -76,7 +80,11 @@ class ButtonRoles(commands.Cog):
                 return await ctx.send(f"You took too long to respond!")
             
             if msg.content.lower() == "done":
-                break
+                if len(role_emoji) >= 1:
+                    break
+
+                await ctx.send('You need to give me atleast one emoji role pair before entering `done`!')
+                continue
         
             emoji, role = msg.content.split(';')
 
@@ -93,11 +101,24 @@ class ButtonRoles(commands.Cog):
                 elif role in role_emoji.values():
                     await ctx.send('This role was previously input!')
 
-                elif not (role.managed or role.is_default or role.is_bot_managed()):
-                    await ctx.send('This role is an integration and cannot be manage by me!')
+                elif role.managed or role.is_default() or role.is_bot_managed():
+                    await ctx.send('This role is an integration and cannot be managed by me!')
 
                 else:
-                    role_emoji[emoji] = role.id
+                    role_emoji[f"{emoji}"] = role.id
                     await msg.add_reaction(self.bot.get_em('tick'))
+
+        view = RolesView(bot = self.bot, guild = ctx.guild.id, role_emoji = role_emoji)
+
+        if message is None:
+            view.message = await channel.send(content = f"{button_message}", view = view)
         
-        await ctx.send(f"{role_emoji}")
+        else:
+            try:
+                view.message = message
+                await message.edit(view = view)
+            except:
+                return await ctx.reply('I was unable to edit the given message, maybe it was deleted?')
+        
+        
+        await ctx.try_add_reaction(self.bot.get_em('tick'))
