@@ -1,6 +1,6 @@
 import disnake as discord
 from matplotlib.pyplot import title
-from Core.Utils.pagination import TestPagination
+from Core.Utils.pagination import Pagination
 from bot import Horus
 from disnake.ext import commands
 
@@ -236,7 +236,7 @@ class Utility(commands.Cog):
             neat_todo = neat_todo[10:]
             embeds.append(embed)
         
-        view = TestPagination(embeds = embeds, bot = self.bot, user = ctx.author)
+        view = Pagination(embeds = embeds, bot = self.bot, user = ctx.author)
         view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
     
     @commands.cooldown(1, 5, commands.BucketType.user)

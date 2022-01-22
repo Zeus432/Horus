@@ -5,7 +5,7 @@ from disnake.ext import commands
 from typing import Union
 
 from Core.Blacklists.menus import ConfirmBl
-from Core.Utils.pagination import TestPagination
+from Core.Utils.pagination import Pagination
 from .useful import BlType
 
 class Admin(commands.Cog):
@@ -148,7 +148,7 @@ class Admin(commands.Cog):
             items = items[20:]
             page += 1
         
-        view = TestPagination(embeds =  embeds, user = ctx.author, bot = self.bot)
+        view = Pagination(embeds =  embeds, user = ctx.author, bot = self.bot)
 
         view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
         await view.wait()

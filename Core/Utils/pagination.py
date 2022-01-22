@@ -3,7 +3,7 @@ from disnake.ext import commands
 
 import asyncio
 
-class TestPagination(discord.ui.View):
+class Pagination(discord.ui.View):
     def __init__(self, embeds: list, bot: commands.Bot, user: discord.User | discord.Member, current_page:int = 1, timeout: int = 180):
         super().__init__(timeout = timeout)
         self.user = user
@@ -60,7 +60,7 @@ class TestPagination(discord.ui.View):
     @discord.ui.button(label = "1/1", style = discord.ButtonStyle.blurple)
     async def go_to_page(self, button: discord.ui.Button, interaction: discord.Interaction):
         if self._yet_to_respond is True:
-            await interaction.followup.send('This button can only be used one at time!', ephemeral = False)
+            return await interaction.followup.send('This button can only be used one at time!', ephemeral = False)
 
         self._yet_to_respond = True
         reply_message = await self.message.reply(content = f'Enter the page you wish to go to: `1` - `{self.total_pages}`')
@@ -82,6 +82,9 @@ class TestPagination(discord.ui.View):
         else:
             if page > self.total_pages or page < 1:
                 await message.reply(content = f'You can only enter a page number between `1` and `{self.total_pages}`!', mention_author = False)
+            
+            elif self.current_page == page:
+                await message.reply(content = f'You\'re already on page `{page}!`', mention_author = False)
             
             else:
                 self.current_page = page
