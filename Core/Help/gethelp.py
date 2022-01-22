@@ -2,7 +2,7 @@ import disnake as discord
 from bot import Horus
 from disnake.ext import commands
 
-from .menus import HelpView, DeleteButton
+from .pagination import HelpView, DeleteButton
 
 class NewHelp(commands.HelpCommand):
     """ Custom Help Handling """
@@ -25,6 +25,17 @@ class NewHelp(commands.HelpCommand):
                 return get_em('error')
 
         self.cog_emojis = cog_emojis
+        self.syntax_help = f"""**Important Things to Know**
+```yaml
+• <argument>         - Argument is required
+• [argument]         - Argument is optional
+• [argument=default] - Argument is optional and has a default value
+• [argument...]      - Argument is optional and can take multiple entries.
+• <argument...>      - Argument is required and can take multiple entries.
+• [X|Y|Z]            - Argument can be either X, Y or Z```
+__**Note:**__ Do not literally type out the `<>`, `[]`, `|`!
+
+Use `[$prefix$]help <command | category>` to get help for any command"""
 
         with open('Core/Help/botnews.md') as fl:
             self.bot_news = fl.read()
@@ -38,7 +49,7 @@ class NewHelp(commands.HelpCommand):
     
     # Get Help
     
-    async def get_bot_help(self, mapping) -> discord.Embed:
+    async def get_bot_help(self, mapping) -> list[dict]:
         embed = discord.Embed(title = 'Horus Help Menu', colour = self.colour)
         embed.set_thumbnail(url = self.footer)
 
@@ -51,9 +62,10 @@ class NewHelp(commands.HelpCommand):
         if self.bot_news:
             embed.add_field(name = f"{self.context.bot.get_em('news')} Horus Updates", value = f"{self.bot_news.replace('[prefix]', f'{self.context.clean_prefix}')}", inline = False)
         embed.set_footer(icon_url = self.footer, text = self.get_ending_note())
-        return embed
+
+        return [{'embeds': [embed]}, {'content': self.syntax_help.replace('[$prefix$]', f"{self.context.clean_prefix}")}]
     
-    async def get_cog_help(self, cog: commands.Cog) -> discord.Embed:
+    async def get_cog_help(self, cog: commands.Cog) -> list[dict]:
         embed = discord.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
         filtered = await self.filter_commands(cog.get_commands(), sort = True)
 
@@ -61,13 +73,14 @@ class NewHelp(commands.HelpCommand):
             embed.add_field(name = command.qualified_name, value = command.short_doc or 'No documentation', inline = False)
         
         embed.set_footer(text = self.get_ending_note())
-        return embed
+
+        return [{'embeds': [embed]}]
     
     # Send Help to after getting it using a Select Menu
     
     async def send_bot_help(self, mapping):
-        embed = await self.get_bot_help(mapping)
-        embeds_list = {'Main Menu': embed}
+        stuff_list = await self.get_bot_help(mapping)
+        embeds_list = {'Main Menu': stuff_list}
 
         for cog, commands in mapping.items():
             filtered = await self.filter_commands(commands, sort = True)
@@ -75,15 +88,15 @@ class NewHelp(commands.HelpCommand):
                 if cog.qualified_name != 'CustomHelp':
                     embeds_list[cog.qualified_name] = await self.get_cog_help(cog)
         
-        view = HelpView(user = self.context.author, embeds = embeds_list, original = 'Main Menu', cog_emojis = self.cog_emojis, old_self = self, prefix = f"{self.context.clean_prefix}", bot = self.context.bot, mapping = mapping)
-        view.message = await self.context.reply(embed = embed, view = view, mention_author = False)
+        view = HelpView(stuff_dict = embeds_list, user = self.context.author, old_self = self, mapping = mapping, bot = self.context.bot, original = 'Main Menu', cog_emojis = self.cog_emojis)
+        view.message = await self.context.reply(view = view, mention_author = False, **stuff_list[0])
     
     async def send_cog_help(self, cog: commands.Cog):
         if not ((filtered := await self.filter_commands(cog.get_commands(), sort = True)) and cog):
             return
         
         mapping = self.get_bot_mapping()
-        embed = await self.get_cog_help(cog)
+        stuff_list = await self.get_cog_help(cog)
         embeds_list = {'Main Menu': await self.get_bot_help(mapping)}
 
         for another_cog, commands in mapping.items():
@@ -92,8 +105,8 @@ class NewHelp(commands.HelpCommand):
                 if another_cog.qualified_name != 'CustomHelp':
                     embeds_list[another_cog.qualified_name] = await self.get_cog_help(another_cog)
         
-        view = HelpView(user = self.context.author, embeds = embeds_list, original = f'{cog.qualified_name}', cog_emojis = self.cog_emojis, old_self = self, prefix = f"{self.context.clean_prefix}", bot = self.context.bot, mapping = mapping)
-        view.message = await self.context.reply(embed = embed, view = view, mention_author = False)
+        view = HelpView(stuff_dict = embeds_list, user = self.context.author, old_self = self, mapping = mapping, bot = self.context.bot, original = f'{cog.qualified_name}', cog_emojis = self.cog_emojis)
+        view.message = await self.context.reply(view = view, mention_author = False, **stuff_list[0])
     
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
