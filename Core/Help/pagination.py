@@ -63,6 +63,9 @@ class HelpView(discord.ui.View):
             if self.current_page <= 1:
                 if '◄' in item.label:
                     item.disabled = True
+            
+            if self._dont_delete and item.label == "Delete":
+                self.remove_item(item)
         
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id == self.user.id:
