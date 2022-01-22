@@ -1,5 +1,6 @@
 import disnake as discord
 from matplotlib.pyplot import title
+from Core.Utils.pagination import TestPagination
 from bot import Horus
 from disnake.ext import commands
 
@@ -228,9 +229,15 @@ class Utility(commands.Cog):
         
         stuff = todo['data']
         neat_todo = [f"**[{index+1})]({stuff[task_id]['messagelink']})** {stuff[task_id]['stuff']}" for index, task_id in enumerate(stuff)]
+        embeds = []
 
-        embed = discord.Embed(title = f"**{ctx.author.display_name}**'s To Do List", description = "\n".join(neat_todo), color = self.bot.colour)
-        await ctx.reply(embed = embed, mention_author = False)
+        while neat_todo:
+            embed = discord.Embed(title = f"**{ctx.author.display_name}**'s To Do List", description = "\n".join(neat_todo[:10]), color = self.bot.colour)
+            neat_todo = neat_todo[10:]
+            embeds.append(embed)
+        
+        view = TestPagination(embeds = embeds, bot = self.bot, user = ctx.author)
+        view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
     
     @commands.cooldown(1, 5, commands.BucketType.user)
     @todo.command(name = "add", brief = "Add todo task")
@@ -248,8 +255,8 @@ class Utility(commands.Cog):
         
         self.todo_cache[ctx.author.id] = todo # Update Todo Cache
 
-        if len(todo['data']) >= 10:
-            return await ctx.reply('I was unable to add this task as Todo lists are currently limited to a maximum of `10` tasks.')
+        if len(todo['data']) >= 100:
+            return await ctx.reply('I was unable to add this task as Todo lists are currently limited to a maximum of `100` tasks.')
         
         todo['data'][ctx.message.id] = {'messagelink': f'{ctx.message.jump_url}', 'stuff': f'{task}'}
         self.todo_cache[ctx.author.id] = todo
