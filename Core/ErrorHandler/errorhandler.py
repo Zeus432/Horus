@@ -37,7 +37,31 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.reply(f'This command is disabled.')
 
         elif isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.send_help(ctx.command)
+            #return await ctx.send_help(ctx.command)
+            ending = f'Use {ctx.clean_prefix}{ctx.invoked_with} [command] for more info on a command.'
+            syntax = f"Syntax: {ctx.clean_prefix}{ctx.command.qualified_name} {ctx.command.signature}"
+
+            embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.command.cog_name} Help" if ctx.command.cog_name else "Horus Help", description = f"```yaml\n{syntax}```\n{ctx.command.help or 'No documentation'}")
+            embed.set_footer(text = ending, icon_url = "https://cdn.discordapp.com/avatars/858335663571992618/358132def732d61ce9ed7dbfb8f9a6c1.png?size=1024")
+
+            if aliases := '`, `'.join(c for c in ctx.command.aliases):
+                embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
+            
+            if isinstance(ctx.command, commands.Group):
+                #filtered = await self.filter_commands(ctx.command.commands, sort = True)
+
+                for command in ctx.command.commands:
+                    try: await command.can_run(ctx)
+                    except: pass
+                    else:
+                        embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or 'No documentation'), inline = False)
+            
+            param = f"{error.param}".split(':')[0]
+            space = len(syntax.split(f'<{param}>')[0])
+
+            content = f"```yaml\n{syntax}\n{(space + 1)*' '}{'^'*len(param)}\n{error.args[0]}```"
+            
+            await ctx.reply(content = content, embed = embed, mention_author = False)
 
         elif isinstance(error, commands.CheckFailure):
             if "The check functions for" in f"{error}":

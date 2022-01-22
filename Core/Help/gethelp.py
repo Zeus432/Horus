@@ -119,7 +119,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
         try: await group.can_run(self.context)
         except: return # Return if user can't run this group commands
 
-        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200b")
+        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help" if group.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200b")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in group.aliases):
@@ -135,7 +135,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
         except: return # Return if user can't run this command
-        embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n{command.help or 'No documentation'}")
+        embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help" if command.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n{command.help or 'No documentation'}")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in command.aliases):
