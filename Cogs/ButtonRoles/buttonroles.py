@@ -158,9 +158,9 @@ class ButtonRoles(commands.Cog):
     @commands.max_concurrency(1, commands.BucketType.guild)
     async def buttonroles_delete(self, ctx: commands.Context, message: discord.Message):
         query = "SELECT * FROM buttonroles WHERE guildid = $1 AND messageid = $2"
-        item = await self.bot.db.fetch(query, message.guild.id, message.id)
+        item = await self.bot.db.fetchval(query, message.guild.id, message.id)
 
-        if item is None:
+        if not item:
             return await ctx.send(content = f'I could not find a buttonroles menu with message ID: `{message.id}`')
         
         try:
@@ -171,8 +171,8 @@ class ButtonRoles(commands.Cog):
 
         query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
         await self.bot.db.execute(query, message.guild.id, message.id)
-    
-    def cog_unload(self):
-        for item in self.bot.persistent_views:
-            if isinstance(item, RolesView):
-                self.bot.persistent_views.remove(item)
+
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+
+        await ctx.send('I have removed the button roles menu from that message!', view = view)
