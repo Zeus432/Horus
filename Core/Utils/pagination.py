@@ -4,11 +4,12 @@ from disnake.ext import commands
 import asyncio
 
 class TestPagination(discord.ui.View):
-    def __init__(self, embeds: list, bot: commands.Bot, user: discord.User | discord.Member, current_page:int = 1):
-        super().__init__(timeout = None)
+    def __init__(self, embeds: list, bot: commands.Bot, user: discord.User | discord.Member, current_page:int = 1, timeout: int = 180):
+        super().__init__(timeout = timeout)
         self.user = user
         self.bot = bot
         self.message: discord.Message
+        self._yet_to_respond = False
         self.embeds = embeds
         self.total_pages = len(embeds)
         self.current_page = current_page
@@ -33,6 +34,9 @@ class TestPagination(discord.ui.View):
 
             if '◄' in item.label:
                 item.disabled = True if self.current_page <= 1 else False
+            
+            if '/' in item.label:
+                item.label = f"{self.current_page}/{self.total_pages}"
 
         embed = self.embeds[self.current_page - 1]
         await interaction.message.edit(embed = embed, view = self)
@@ -55,6 +59,10 @@ class TestPagination(discord.ui.View):
     
     @discord.ui.button(label = "1/1", style = discord.ButtonStyle.blurple)
     async def go_to_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self._yet_to_respond is True:
+            await interaction.followup.send('This button can only be used one at time!', ephemeral = False)
+
+        self._yet_to_respond = True
         reply_message = await self.message.reply(content = f'Enter the page you wish to go to: `1` - `{self.total_pages}`')
 
         def check(message : discord.Message) -> bool: 
@@ -63,18 +71,23 @@ class TestPagination(discord.ui.View):
         try:
             message = await self.bot.wait_for('message', timeout = 30, check = check)
         except asyncio.TimeoutError:
+            self._yet_to_respond = False
             return await reply_message.reply(content = 'You took too long to respond!')
         
         try:
             page = int(message.content)
         except ValueError:
-            return await message.reply(content = 'That is not a page number!', mention_author = False)
+            await message.reply(content = 'That is not a page number!', mention_author = False)
         
-        if page > self.total_pages or page < 1:
-            return await message.reply(content = f'You can only enter a page number between `1` and `{self.total_pages}`!', mention_author = False)
-        
-        self.current_page = page
-        await self.edit_buttons(interaction)
+        else:
+            if page > self.total_pages or page < 1:
+                await message.reply(content = f'You can only enter a page number between `1` and `{self.total_pages}`!', mention_author = False)
+            
+            else:
+                self.current_page = page
+                await self.edit_buttons(interaction)
+
+        self._yet_to_respond = False
 
     @discord.ui.button(label = "►")
     async def rightarrow1(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -85,3 +98,9 @@ class TestPagination(discord.ui.View):
     async def rightarrow2(self, button: discord.ui.Button, interaction: discord.Interaction):
         self.current_page = self.total_pages
         await self.edit_buttons(interaction)
+    
+    async def on_timeout(self) -> None:
+        for item in self.children:
+            item.disabled = True
+        
+        await self.message.edit(view = self)
