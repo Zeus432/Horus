@@ -38,7 +38,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
 
         elif isinstance(error, commands.MissingRequiredArgument):
             #return await ctx.send_help(ctx.command)
-            ending = f'Use {ctx.clean_prefix}{ctx.invoked_with} [command] for more info on a command.'
+            ending = f'Use {ctx.clean_prefix}help [command] for more info on a command.'
             syntax = f"Syntax: {ctx.clean_prefix}{ctx.command.qualified_name} {ctx.command.signature}"
 
             embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.command.cog_name} Help" if ctx.command.cog_name else "Horus Help", description = f"```yaml\n{syntax}```\n{ctx.command.help or 'No documentation'}")

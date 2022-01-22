@@ -76,7 +76,7 @@ class BotStuff(commands.Cog):
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def prefix(self, ctx: commands.Context):
         """ Get a list of server prefixes """
-        embed = discord.Embed(colour = self.bot.colour, description = "`" + "`\n`".join([f'@{self.bot.user.name}', *(prefix for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
+        embed = discord.Embed(colour = self.bot.colour, description = "`" + "`\n`".join([f'@{self.bot.user.name}', *(prefix if prefix else '\u200b' for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
         embed.set_author(name = f"{ctx.guild}", icon_url = f"{ctx.guild.icon}")
 
         if ctx.author.guild_permissions.administrator:

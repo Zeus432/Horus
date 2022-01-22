@@ -305,7 +305,7 @@ class Dev(commands.Cog):
             return await ctx.reply("You need to provide a cog to load!")
             # Add views here later
         
-        loadcog = [c for c in INITIAL_EXTENSIONS if cog in c]
+        loadcog = [c for c in INITIAL_EXTENSIONS if cog.lower() in c.lower()]
         loadcog = cog if not loadcog else loadcog[0]
 
         try:
