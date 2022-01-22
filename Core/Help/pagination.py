@@ -126,13 +126,17 @@ class HelpView(discord.ui.View):
     async def support_link(self, button: discord.ui.Button, interaction: discord.Interaction):
         await interaction.response.defer()
         await self.message.delete()
+        self.stop()
 
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
 
-        if self.message and not self._dont_delete: 
-            await self.message.edit(view = self)
+        if self.message and not self._dont_delete:
+            try:
+                await self.message.edit(view = self)
+            except:
+                pass
 
 class DeleteButton(discord.ui.View):
     def __init__(self, user: discord.Member | discord.User):
