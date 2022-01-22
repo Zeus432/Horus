@@ -66,15 +66,23 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
         return [{'embeds': [embed]}, {'content': self.syntax_help.replace('[$prefix$]', f"{self.context.clean_prefix}")}]
     
     async def get_cog_help(self, cog: commands.Cog) -> list[dict]:
-        embed = discord.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
         filtered = await self.filter_commands(cog.get_commands(), sort = True)
+        embeds = []
+        pages = (len(filtered) // 8) + 1
+        current_page = 1
 
-        for command in filtered:
-            embed.add_field(name = command.qualified_name, value = command.short_doc or 'No documentation', inline = False)
-        
-        embed.set_footer(text = self.get_ending_note())
+        while filtered:
+            embed = discord.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
+            embed.set_footer(text = (f"Page {current_page} of {pages} - "  if pages > 1 else "") + self.get_ending_note())
+    
+            for index, command in enumerate(filtered[:8]):
+                embed.add_field(name = command.qualified_name, value = command.short_doc or 'No documentation', inline = False)
 
-        return [{'embeds': [embed]}]
+            embeds.append({'embeds': [embed]})
+            filtered = filtered[8:]
+            current_page += 1
+
+        return embeds
     
     # Send Help to after getting it using a Select Menu
     
@@ -87,7 +95,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
             if cog is not None and filtered:
                 if cog.qualified_name != 'CustomHelp':
                     embeds_list[cog.qualified_name] = await self.get_cog_help(cog)
-        
+
         view = HelpView(stuff_dict = embeds_list, user = self.context.author, old_self = self, mapping = mapping, bot = self.context.bot, original = 'Main Menu', cog_emojis = self.cog_emojis)
         view.message = await self.context.reply(view = view, mention_author = False, **stuff_list[0])
     
@@ -96,7 +104,6 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
             return
         
         mapping = self.get_bot_mapping()
-        stuff_list = await self.get_cog_help(cog)
         embeds_list = {'Main Menu': await self.get_bot_help(mapping)}
 
         for another_cog, commands in mapping.items():
@@ -106,7 +113,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
                     embeds_list[another_cog.qualified_name] = await self.get_cog_help(another_cog)
         
         view = HelpView(stuff_dict = embeds_list, user = self.context.author, old_self = self, mapping = mapping, bot = self.context.bot, original = f'{cog.qualified_name}', cog_emojis = self.cog_emojis)
-        view.message = await self.context.reply(view = view, mention_author = False, **stuff_list[0])
+        view.message = await self.context.reply(view = view, mention_author = False, **embeds_list[f'{cog.qualified_name}'][0])
     
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
