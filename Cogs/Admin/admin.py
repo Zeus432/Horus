@@ -7,6 +7,7 @@ import asyncio
 import time
 
 from Core.Blacklists.menus import ConfirmBl
+from Core.Utils.woodlands import PersistentView
 from Core.Utils.pagination import Pagination
 from .useful import BlType
 from .views import RolesView
@@ -19,6 +20,8 @@ class Admin(commands.Cog):
     
     async def initialize_button_roles(self):
         await self.bot.wait_until_ready()
+
+        self.bot.add_view(PersistentView(bot = self.bot), message_id = 886522591421034556)
 
         query = "SELECT * FROM buttonroles"
         allitems = await self.bot.db.fetch(query)
