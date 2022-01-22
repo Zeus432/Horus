@@ -28,12 +28,17 @@ class Dev(commands.Cog):
         self._last_result = None
     
     async def cog_check(self, ctx: commands.Context):
+        if f"{ctx.command}" == "whoasked" and ctx.author.id == 750979369001811982:
+            return True
+
         result = await self.bot.is_owner(ctx.author)
+
         if result:
             return True
+
         raise commands.NotOwner()
     
-    @commands.command(name='eval', brief = "Evaluate Code")
+    @commands.command(name = 'eval', brief = "Evaluate Code", aliases = ['e'])
     async def _eval(self, ctx: commands.Context, *, body: str):
         """ 
         **Execute asynchronous code.**
