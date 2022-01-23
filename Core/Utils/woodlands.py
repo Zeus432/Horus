@@ -10,20 +10,18 @@ class PersistentButtons(discord.ui.Button):
         self.role = role
     
     async def callback(self, interaction: discord.Interaction):
-        roles = await interaction.guild.fetch_roles()
-        role = [role for role in (roles) if role.name == self.role]
-
+        role = self.role
         if dict(interaction.me.guild_permissions)["manage_roles"] == False:
             return await interaction.response.send_message("I'm missing the `Manage Roles` permission!", ephemeral = True)
 
-        if interaction.me.top_role <= role[0]:
-            return await interaction.response.send_message("This role is above me, so I cannot give you this role!", ephemeral = True)
+        if interaction.me.top_role <= role:
+            return await interaction.response.send_message("i was unable to manage this role as it is above mine!", ephemeral = True)
 
         if role in interaction.user.roles:
-            await interaction.user.remove_roles(role, reason = f"Button roles")
+            await interaction.user.remove_roles(role.id, reason = f"Button roles")
             await interaction.response.send_message(f'I have removed the {role.mention} role from you', ephemeral = True)
         else:
-            await interaction.user.add_roles(role, reason = f"Button roles")
+            await interaction.user.add_roles(role.id, reason = f"Button roles")
             await interaction.response.send_message(f'I have added the {role.mention} role to you', ephemeral = True)
 
 class PersistentView(discord.ui.View):
