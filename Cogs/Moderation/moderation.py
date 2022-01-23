@@ -75,6 +75,7 @@ class Moderation(commands.Cog):
         await ctx.send(f"{user.mention} is timed out until <t:{int(user.current_timeout.timestamp())}>!" if user.current_timeout else "This is user is not timed out currently!", allowed_mentions = discord.AllowedMentions(users = False))
 
     @commands.message_command(name = "Raw Embed Data", default_permission = True)
+    @commands.has_permissions(manage_messages = True)
     async def embed_data(self, interaction: discord.MessageCommandInteraction, message: discord.Message):
         if not message.embeds:
             return await interaction.response.send_message(content = f"This message has no embeds to view!", ephemeral = True)
