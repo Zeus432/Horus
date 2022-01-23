@@ -93,3 +93,49 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
 
         if senderror:
             await send_error(bot = self.bot, ctx = ctx, error = error)
+    
+    @commands.Cog.listener()
+    async def on_message_command_error(self, interaction: discord.MessageCommandInteraction, error):
+        command = interaction.application_command
+        senderror = None
+    
+        if hasattr(command, 'on_error'):
+            return
+
+        cog = command.cog
+
+        if cog:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
+                return
+    
+        error = getattr(error, 'original', error)
+
+        if isinstance(error, commands.NotOwner):
+            return await interaction.response.send_message(content = "This is an owner only command and you're not one!", ephemeral = True)
+
+        if isinstance(error, commands.DisabledCommand):
+            return await interaction.response.send_message(f'This command is disabled.', ephemeral = True)
+
+        elif isinstance(error, commands.CheckFailure):
+            return await interaction.response.send_message(f"{error}", ephemeral = True)
+
+        elif isinstance(error, commands.GuildNotFound):
+            return await interaction.response.send_message(f'Could not find guild: `{error.argument}`', ephemeral = True)
+        
+        elif isinstance(error, commands.errors.CommandOnCooldown):
+            if self.bot._bypass_cooldowns and interaction.author.id in self.bot.owner_ids:
+                command.reset_cooldown(interaction)
+                await self.bot.process_application_commands(interaction)
+                return
+
+            return await interaction.response.send_message(f'Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds', ephemeral = True)
+        
+        elif isinstance(error, commands.MissingPermissions):
+            if isinstance(interaction.channel, discord.TextChannel) and interaction.channel.permissions_for(interaction.guild.me).send_messages:
+                senderror = True
+            else: pass
+        else:
+            senderror = True
+
+        if senderror:
+            await send_error(bot = self.bot, ctx = interaction, error = error)
