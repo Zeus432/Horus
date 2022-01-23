@@ -32,10 +32,11 @@ class RolesButton(discord.ui.Button):
         return await interaction.response.send_message(content = f"I have added the {role.mention} role to you!", ephemeral = True)
 
 class RolesView(discord.ui.View):
-    def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = []):
+    def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = [], use_role_name: bool = False):
         super().__init__(timeout = None)
         self.role_emoji = role_emoji
         self.blacklists = blacklists
+        self.use_role_name = use_role_name
 
         try:
             bot.get_guild(guild)

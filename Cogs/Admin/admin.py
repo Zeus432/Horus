@@ -36,7 +36,7 @@ class Admin(commands.Cog):
                 await self.bot.db.execute(query, item["guildid"], item["messageid"])
 
             else:
-                view = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], blacklists = item["blacklists"])
+                view = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], **item["config"])
                 self.bot.add_view(view, message_id = item["messageid"])
     
     async def cog_check(self, ctx: commands.Context) -> bool:
@@ -214,8 +214,11 @@ class Admin(commands.Cog):
         query = "SELECT * FROM buttonroles WHERE guildid = $1"
         prev = await self.bot.db.fetch(query, ctx.guild.id)
 
+        if [view for view in prev if view["messageid"] == message.id]:
+            return await ctx.reply(content = f"This message already has a button roles menu. First delete it using `{ctx.clean_prefix}buttonroles delete` before trying again!")
+
         if len(prev) > 9:
-            return await ctx.reply(f'Currently Guilds are limited to a maximum of 10 button roles!\nYou can free up some space by deleting unnecessary button roles using `{ctx.clean_prefix}buttonroles delete`')
+            return await ctx.reply(content = f'Currently Guilds are limited to a maximum of 10 button roles!\nYou can free up some space by deleting unnecessary button roles using `{ctx.clean_prefix}buttonroles delete`')
 
         if message is None:
             def check(m: discord.Message):
@@ -253,9 +256,9 @@ class Admin(commands.Cog):
                 return await ctx.send(f'I can add to buttons to messages sent by {self.bot.user.mention} only!')
         
         def check(m: discord.Message):
-            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and (m.content.count(";") == 1 or m.content.lower() == "done")
+            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and (m.content.count(";") == 1 or m.content.lower() in ["done", "exit"])
         
-        await ctx.reply(f"Enter the emoji and role pairs in `emoji;role` format.\nI will react with {self.bot.get_em('tick')} if you've entered properly.\nEnter `done` when your done entering roles.")
+        await ctx.reply(f"Enter the emoji and role pairs in `emoji;role` format. I will react with {self.bot.get_em('tick')} if you've entered properly.\nEnter `done` when your done entering roles and `cancel` to stop.")
         role_emoji = {}
         start = time.perf_counter()
 
@@ -268,7 +271,10 @@ class Admin(commands.Cog):
             except asyncio.TimeoutError:
                 return await ctx.send(f"You took too long to respond!")
             
-            if msg.content.lower() == "done":
+            if msg.content.lower() == "exit":
+                return await ctx.send("Exited.")
+            
+            elif msg.content.lower() == "done":
                 if len(role_emoji) >= 1:
                     break
 
@@ -301,18 +307,34 @@ class Admin(commands.Cog):
 
         if message is None:
             view.message = await channel.send(content = f"{button_message}", view = view)
+
+            if channel.id != ctx.channel.id:
+                link = discord.ui.View()
+                link.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+                await ctx.send("I've sent the message with the button roles menu successfully!", view = link)
         
         else:
             try:
                 view.message = message
                 await message.edit(view = view)
+
             except:
                 return await ctx.reply('I was unable to edit the given message, maybe it was deleted?')
+            
+            else:
+                link = discord.ui.View()
+                link.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+                await ctx.send("I've added a button roles menu to the message successfully!", view = link)
         
         message = view.message
+
+        for perview in self.bot.persistent_views:
+            if isinstance(perview, RolesView) and perview.message.id == message.id:
+                perview.stop() # remove view from persistent views
+
         self.bot.add_view(view, message_id = message.id)
 
-        query = "INSERT INTO buttonroles(guildid, messageid, channelid, role_emoji) VALUES($1, $2, $3, $4) ON CONFLICT (messageid) DO NOTHING"
+        query = "INSERT INTO buttonroles(guildid, messageid, channelid, role_emoji) VALUES($1, $2, $3, $4) ON CONFLICT (messageid) DO  NOTHING"
         await self.bot.db.execute(query, message.guild.id, message.id, message.channel.id, role_emoji)
 
         await ctx.try_add_reaction(self.bot.get_em('tick'))
@@ -341,5 +363,9 @@ class Admin(commands.Cog):
 
         view = discord.ui.View()
         view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+
+        for perview in self.bot.persistent_views:
+            if isinstance(perview, RolesView) and perview.message.id == message.id:
+                perview.stop() # remove view from persistent views
 
         await ctx.send('I have removed the button roles menu from that message!', view = view)
