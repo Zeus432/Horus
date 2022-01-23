@@ -8,10 +8,21 @@ class RolesButton(discord.ui.Button):
         self.role = role
     
     async def callback(self, interaction: discord.Interaction):
-        try:
-            role = interaction.guild.get_role(self.role)
-        except commands.RoleNotFound:
-            return await interaction.response.send_message(content = "This role doesn't seem to exist in this server anymore!", ephemeral = True)
+        role = interaction.guild.get_role(self.role)
+        
+        if role is None:
+            roles = [role for role in (await interaction.guild.fetch_roles()) if role.id == self.role]
+            if roles is []:
+                return await interaction.response.send_message(content = "This role doesn't seem to exist in this server anymore!", ephemeral = True)
+            
+            else:
+                role = roles[0]
+        
+        if dict(interaction.me.guild_permissions)["manage_roles"] == False:
+            return await interaction.response.send_message("I'm missing the `Manage Roles` permission!", ephemeral = True)
+
+        if interaction.me.top_role <= role:
+            return await interaction.response.send_message("I was unable to manage this role as it is above mine!", ephemeral = True)
         
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role, reason = "Button Roles")

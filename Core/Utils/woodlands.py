@@ -15,7 +15,7 @@ class PersistentButtons(discord.ui.Button):
             return await interaction.response.send_message("I'm missing the `Manage Roles` permission!", ephemeral = True)
 
         if interaction.me.top_role <= role:
-            return await interaction.response.send_message("i was unable to manage this role as it is above mine!", ephemeral = True)
+            return await interaction.response.send_message("I was unable to manage this role as it is above mine!", ephemeral = True)
 
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role.id, reason = f"Button roles")
