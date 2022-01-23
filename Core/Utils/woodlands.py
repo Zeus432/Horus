@@ -18,10 +18,10 @@ class PersistentButtons(discord.ui.Button):
             return await interaction.response.send_message("I was unable to manage this role as it is above mine!", ephemeral = True)
 
         if role in interaction.user.roles:
-            await interaction.user.remove_roles(role.id, reason = f"Button roles")
+            await interaction.user.remove_roles(role, reason = f"Button roles")
             await interaction.response.send_message(f'I have removed the {role.mention} role from you', ephemeral = True)
         else:
-            await interaction.user.add_roles(role.id, reason = f"Button roles")
+            await interaction.user.add_roles(role, reason = f"Button roles")
             await interaction.response.send_message(f'I have added the {role.mention} role to you', ephemeral = True)
 
 class PersistentView(discord.ui.View):
