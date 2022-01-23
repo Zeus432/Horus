@@ -193,7 +193,11 @@ class Horus(commands.Bot):
             # blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}'
             # ); """
 
-            # todo_table =  """ """
+            # todo_table =  """ CREATE TABLE IF NOT EXISTS todo (
+            # userid BIGINT UNIQUE PRIMARY KEY,
+            # lastupdated BIGINT NOT NULL,
+            # data jsonb DEFAULT '{}'
+            # ); """
 
             # tags_table = """ CREATE TABLE IF NOT EXISTS tags (
             # name VARCHAR NOT NULL,
@@ -209,7 +213,7 @@ class Horus(commands.Bot):
             # messageid BIGINT PRIMARY KEY,
             # channelid BIGINT NOT NULL,
             # role_emoji jsonb DEFAULT '{}',
-            # blacklists VARCHAR[] DEFAULT '{}'
+            # config jsonb DEFAULT '{}'
             # ); """
 
     def get_em(self, emoji: str | int) -> str:

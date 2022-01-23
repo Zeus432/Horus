@@ -6,7 +6,7 @@ class RolesButton(discord.ui.Button):
         super().__init__(emoji = f"{emoji}", style = discord.ButtonStyle.gray, custom_id = f'per:{role}')
 
         self.role = role
-    
+  
     async def callback(self, interaction: discord.Interaction):
         role = interaction.guild.get_role(self.role)
         
@@ -18,7 +18,7 @@ class RolesButton(discord.ui.Button):
             else:
                 role = roles[0]
         
-        if dict(interaction.me.guild_permissions)["manage_roles"] == False:
+        if interaction.me.guild_permissions.manage_roles == False:
             return await interaction.response.send_message("I'm missing the `Manage Roles` permission!", ephemeral = True)
 
         if interaction.me.top_role <= role:
@@ -29,7 +29,7 @@ class RolesButton(discord.ui.Button):
             return await interaction.response.send_message(content = f"I have removed the {role.mention} role from you!", ephemeral = True)
 
         await interaction.user.add_roles(role, reason = "Button Roles")
-        return await interaction.response.send_message(content = f"I have added the {role.mention} role from you!", ephemeral = True)
+        return await interaction.response.send_message(content = f"I have added the {role.mention} role to you!", ephemeral = True)
 
 class RolesView(discord.ui.View):
     def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = []):
