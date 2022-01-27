@@ -233,6 +233,7 @@ class Admin(commands.Cog):
     
     @buttonroles.command(name = "make", brief = "Make Button Roles")
     @commands.bot_has_permissions(add_reactions = True)
+    @commands.cooldown(2, 60, commands.BucketType.guild)
     async def buttonroles_make(self, ctx: commands.Context, message: discord.Message = None):
         """
         An interactive command to make button roles!
@@ -326,13 +327,14 @@ class Admin(commands.Cog):
                     await ctx.send('This role is an integration and cannot be managed by me!')
 
                 else:
-                    role_emoji[f"{emoji}"] = role.id
+                    role_emoji[f"{emoji}"] = [role.name, role.id]
                     await msg.add_reaction(self.bot.get_em('tick'))
 
         view = RolesView(bot = self.bot, guild = ctx.guild.id, role_emoji = role_emoji)
 
         if message is None:
-            view.message = await channel.send(content = f"{button_message}", view = view)
+            message = await channel.send(content = f"{button_message}", view = view)
+            view.message = message
 
             if channel.id != ctx.channel.id:
                 link = discord.ui.View()
@@ -464,10 +466,15 @@ class Admin(commands.Cog):
         await ctx.send(f'I have unblocked {role.mention} from using the button roles menu.', allowed_mentions = discord.AllowedMentions(roles = False))
     
     @buttonroles.command(name = "refresh", brief = "Refresh button menus")
-    @commands.cooldown(1, 300, commands.BucketType.guild)
+    @commands.cooldown(5, 300, commands.BucketType.guild)
     async def buttonroles_refresh(self, ctx: commands.Context, message: discord.Message = None):
         """
-        Can be used to refresh your server's button roles incase any of them are out of sync or erroring.
+        Can be used to refresh your server's button roles incase 
+        any of them are out of sync or erroring.
+
+        This command can only be used once per guild 
+        and 5 times every 5 minutes so don't use this
+        unless necessary
         """
 
         if message is not None:
@@ -496,22 +503,17 @@ class Admin(commands.Cog):
         for item in allitems:
             for view in self.bot.persistent_views:
                 if isinstance(view, RolesView) and view.message.id == item["messageid"]:
-                    await view.stop_button() # remove view from persistent views
-                    
+
+                    newview = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], **item["config"])
+                    newview.message = view.message
+
                     try:
-                        channel = await self.bot.fetch_channel(item["channelid"])
-                        msg = await channel.fetch_message(item["messageid"])
+                        await view.refresh_view(view = newview) # remove view from persistent views
             
                     except:
                         query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
                         await self.bot.db.execute(query, item["guildid"], item["messageid"])
-
-                    else:
-                        view = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], **item["config"])
-                        view.message = msg
-
-                        self.bot.add_view(view, message_id = msg.id)
         
         end = time.perf_counter()
 
-        await notif.edit(f'Finished refreshing **{len(allitems)}** view{"s" if len(allitems) != 1 else ""} in `{round(end - start, 2)}`s')
+        await notif.edit(content = f'Finished refreshing **{len(allitems)}** view{"s" if len(allitems) != 1 else ""} in `{round(end - start, 2)}`s')
