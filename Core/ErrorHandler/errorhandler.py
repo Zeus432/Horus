@@ -34,7 +34,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return
 
         if isinstance(error, commands.DisabledCommand):
-            return await ctx.reply(f'This command is disabled.')
+            return await ctx.reply(f'This command is disabled.', mention_author = False)
 
         elif isinstance(error, commands.MissingRequiredArgument):
             #return await ctx.send_help(ctx.command)
@@ -75,14 +75,17 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
         elif isinstance(error, (commands.BadArgument, commands.BadUnionArgument)):
             return await ctx.send_help(ctx.command)
         
-        elif isinstance(error, commands.errors.CommandOnCooldown):
+        elif isinstance(error, commands.CommandOnCooldown):
             if self.bot._bypass_cooldowns and ctx.author.id in self.bot.owner_ids:
                 ctx.command.reset_cooldown(ctx)
                 new_ctx = await self.bot.get_context(ctx.message)
                 await self.bot.invoke(new_ctx)
                 return
 
-            return await ctx.reply(f'Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds')
+            return await ctx.reply(f'Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds', mention_author = False)
+        
+        elif isinstance(error, commands.MaxConcurrencyReached):
+            return await ctx.reply(f"{error}", mention_author = False)
         
         elif isinstance(error, commands.MissingPermissions):
             if isinstance(ctx.channel, discord.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
@@ -122,7 +125,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
         elif isinstance(error, commands.GuildNotFound):
             return await interaction.response.send_message(f'Could not find guild: `{error.argument}`', ephemeral = True)
         
-        elif isinstance(error, commands.errors.CommandOnCooldown):
+        elif isinstance(error, commands.CommandOnCooldown):
             if self.bot._bypass_cooldowns and interaction.author.id in self.bot.owner_ids:
                 command.reset_cooldown(interaction)
                 await self.bot.process_application_commands(interaction)
