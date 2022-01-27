@@ -6,6 +6,7 @@ import asyncio
 import time
 
 from .views import RolesView
+from .woodlands import PersistentView
 
 class ButtonRoles(commands.Cog):
     """ Button Roles """
@@ -28,6 +29,8 @@ class ButtonRoles(commands.Cog):
 
         if self.bot._added_views is True:
             return
+        
+        self.bot.add_view(PersistentView(bot = self.bot), message_id = 886522591421034556)
 
         query = "SELECT * FROM buttonroles"
         allitems = await self.bot.db.fetch(query)

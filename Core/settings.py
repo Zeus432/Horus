@@ -7,6 +7,7 @@ os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 INITIAL_EXTENSIONS = [
     'Cogs.Admin',
     'Cogs.BotStuff',
+    'Cogs.ButtonRoles',
     'Cogs.Fun',
     'Cogs.Dev',
     'Cogs.ImageApi',
