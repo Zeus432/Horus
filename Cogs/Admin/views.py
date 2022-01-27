@@ -47,6 +47,6 @@ class RolesView(discord.ui.View):
             self.add_item(RolesButton(emoji = emoji, role = role))
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        if not [role.id for role in self.blacklists if role.id in interaction.user.roles]:
+        if not [role.id for role in interaction.user.roles if role.id in self.blacklists]:
             return True
         await interaction.response.defer()
