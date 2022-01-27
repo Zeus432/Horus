@@ -1,10 +1,9 @@
 import disnake as discord
 from disnake.ext import commands
 
-class RolesButton(discord.ui.Button):
+class RolesButton(discord.ui.Button["RolesView"]):
     def __init__(self, emoji: str, role: int, use_role_name: bool = False):
         self.role = role[1]
-        vars = {}
         super().__init__(emoji = f"{emoji}", label = f"{role[0]}" if use_role_name else None, style = discord.ButtonStyle.gray, custom_id = f'per:{role}')
   
     async def callback(self, interaction: discord.Interaction):
