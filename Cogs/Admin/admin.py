@@ -33,6 +33,9 @@ class Admin(commands.Cog):
     async def initialize_button_roles(self):
         await self.bot.wait_until_ready()
 
+        if self.bot._added_views is True:
+            return
+
         self.bot.add_view(PersistentView(bot = self.bot), message_id = 886522591421034556)
 
         query = "SELECT * FROM buttonroles"
@@ -52,6 +55,8 @@ class Admin(commands.Cog):
                 view.message = message
 
                 self.bot.add_view(view, message_id = message.id)
+        
+        self.bot._added_views = True
     
     async def cog_check(self, ctx: commands.Context) -> bool:
         user = ctx.guild.get_member(ctx.author.id)
@@ -227,10 +232,10 @@ class Admin(commands.Cog):
         query = "SELECT * FROM buttonroles WHERE guildid = $1"
         prev = await self.bot.db.fetch(query, ctx.guild.id)
 
-        if [view for view in prev if view["messageid"] == message.id]:
+        if message and [view for view in prev if view["messageid"] == message.id]:
             return await ctx.reply(content = f"This message already has a button roles menu. First delete it using `{ctx.clean_prefix}buttonroles delete` before trying again!")
 
-        if len(prev) > 9:
+        if len(prev) >= 10:
             return await ctx.reply(content = f'Currently Guilds are limited to a maximum of 10 button roles!\nYou can free up some space by deleting unnecessary button roles using `{ctx.clean_prefix}buttonroles delete`')
 
         if message is None:
@@ -357,19 +362,29 @@ class Admin(commands.Cog):
 
         if not item:
             return await ctx.send(content = f'I could not find a buttonroles menu with message ID: `{message.id}`')
-        
-        try:
-            msg = await message.channel.fetch_message(message.id)
-            await msg.edit(view = None)
-        except: pass
 
         query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
         await self.bot.db.execute(query, message.guild.id, message.id)
+
+        for item in self.bot.persistent_views:
+            if isinstance(item, RolesView) and item.message.id == message.id:
+                await item.stop_button()
 
         view = discord.ui.View()
         view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
 
         await ctx.send('I have removed the button roles menu from that message!', view = view)
+    
+    @buttonroles.command(name = "list", brief = "List Server Button Roles")
+    async def buttonroles_list(self, ctx: commands.Context):
+        """ Get a list of all current server button roles """
+        prev = [view for view in self.bot.persistent_views if isinstance(view, RolesView)]
+
+        if not prev:
+            return await ctx.send('This server does not have any button roles!')
+        
+        embed = discord.Embed(description = "\n".join([f"**{index+1})** [{view.message.id}]({view.message.jump_url})" for index, view in enumerate(prev)]))
+        await ctx.send(embed = embed)
     
     @buttonroles.command(name = "block", brief = "Block a role from Button role")
     @commands.is_owner()
@@ -392,11 +407,19 @@ class Admin(commands.Cog):
         if not item["config"].get("blacklists"):
             item["config"]["blacklists"] = []
         
+        if role.id in item["config"]["blacklists"]:
+            return await ctx.send(content = "This role is already blacklisted from this button roles!")
+        
         item["config"]["blacklists"].append(role.id)
         query = "UPDATE buttonroles SET config = $1 WHERE guildid = $2 AND messageid = $3"
         await self.bot.db.execute(query, item["config"], message.guild.id, message.id)
 
-        await ctx.send(f'I have blocked {role.mention} from using the button roles menu.', allowed_mentions = discord.AllowedMentions(roles = False))
+        for view in self.bot.persistent_views:
+            if isinstance(view, RolesView) and view.message.id == message.id:
+                view.update_config(blacklists = item["config"]["blacklists"])
+                break
+        
+        await ctx.send(f'I have blocked {role.mention} from using this button roles.', allowed_mentions = discord.AllowedMentions(roles = False))
     
     @buttonroles.command(name = "unblock", brief = "Unblock a blacklisted role")
     @commands.is_owner()
@@ -426,12 +449,18 @@ class Admin(commands.Cog):
         query = "UPDATE buttonroles SET config = $1 WHERE guildid = $2 AND messageid = $3"
         await self.bot.db.execute(query, item["config"], message.guild.id, message.id)
 
+        for view in self.bot.persistent_views:
+            print(view, isinstance(view, RolesView))
+            if isinstance(view, RolesView) and view.message.id == message.id:
+                view.update_config(blacklists = item["config"]["blacklists"])
+                break
+
         await ctx.send(f'I have unblocked {role.mention} from using the button roles menu.', allowed_mentions = discord.AllowedMentions(roles = False))
     
     @buttonroles.command(name = "refresh", brief = "Refresh button menus")
     @commands.is_owner()
     @commands.cooldown(1, 300, commands.BucketType.guild)
-    async def buttonroles_unblock(self, ctx: commands.Context, message: discord.Message = None):
+    async def buttonroles_refresh(self, ctx: commands.Context, message: discord.Message = None):
         if message is not None:
             if message.guild != ctx.guild:
                 return await ctx.send_help(ctx.command)

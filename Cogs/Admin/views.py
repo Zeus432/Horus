@@ -50,3 +50,19 @@ class RolesView(discord.ui.View):
         if not [role.id for role in interaction.user.roles if role.id in self.blacklists]:
             return True
         await interaction.response.defer()
+    
+    async def stop_button(self) -> None:
+        await self.message.edit(view = None)
+        self.stop()
+    
+    def update_config(self, blacklists: list = None, role_emoji: dict = None, use_role_name: bool = None):
+        if blacklists is not None:
+            self.blacklists = blacklists
+        
+        if role_emoji is not None:
+            self.role_emoji = role_emoji
+        
+        if use_role_name is not None:
+            self.use_role_name = use_role_name
+        
+        print(self.blacklists)
