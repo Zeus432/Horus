@@ -18,7 +18,7 @@ class NewHelp(commands.HelpCommand):
 
         def cog_emojis(bot, cog):
             get_em = bot.get_em
-            dct = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Image Api': '\U0001f5bc\U0000fe0f', 'Moderation' : get_em('mod'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692', 'Main Menu': get_em('core')}
+            dct = {'Admin': get_em('owner'), 'BotStuff' : '\U0001f6e0', 'ButtonRoles': '<a:nuts:936307415354339399> ', 'Fun': get_em('games'), 'Dev': get_em('dev'), 'Image Api': '\U0001f5bc\U0000fe0f', 'Moderation' : get_em('mod'), 'Sniper' : get_em('lurk'), 'Utility': get_em('utils'), 'Blacklists': '\U00002692', 'Main Menu': get_em('core')}
             try:
                 return dct[cog]
             except:
@@ -119,18 +119,21 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
         try: await group.can_run(self.context)
         except: return # Return if user can't run this group commands
 
-        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help" if group.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n{group.help or 'No documentation'}\n\u200b")
+        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help" if group.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n>>> {group.help or 'No documentation'}\n\u200b")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in group.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
         
         if group._buckets._cooldown:
-            embed.add_field(name = "Cooldown", value = f"Can be used {group._buckets._cooldown.rate} time{'s' if group._buckets._cooldown.rate != 1 else ''} every {round(group._buckets._cooldown.per)} seconds, per {group._buckets._type.name}")
+            cd = group._buckets._cooldown
+            cd_type = group._buckets._type
+            embed.add_field(name = "Cooldown", value = f"Can be used {cd.rate} time{'s' if cd.rate != 1 else ''} every {round(cd.per)} seconds {'by' if cd_type.name == 'user' else 'in'} a {cd_type.name}", inline = False)
         
         if group._max_concurrency:
-            embed.add_field(name = "Concurrency", value = f"Can be used {group._max_concurrency.number} time{'s' if group._max_concurrency.number != 1 else ''} consecutively by a {round(group._max_concurrency.per.name)}")
-        
+            con = group._max_concurrency
+            embed.add_field(name = "Concurrency", value = f"Can be used {con.number} time{'s' if con.number != 1 else ''} consecutively {'by' if con.per.name == 'user' else 'in'} a {con.per.name}", inline = False)
+ 
         filtered = await self.filter_commands(group.commands, sort = True)
         for command in filtered:
             embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or 'No documentation'), inline = False)
@@ -141,17 +144,20 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
         except: return # Return if user can't run this command
-        embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help" if command.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n{command.help or 'No documentation'}")
+        embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help" if command.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n>>> {command.help or 'No documentation'}")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in command.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
         
         if command._buckets._cooldown:
-            embed.add_field(name = "Cooldown", value = f"Can be used {command._buckets._cooldown.rate} time{'s' if command._buckets._cooldown.rate != 1 else ''} every {round(command._buckets._cooldown.per)} seconds, per {command._buckets._type.name}")
+            cd = command._buckets._cooldown
+            cd_type = command._buckets._type
+            embed.add_field(name = "Cooldown", value = f"Can be used {cd.rate} time{'s' if cd.rate != 1 else ''} every {round(cd.per)} seconds {'by' if cd_type.name == 'user' else 'in'} a {cd_type.name}", inline = False)
         
         if command._max_concurrency:
-            embed.add_field(name = "Concurrency", value = f"Can be used {command._max_concurrency.number} time{'s' if command._max_concurrency.number != 1 else ''} consecutively by a {round(command._max_concurrency.per.name)}")
+            con = command._max_concurrency
+            embed.add_field(name = "Concurrency", value = f"Can be used {con.number} time{'s' if con.number != 1 else ''} consecutively {'by' if con.per.name == 'user' else 'in'} a {con.per.name}", inline = False)
         
         view = DeleteButton(user = self.context.author)
         await self.context.reply(embed = embed, view = view, mention_author = False)
