@@ -14,6 +14,12 @@ class ButtonRoles(commands.Cog):
         self.bot = bot
         self._using_br = []
         self.bot.loop.create_task(self.initialize_button_roles())
+
+        for command in self.walk_commands():
+            command.cooldown_after_parsing = True
+            
+            if not command._buckets._cooldown:
+                command._buckets = commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.user)
     
     async def cog_before_invoke(self, ctx: commands.Context):
         if ctx.guild.id in self._using_br:
