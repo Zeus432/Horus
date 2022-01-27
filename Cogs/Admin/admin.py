@@ -387,7 +387,6 @@ class Admin(commands.Cog):
         await ctx.send(embed = embed)
     
     @buttonroles.command(name = "block", brief = "Block a role from Button role")
-    @commands.is_owner()
     async def buttonroles_block(self, ctx: commands.Context, role: discord.Role, message: discord.Message):
         """ 
         Block a certain role from using a Button Role Menu
@@ -418,11 +417,10 @@ class Admin(commands.Cog):
             if isinstance(view, RolesView) and view.message.id == message.id:
                 view.update_config(blacklists = item["config"]["blacklists"])
                 break
-        
+
         await ctx.send(f'I have blocked {role.mention} from using this button roles.', allowed_mentions = discord.AllowedMentions(roles = False))
     
     @buttonroles.command(name = "unblock", brief = "Unblock a blacklisted role")
-    @commands.is_owner()
     async def buttonroles_unblock(self, ctx: commands.Context, role: discord.Role, message: discord.Message):
         """ 
         Unblock a role previously blacklisted from using a Button Role Menu
