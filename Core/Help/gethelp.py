@@ -125,6 +125,12 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
         if aliases := '`, `'.join(c for c in group.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
         
+        if group._buckets._cooldown:
+            embed.add_field(name = "Cooldown", value = f"Can be used {group._buckets._cooldown.rate} time{'s' if group._buckets._cooldown.rate != 1 else ''} every {round(group._buckets._cooldown.per)} seconds, per {group._buckets._type.name}")
+        
+        if group._max_concurrency:
+            embed.add_field(name = "Concurrency", value = f"Can be used {group._max_concurrency.number} time{'s' if group._max_concurrency.number != 1 else ''} consecutively by a {round(group._max_concurrency.per.name)}")
+        
         filtered = await self.filter_commands(group.commands, sort = True)
         for command in filtered:
             embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or 'No documentation'), inline = False)
@@ -140,6 +146,12 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
 
         if aliases := '`, `'.join(c for c in command.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
+        
+        if command._buckets._cooldown:
+            embed.add_field(name = "Cooldown", value = f"Can be used {command._buckets._cooldown.rate} time{'s' if command._buckets._cooldown.rate != 1 else ''} every {round(command._buckets._cooldown.per)} seconds, per {command._buckets._type.name}")
+        
+        if command._max_concurrency:
+            embed.add_field(name = "Concurrency", value = f"Can be used {command._max_concurrency.number} time{'s' if command._max_concurrency.number != 1 else ''} consecutively by a {round(command._max_concurrency.per.name)}")
         
         view = DeleteButton(user = self.context.author)
         await self.context.reply(embed = embed, view = view, mention_author = False)
