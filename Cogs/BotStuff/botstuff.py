@@ -2,6 +2,7 @@ import disnake as discord
 from disnake.ext import commands
 
 import time
+import sys
 
 from Core.Utils.useful import _size
 from .useful import total_stuff, pie_gen
@@ -17,7 +18,7 @@ class BotStuff(commands.Cog):
     async def info(self, ctx: commands.Context):
         embed = discord.Embed(title = "About Horus",  description = f"Horus is a public bot written in about `{total_stuff('.')[1]}` lines. It was initially made for testing but now includes a lot more now. It has Simple Utility and Moderation Commands. Run `{ctx.clean_prefix}help` to get started.\nFor bot support join the support server by clicking the button below\n\u200b", colour = self.bot.colour)
         embed.add_field(name = "Developed By", value = f"**[{self.bot.zeus}](https://www.youtube.com/watch?v=Uj1ykZWtPYI)**")
-        embed.add_field(name = "Written in", value = f"**Language:** **[`python 3.10.0`](https://www.python.org/)**\n**Library:** **[`disnake.py 2.3.0`](https://github.com/DisnakeDev/disnake)**")
+        embed.add_field(name = "Written in", value = f"**Language:** **[`python {'.'.join(list(sys.version_info)[:3])}`](https://www.python.org/)**\n**Library:** **[`disnake.py {discord.__version__}`](https://github.com/DisnakeDev/disnake)**")
         with open('Core/Help/botnews.md') as fl:
             embed.add_field(name = f"{self.bot.get_em('news')} Horus Updates", value = f"{fl.read().replace('[prefix]', f'{ctx.clean_prefix}')}\n\u200b", inline = False)
         embed.add_field(name = "Running On", value = f"{self.bot.get_em('horus')} `{self.bot._config['version']}`")
