@@ -7,6 +7,7 @@ import time
 
 from .views import RolesView
 from .woodlands import PersistentView
+from .converters import EmojiConverter
 
 class ButtonRoles(commands.Cog):
     """ Button Roles """
@@ -92,6 +93,18 @@ class ButtonRoles(commands.Cog):
         if message is None:
             def check(m: discord.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+            
+            await ctx.reply("Enter the channel to send the message in!")
+
+            try:
+                msg = await self.bot.wait_for(event = 'message', check = check, timeout = 60)
+            except asyncio.TimeoutError:
+                return await ctx.send(f"You took too long to respond!")
+            
+            try:
+                channel = await commands.TextChannelConverter().convert(ctx, msg.content)
+            except commands.ChannelNotFound:
+                return await ctx.send(f"I could not find this channel!")
 
             await ctx.reply("Enter the message to send along with the button roles!")
 
@@ -104,18 +117,7 @@ class ButtonRoles(commands.Cog):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
             
             button_message = msg.content
-        
-            await ctx.reply("Enter the channel to send the message in!")
 
-            try:
-                msg = await self.bot.wait_for(event = 'message', check = check, timeout = 60)
-            except asyncio.TimeoutError:
-                return await ctx.send(f"You took too long to respond!")
-            
-            try:
-                channel = await commands.TextChannelConverter().convert(ctx, msg.content)
-            except commands.ChannelNotFound:
-                return await ctx.send(f"I could not find this channel!")
         
         else:
             if message.guild != ctx.guild:
@@ -153,8 +155,8 @@ class ButtonRoles(commands.Cog):
             emoji, role = msg.content.split(';')
 
             try:
-                emoji = await commands.EmojiConverter().convert(ctx, emoji)
-                role = await commands.RoleConverter().convert(ctx, role)
+                emoji = await EmojiConverter().convert(ctx, emoji.strip())
+                role = await commands.RoleConverter().convert(ctx, role.strip())
             except commands.EmojiNotFound or commands.RoleNotFound:
                 await ctx.send(f"Incorrect Input! Please enter the emoji and role pair in `emoji;role` format.")
           

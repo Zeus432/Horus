@@ -47,8 +47,10 @@ class RolesView(discord.ui.View):
             self.add_item(RolesButton(emoji = emoji, role = role, use_role_name = use_role_name))
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        if not [role.id for role in interaction.user.roles if role.id in self.blacklists] and not self.whitelists and [role.id for role in interaction.user.roles if role.id in self.whitelists]:
+        if not [role.id for role in interaction.user.roles if role.id in self.blacklists] and (
+            not self.whitelists or [role.id for role in interaction.user.roles if role.id in self.whitelists]):
             return True
+
         await interaction.response.defer()
     
     async def stop_button(self) -> None:
