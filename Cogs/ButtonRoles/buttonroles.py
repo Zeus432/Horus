@@ -239,8 +239,63 @@ class ButtonRoles(commands.Cog):
         if not prev:
             return await ctx.send('This server does not have any button roles!')
         
-        embed = discord.Embed(description = "\n".join([f"**{index+1})** [{view.message.id}]({view.message.jump_url})" for index, view in enumerate(prev)]))
+        embed = discord.Embed(title = "Server Button Roles List", description = "\n".join([f"**{index+1})** [{view.message.id}]({view.message.jump_url})" for index, view in enumerate(prev)]), colour = self.bot.colour)
+        embed.set_footer(text = ctx.guild.name, icon_url = ctx.guild._icon or discord.Embed.Empty)
         await ctx.send(embed = embed)
+    
+    @commands.cooldown(5, 300, commands.BucketType.guild)
+    @commands.max_concurrency(1, commands.BucketType.guild)
+    @buttonroles.command(name = "refresh", brief = "Refresh button menus")
+    async def buttonroles_refresh(self, ctx: commands.Context, message: discord.Message = None):
+        """
+        Can be used to refresh your server's button roles incase 
+        any of them are out of sync or erroring.
+
+        This command can only be used once per guild 
+        and 5 times every 5 minutes so don't use this
+        unless necessary
+        """
+
+        if message is not None:
+            if message.guild != ctx.guild:
+                return await ctx.send_help(ctx.command)
+
+            if message.author.id != self.bot.user.id:
+                return await ctx.send(f'This message does not contain a buttons menu!')
+            
+            query = "SELECT * FROM buttonroles WHERE guildid = $1 AND messageid = $2"
+            allitems = await self.bot.db.fetch(query, ctx.guild.id, message.id)
+
+            if allitems is []:
+                return await ctx.send(f'I could not find a buttonroles menu with message ID: `{message.id}`')
+        
+        else:
+            query = "SELECT * FROM buttonroles WHERE guildid = $1"
+            allitems = await self.bot.db.fetch(query, ctx.guild.id)
+
+            if allitems is []:
+                return await ctx.send('This server does not have any button roles!')
+
+        start = time.perf_counter()
+        notif = await ctx.send(f'Refreshing {self.bot.get_em("loading")}')
+
+        for item in allitems:
+            for view in self.bot.persistent_views:
+                if isinstance(view, RolesView) and view.message.id == item["messageid"]:
+
+                    newview = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], **item["config"])
+                    newview.message = view.message
+
+                    try:
+                        await view.refresh_view(view = newview) # remove view from persistent views
+            
+                    except:
+                        query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
+                        await self.bot.db.execute(query, item["guildid"], item["messageid"])
+        
+        end = time.perf_counter()
+
+        await notif.edit(content = f'Finished refreshing **{len(allitems)}** view{"s" if len(allitems) != 1 else ""} in `{round(end - start, 2)}s`')
 
     @buttonroles.command(name = "block", brief = "Block a role from Button role")
     async def buttonroles_block(self, ctx: commands.Context, role: discord.Role, message: discord.Message):
@@ -310,57 +365,3 @@ class ButtonRoles(commands.Cog):
                 break
 
         await ctx.send(f'I have unblocked {role.mention} from using the button roles menu.', allowed_mentions = discord.AllowedMentions(roles = False))
-    
-    @commands.cooldown(5, 300, commands.BucketType.guild)
-    @commands.max_concurrency(1, commands.BucketType.guild)
-    @buttonroles.command(name = "refresh", brief = "Refresh button menus")
-    async def buttonroles_refresh(self, ctx: commands.Context, message: discord.Message = None):
-        """
-        Can be used to refresh your server's button roles incase 
-        any of them are out of sync or erroring.
-
-        This command can only be used once per guild 
-        and 5 times every 5 minutes so don't use this
-        unless necessary
-        """
-
-        if message is not None:
-            if message.guild != ctx.guild:
-                return await ctx.send_help(ctx.command)
-
-            if message.author.id != self.bot.user.id:
-                return await ctx.send(f'This message does not contain a buttons menu!')
-            
-            query = "SELECT * FROM buttonroles WHERE guildid = $1 AND messageid = $2"
-            allitems = await self.bot.db.fetch(query, ctx.guild.id, message.id)
-
-            if allitems is []:
-                return await ctx.send(f'I could not find a buttonroles menu with message ID: `{message.id}`')
-        
-        else:
-            query = "SELECT * FROM buttonroles WHERE guildid = $1"
-            allitems = await self.bot.db.fetch(query, ctx.guild.id)
-
-            if allitems is []:
-                return await ctx.send('This server does not have any button roles!')
-
-        start = time.perf_counter()
-        notif = await ctx.send(f'Refreshing {self.bot.get_em("loading")}')
-
-        for item in allitems:
-            for view in self.bot.persistent_views:
-                if isinstance(view, RolesView) and view.message.id == item["messageid"]:
-
-                    newview = RolesView(bot = self.bot, guild = item["guildid"], role_emoji = item["role_emoji"], **item["config"])
-                    newview.message = view.message
-
-                    try:
-                        await view.refresh_view(view = newview) # remove view from persistent views
-            
-                    except:
-                        query = "DELETE FROM buttonroles WHERE guildid = $1 AND messageid = $2"
-                        await self.bot.db.execute(query, item["guildid"], item["messageid"])
-        
-        end = time.perf_counter()
-
-        await notif.edit(content = f'Finished refreshing **{len(allitems)}** view{"s" if len(allitems) != 1 else ""} in `{round(end - start, 2)}`s')

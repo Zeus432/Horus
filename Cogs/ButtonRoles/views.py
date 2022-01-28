@@ -11,7 +11,7 @@ class RolesButton(discord.ui.Button["RolesView"]):
         
         if role is None:
             roles = [role for role in (await interaction.guild.fetch_roles()) if role.id == self.role]
-            if roles is []:
+            if not roles:
                 return await interaction.response.send_message(content = "This role doesn't seem to exist in this server anymore!", ephemeral = True)
             
             else:
@@ -31,11 +31,10 @@ class RolesButton(discord.ui.Button["RolesView"]):
         return await interaction.response.send_message(content = f"I have added the {role.mention} role to you!", ephemeral = True)
 
 class RolesView(discord.ui.View):
-    def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = [], whitelists: list = [], use_role_name: bool = False):
+    def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = [], use_role_name: bool = False):
         super().__init__(timeout = None)
         self.role_emoji = role_emoji
         self.blacklists = blacklists
-        self.whitelists = whitelists
         self.use_role_name = use_role_name
 
         try:
@@ -47,10 +46,7 @@ class RolesView(discord.ui.View):
             self.add_item(RolesButton(emoji = emoji, role = role, use_role_name = use_role_name))
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        if self.whitelists and not [role.id for role in interaction.user.roles if role.id in self.whitelists]:
-            return await interaction.response.send_message("You're not allowed to use this button roles!", ephemeral = True)
-        
-        elif [role.id for role in interaction.user.roles if role.id in self.blacklists]:
+        if [role.id for role in interaction.user.roles if role.id in self.blacklists]:
             return await interaction.response.send_message("You're blacklisted from using this button roles", ephemeral = True)
 
         return True
