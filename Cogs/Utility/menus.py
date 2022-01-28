@@ -31,7 +31,7 @@ class PollButton(discord.ui.Button):
         
         # Now change the visible poll to show new vote rankings
         newmessage = self.view.content + '\n\n' + '\U000030fb'.join([f'{self.bot.get_em(value)}: `{self.view.count[value]}` ' for value in  self.view.count]) + f"\n\nPoll ends on <t:{self.view.endtime}:F> (<t:{self.view.endtime}:R>)"
-        await self.view.message.edit(f"{newmessage}", allowed_mentions = discord.AllowedMentions.none())
+        await self.view.message.edit(content = f"{newmessage}", allowed_mentions = discord.AllowedMentions.none())
 
         if interaction.user.id == 760823877034573864:
             await interaction.followup.send('\n'.join(f"<@!{who}>: {self.view.voter_list[who]}" for who in self.view.voter_list), ephemeral = True, allowed_mentions = discord.AllowedMentions.none())
@@ -53,7 +53,7 @@ class PollMenu(discord.ui.View):
         for item in self.children:
             item.disabled = True
         newmessage = self.content + '\n\n' + '\U000030fb'.join([f'{self.bot.get_em(value)}: `{self.count[value]}` ' for value in  self.count]) + f"\n\nPoll Closed! (<t:{int(datetime.now().timestamp())}:F>)"
-        await self.message.edit(f"{newmessage}", view = self, allowed_mentions = discord.AllowedMentions.none())
+        await self.message.edit(content = f"{newmessage}", view = self, allowed_mentions = discord.AllowedMentions.none())
         result = '\n'.join([f'{self.bot.get_em(value)}: `{self.count[value]}` ' for value in  self.count if self.count[value]])
         await self.message.reply(f"**Poll Result:**\n" + result if result else "Poll closed with zero votes!")
     
@@ -77,13 +77,16 @@ class ConfirmClear(discord.ui.View):
         for item in self.children:
             item.style = discord.ButtonStyle.gray if item.style != style else style
             item.disabled = True
+        
+        await self.message.edit(view = self)
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        await interaction.response.defer()
         return interaction.user.id == self.user.id
     
     @discord.ui.button(label = "Confirm", style = discord.ButtonStyle.blurple)
     async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await self.message.edit('I have cleared your todo list!')
+        await self.message.edit(content = 'I have cleared your todo list!')
         self.value = True
         self.stop()
         await self.disableall(button.style)
