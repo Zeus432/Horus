@@ -2,7 +2,7 @@ import disnake as discord
 from disnake.ext import commands
 
 class RolesButton(discord.ui.Button["RolesView"]):
-    def __init__(self, emoji: str, role: int, use_role_name: bool = False):
+    def __init__(self, emoji: str, role: list, use_role_name: bool = False):
         self.role = role[1]
         super().__init__(emoji = f"{emoji}", label = f"{role[0]}" if use_role_name else None, style = discord.ButtonStyle.gray, custom_id = f'per:{role}')
   
@@ -47,7 +47,7 @@ class RolesView(discord.ui.View):
     
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if [role.id for role in interaction.user.roles if role.id in self.blacklists]:
-            return await interaction.response.send_message("You're blacklisted from using this button roles", ephemeral = True)
+            return await interaction.response.send_message("You're not allowed to use this button roles", ephemeral = True)
 
         return True
     

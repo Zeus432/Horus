@@ -5,6 +5,7 @@ from disnake.ext import commands
 import asyncio
 import time
 
+from Core.Utils.pagination import Pagination
 from .views import RolesView
 from .woodlands import PersistentView
 from .converters import EmojiConverter
@@ -234,19 +235,22 @@ class ButtonRoles(commands.Cog):
     @buttonroles.command(name = "list", brief = "List Server Button Roles")
     async def buttonroles_list(self, ctx: commands.Context):
         """ Get a list of all current server button roles """
-        prev = [view for view in self.bot.persistent_views if isinstance(view, RolesView)]
+        query = "SELECT messageid, channelid FROM buttonroles WHERE guildid = $1 ORDER BY messageid ASC"
+        items = await self.bot.db.fetch(query, ctx.guild.id)
+
+        prev = [item for item in items if item]
 
         if not prev:
             return await ctx.send('This server does not have any button roles!')
         
-        embed = discord.Embed(title = "Server Button Roles List", description = "\n".join([f"**{index+1})** [{view.message.id}]({view.message.jump_url})" for index, view in enumerate(prev)]), colour = self.bot.colour)
-        embed.set_footer(text = ctx.guild.name, icon_url = ctx.guild._icon or discord.Embed.Empty)
+        embed = discord.Embed(title = "Server Button Roles List", description = "\n".join([f"**{index+1})** [{item['messageid']}](https://discord.com/channels/{ctx.guild.id}/{item['channelid']}/{item['messageid']})" for index, item in enumerate(prev)]), colour = self.bot.colour)
+        embed.set_footer(text = ctx.guild.name, icon_url = f"{ctx.guild.icon}" or discord.Embed.Empty)
         await ctx.send(embed = embed)
     
     @commands.cooldown(5, 300, commands.BucketType.guild)
     @commands.max_concurrency(1, commands.BucketType.guild)
-    @buttonroles.command(name = "refresh", brief = "Refresh button menus")
-    async def buttonroles_refresh(self, ctx: commands.Context, message: discord.Message = None):
+    @buttonroles.command(name = "sync", brief = "Refresh button menus")
+    async def buttonroles_sync(self, ctx: commands.Context, message: discord.Message = None):
         """
         Can be used to refresh your server's button roles incase 
         any of them are out of sync or erroring.
@@ -297,7 +301,7 @@ class ButtonRoles(commands.Cog):
 
         await notif.edit(content = f'Finished refreshing **{len(allitems)}** view{"s" if len(allitems) != 1 else ""} in `{round(end - start, 2)}s`')
 
-    @buttonroles.command(name = "block", brief = "Block a role from Button role")
+    @buttonroles.command(name = "block", brief = "Block a role from Button role", invoke_without_command = True)
     async def buttonroles_block(self, ctx: commands.Context, role: discord.Role, message: discord.Message):
         """ 
         Block a certain role from using a Button Role Menu
@@ -365,3 +369,40 @@ class ButtonRoles(commands.Cog):
                 break
 
         await ctx.send(f'I have unblocked {role.mention} from using the button roles menu.', allowed_mentions = discord.AllowedMentions(roles = False))
+    
+    @buttonroles.command(name = "config", brief = "View Button Roles Config")
+    async def brblock_list(self, ctx: commands.Context, message: discord.Message):
+        """ Get the config of specified button roles. """
+        if message.guild.id != ctx.guild.id:
+            return await ctx.send_help(ctx.command)
+
+        if message.author.id != self.bot.user.id:
+            return await ctx.send(f'I could not find a buttonroles menu with message ID: `{message.id}`')
+
+        query = "SELECT messageid, config->'blacklists' as blacklists FROM buttonroles WHERE guildid = $1 AND messageid = $2"
+        item = await self.bot.db.fetchrow(query, message.guild.id, message.id)
+
+        if not item:
+            return await ctx.send(content = f'I could not find a buttonroles menu with message ID: `{message.id}`')
+
+        if not item['blacklists']:
+            return await ctx.send('This button roles doesn\'t have any blacklisted roles!')
+        
+        blroles = item['blacklists']
+        total = (len(blroles) // 20) + 1
+        embeds = []
+        page = 0
+
+        while blroles:
+            embed = discord.Embed(description = "\n".join([f'**{(page*20) + index + 1})** <@&{role}> (`{role}`)' for index, role in enumerate(blroles[:20])]), colour = self.bot.colour)
+            embed.set_author(name = f"Blacklisted Roles", icon_url = f"{ctx.guild.icon}", url = "")
+            embed.set_footer(text = f"Page {page + 1}/{total}")
+
+            page += 1
+            embeds.append(embed)
+            blroles = blroles[20:]
+        
+        view = Pagination(embeds =  embeds, user = ctx.author, bot = self.bot)
+
+        view.message = await ctx.reply(embed = embeds[0], view = view, mention_author = False)
+        await view.wait()
