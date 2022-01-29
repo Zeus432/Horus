@@ -15,7 +15,7 @@ async def send_error(bot: commands.Bot, ctx: commands.Context | discord.MessageI
         await ctx.reply(embed = embed, mention_author = False)
 
     # Log in Error Logs
-    traceback_error = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+    traceback_error = traceback.format_exception(type(error), error, error.__traceback__)
     logger.opt(exception = error).error(f"Ignoring exception in command {ctx.command}\nCommand Used - {ctx.message.content}\n")
 
     # Now Log in Error Channel
@@ -32,16 +32,18 @@ async def send_error(bot: commands.Bot, ctx: commands.Context | discord.MessageI
 
     # Split Error if it's longer than 1900k Charecter to fit discord limits
     split_error, final_error = "", []
-    for line in traceback_error.split('\n'):
+    for line in traceback_error:
         if len(split_error + line) < 1900:
             split_error += f"\n{line}"
 
         else:
             final_error.append(split_error)
             split_error = ""
+
     final_error.append(split_error)
 
     error_channel = bot.get_channel(bot._config["errorchannel"])
     await error_channel.send(embed = embed)
+
     for e in final_error:
         await error_channel.send(f"```py\n{e}```")

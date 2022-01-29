@@ -15,7 +15,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
         self.logger = logger
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error):
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         """The event triggered when an error is raised while invoking a command."""
         if hasattr(ctx.command, 'on_error'):
             return

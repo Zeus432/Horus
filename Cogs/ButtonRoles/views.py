@@ -1,6 +1,8 @@
 import disnake as discord
 from disnake.ext import commands
 
+import traceback
+
 class RolesButton(discord.ui.Button["RolesView"]):
     def __init__(self, emoji: str, role: list, use_role_name: bool = False):
         self.role = role[1]
@@ -33,6 +35,7 @@ class RolesButton(discord.ui.Button["RolesView"]):
 class RolesView(discord.ui.View):
     def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = [], use_role_name: bool = False):
         super().__init__(timeout = None)
+        self.bot = bot
         self.role_emoji = role_emoji
         self.blacklists = blacklists
         self.use_role_name = use_role_name
@@ -50,6 +53,26 @@ class RolesView(discord.ui.View):
             return await interaction.response.send_message("You're not allowed to use this button roles", ephemeral = True)
 
         return True
+    
+    async def on_error(self, error: Exception, button: discord.ui.Button, interaction: discord.Interaction):
+        traceback_error = traceback.format_exception(type(error), error, error.__traceback__)
+
+        split_error, final_error = "", []
+        
+        for line in traceback_error:
+            if len(split_error + line) < 1900:
+                split_error += f"\n{line}"
+
+            else:
+                final_error.append(split_error)
+                split_error = ""
+
+        final_error.append(split_error)
+
+        await self.bot._notif_webhook.send(f'{self.bot.zeus.mention} Button roles view at [{self.message.id}]({self.message.jump_url}) has errored!\n```py\n{final_error[0]}```')
+
+        for e in final_error[1:]:
+            await self.bot._notif_webhook.send(f'```py\n{e}```')
     
     async def stop_button(self) -> None:
         await self.message.edit(view = None)
