@@ -1,12 +1,11 @@
 import disnake as discord
-from matplotlib.pyplot import title
-from Core.Utils.pagination import Pagination
 from bot import Horus
 from disnake.ext import commands
 
 from datetime import datetime
 
-from Core.Utils.useful import verif
+from Core.Utils.useful import _bitsize, _size
+from Core.Utils.pagination import Pagination
 from .useful import UserBadges, PollFlags
 from .menus import PollMenu, ConfirmClear
 
@@ -105,16 +104,36 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def serverinfo(self, ctx: commands.Context):
         """ Get some useful stats about this server """
-        embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.guild}", description = f"Server was created on <t:{round(ctx.guild.created_at.timestamp())}:D>\nServer ID: `{ctx.guild.id}`\nOwner: {ctx.guild.owner.mention} (`{ctx.guild.owner.id}`)\nVerif Level: {verif[str(ctx.guild.verification_level)]}")
+        embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.guild}", description = f"Owner: {ctx.guild.owner.mention} (`{ctx.guild.owner.id}`)\nServer ID: `{ctx.guild.id}`\nServer Roles: `{len(ctx.guild.roles)}`\nVerif Level: `{str(ctx.guild.verification_level).capitalize()}`")
         embed.set_thumbnail(url = f"{ctx.guild.icon}")
+        embed.set_footer(text = "Created at")
+        embed.timestamp = ctx.guild.created_at
 
-        text_channels = f"{self.bot.get_em('text')} **{len(ctx.guild.text_channels)}** Text Channel{'s' if len(ctx.guild.text_channels) != 1 else ''}\n" if len(ctx.guild.text_channels) > 0 else ""
-        voice_channels = f"{self.bot.get_em('voice')} **{len(ctx.guild.voice_channels)}** Voice Channels{'s' if len(ctx.guild.voice_channels) != 1 else ''}\n" if len(ctx.guild.voice_channels) > 0 else ""
-        stage_channels = f"{self.bot.get_em('stage')} **{len(ctx.guild.stage_channels)}** Stage Channels{'s' if len(ctx.guild.stage_channels) != 1 else ''}" if len(ctx.guild.stage_channels) > 0 else ""
+        channel_info = {
+            (f"{self.bot.get_em('text')}", "Text Channel")   : [len(ctx.guild.text_channels), len([chan for chan in ctx.guild.text_channels if chan.overwrites_for(ctx.guild.default_role).view_channel == False])],
+            (f"{self.bot.get_em('voice')}", "Voice Channel")  : [len(ctx.guild.voice_channels), len([chan for chan in ctx.guild.voice_channels if chan.overwrites_for(ctx.guild.default_role).view_channel == False])],
+            (f"{self.bot.get_em('stage')}", "Stage Channel")  : [len(ctx.guild.stage_channels), 0],
+            (f"{self.bot.get_em('thread')}", "Thread") : [len(ctx.guild.threads), 0]
+        }
+        
+        channel_info = "\n".join([f"{channel[0]} **{info[0]}** {channel[1]}{'s' if info[0] != 1 else ''}{f' ({info[1]} locked)' if info[1] > 0 else ''}" for channel, info in channel_info.items() if info[0] > 0])
 
-        embed.add_field(name = "Channels", value = f"{text_channels}{voice_channels}{stage_channels}", inline = False)
-        embed.add_field(name = "Misc", value = f"**{len([member for member in ctx.guild.members if member.bot])}** Bots\n**{len([member for member in ctx.guild.members if not member.bot])}** Humans\n**{len(ctx.guild.roles)}** Roles")
-        embed.add_field(name = "Prefixes", value = "`" + "`\n`".join([f'@{self.bot.user.name}', *((prefix if prefix else '\u200b') for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
+        embed.add_field(name = "Channels", value = f"{channel_info}", inline = False)
+
+        regular = len([emoji for emoji in ctx.guild.emojis if not emoji.animated and emoji.available])
+        animated = len([emoji for emoji in ctx.guild.emojis if emoji.animated and emoji.available])
+        embed.add_field(name = "Emojis", value = f"Regular: `{regular}/{ctx.guild.emoji_limit}`\nAnimated: `{animated}/{ctx.guild.emoji_limit}`\nTotal: `{regular+animated}/{ctx.guild.emoji_limit*2}`")
+
+
+        members = len(ctx.guild.members)
+        humans = len([member for member in ctx.guild.members if not member.bot])
+        bots = len([member for member in ctx.guild.members if member.bot])
+
+
+        embed.add_field(name = "Users", value = f"**{members}** Member{'s' if members != 1 else ''}\n**{humans}** Human{'s' if humans != 1 else ''}\n**{bots}** Bot{'s' if bots != 1 else ''}")
+
+        if ctx.guild.premium_tier:
+            embed.add_field(name = "**Server Boost**", value = f"Tier **{str(ctx.guild.premium_tier)}** with **{ctx.guild.premium_subscription_count}** boosters\nBooster Role: {ctx.guild.premium_subscriber_role.mention}\nFile size limit: `{_size(ctx.guild.filesize_limit)}`\nVCs max bitrate: `{_bitsize(ctx.guild.bitrate_limit)}`\nServer Stickers: `{len(ctx.guild.stickers)}/{ctx.guild.sticker_limit}`", inline = False)
 
         await ctx.send(embed = embed)
     
@@ -194,7 +213,7 @@ class Utility(commands.Cog):
             except commands.CommandInvokeError:
                 return await ctx.reply("I need `Manage Webhooks` perms for you to use the `--webhook` flag")
     
-            webhook = [w for w in webhook if w.user == self.bot.get_user(858335663571992618)]
+            webhook = [w for w in webhook if w.user.id == self.bot.user.id]
             try:
                 webhook = webhook[0]
             except:
