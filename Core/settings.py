@@ -12,7 +12,6 @@ INITIAL_EXTENSIONS = [
     'Cogs.Dev',
     'Cogs.ImageApi',
     'Cogs.Moderation',
-    'Cogs.Sniper',
     'Cogs.Utility',
     'jishaku',
     'Core.Blacklists',
