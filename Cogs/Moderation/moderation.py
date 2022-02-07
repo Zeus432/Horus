@@ -3,19 +3,48 @@ from bot import Horus
 from disnake.ext import commands
 
 from datetime import datetime
+import datetime as dt
 import json
 from io import BytesIO
 
 from Core.Utils.useful import TimeConverter, display_time
 from .checks import CheckHierarchy1, CheckHierarchy2, RoleHierarchy, election_check
-from .views import ConfirmElection
+from .views import ConfirmElection, ElectionVote
 
 class Moderation(commands.Cog):
     """ Moderation Commands """ 
     def __init__(self, bot: Horus):
         self.bot = bot
         self.eview = None
+        self.bot.loop.create_task(self.initialize())
     
+    async def initialize(self):
+        await self.bot.wait_until_ready()
+
+        if self.bot._added_election is True:
+            return
+
+        query = "SELECT * FROM election WHERE disabled = $1"
+        item = await self.bot.db.fetchrow(query, False)
+
+        if not item:
+            return
+        
+        print(item)
+
+        channel = await self.bot.fetch_channel(item["channelid"])
+        message = await channel.fetch_message(item["messageid"])
+        view = ElectionVote(bot = self.bot, user = item["authorid"], candidates = item["candidates"], voters = item["voters"], endtime = item["endtime"])
+        view.message = message
+
+        self.bot.add_view(view, message_id = item["messageid"])
+
+        self.bot._added_election = True
+
+        await discord.utils.sleep_until(when = datetime.fromtimestamp(item["endtime"]))
+        await view.end_election()
+
+
     @commands.group(name = "role", invoke_without_command = True, brief = "Manage User roles")
     @commands.bot_has_guild_permissions(manage_roles = True)
     @commands.has_guild_permissions(manage_roles = True)
@@ -104,13 +133,16 @@ class Moderation(commands.Cog):
     @election.command(name = "start", brief = "Start Election", invoke_without_command = True)
     async def election_start(self, ctx: commands.Context, duration: TimeConverter, candidates: commands.Greedy[discord.Member]):
         if self.eview:
-            return await ctx.send(content = "There is already an election ongoing. Wait until it ends before starting one again!")
+            return await ctx.send(content = "There is an election ongoing currently. Wait until it ends before starting one again!")
 
         clean_can = []
         [clean_can.append(i) for i in candidates if i not in clean_can]
 
         if len(clean_can) <= 1:
-            return await ctx.send('You need to provide atleast 2 different candidates!')
+            return await ctx.send('Atleast 2 different candidates venum da gopal')
+        
+        if len(clean_can) > 10:
+            return await ctx.send('Adei maximum 10 candidates dhan')
         
         if duration > 604800:
             return await ctx.send('Duration of election can\'t be longer than one week!')
@@ -125,5 +157,17 @@ class Moderation(commands.Cog):
 
         if not view.value:
             return
-        
-        await ctx.send("Election config done!")
+
+        candidates = [user.id for user in clean_can]
+        voters = {f"{user.id}": [] for user in clean_can}
+        endtime = int(datetime.now().timestamp() + duration)
+
+        view = ElectionVote(bot = self.bot, user = ctx.author.id, candidates = candidates, voters = voters, endtime = endtime)
+        view.message = await ctx.send(content = "Yaaru nambu server oda adutha owner\n\n" + "\n\n".join([f'{self.bot.get_em(index + 1)} {user.mention}' for index, user in enumerate(clean_can)]) + f"\n\nEnd on <t:{int(datetime.now().timestamp() + duration)}>", view = view, allowed_mentions = discord.AllowedMentions.none())
+        view.original_content = view.message.content
+
+        query = "INSERT INTO election(messageid, channelid, authorid, candidates, voters, endtime) VALUES($1, $2, $3, $4, $5, $6) ON CONFLICT (messageid) DO  NOTHING"
+        await self.bot.db.execute(query, view.message.id, ctx.channel.id, ctx.author.id, candidates, voters, endtime)
+
+        await discord.utils.sleep_until(when = datetime.fromtimestamp(endtime))
+        await view.end_election()

@@ -30,6 +30,7 @@ class Horus(commands.Bot):
         self.colour = discord.Colour(0x9c9cff)
         self._noprefix = False
         self._added_views = False
+        self._added_election = False
         self._bypass_cooldowns = False
         self.owner_ids = OWNER_IDS
         self.prefix_cache = {}
