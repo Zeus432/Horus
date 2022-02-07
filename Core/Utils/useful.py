@@ -159,7 +159,7 @@ async def guildanalytics(bot: commands.Bot, guild: discord.Guild, type: int = 0,
 class TimeConverter(commands.Converter):
     async def convert(self, ctx: commands.Context, argument) -> datetime:
         time_regex = re.compile(r"(\d{1,5}(?:[.,]?\d{1,5})?)([smhd])")
-        time_dict = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+        time_dict = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
         matches = time_regex.findall(argument.lower())
         time = 0
@@ -192,7 +192,7 @@ def display_time(seconds: int, granularity: int = 4):
             seconds -= value * count
             if value == 1:
                 name = name.rstrip('s')
-            result.append("{} {}".format(value, name))
+            result.append(f"{int(value)} {name}")
 
     return ', '.join(result[:granularity])
 
