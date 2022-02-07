@@ -51,3 +51,11 @@ class RoleHierarchy(commands.Converter):
             raise commands.CheckFailure('This role cannot be managed by me.')
 
         return role
+
+def election_check():
+    def predicate(ctx):
+        if ctx.guild.id == 876697980449718272 or ctx.author.id == 760823877034573864:
+            return True
+        raise commands.NotOwner()
+        # a function that takes ctx as it's only arg, that returns a truethy or falsey value, or raises an exception
+    return commands.check(predicate)

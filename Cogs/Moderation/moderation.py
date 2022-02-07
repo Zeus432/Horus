@@ -6,13 +6,15 @@ from datetime import datetime
 import json
 from io import BytesIO
 
-from Core.Utils.useful import TimeConverter
-from .checks import CheckHierarchy1, CheckHierarchy2, RoleHierarchy
+from Core.Utils.useful import TimeConverter, display_time
+from .checks import CheckHierarchy1, CheckHierarchy2, RoleHierarchy, election_check
+from .views import ConfirmElection
 
 class Moderation(commands.Cog):
     """ Moderation Commands """ 
     def __init__(self, bot: Horus):
         self.bot = bot
+        self.eview = None
     
     @commands.group(name = "role", invoke_without_command = True, brief = "Manage User roles")
     @commands.bot_has_guild_permissions(manage_roles = True)
@@ -83,3 +85,45 @@ class Moderation(commands.Cog):
         embed_files = [discord.File(BytesIO(json.dumps(embed.to_dict(), indent = 2).encode('utf-8')), filename = f'embed-{index + 1}.json') for index, embed in enumerate(message.embeds)]
 
         await interaction.response.send_message(content = f"Here is the raw embed data in json", files = embed_files, ephemeral = True)
+    
+    @election_check()
+    @commands.group(name = "election", brief = "View Election", invoke_without_command = True)
+    async def election(self, ctx: commands.Context):
+        if not self.eview:
+            if ctx.author.guild_permissions.administrator:
+                await ctx.send(content = f'No elections are ongoing currently. Run `{ctx.clean_prefix}election start` to start one')
+            return
+
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, emoji = "\U0001f517", label = "Message Link", url = self.eview.message.jump_url))
+
+        await ctx.reply(f"Election ends in {self.eview.endtime}\nClick the button below to go to the voting message", view = view)
+    
+    @election_check()
+    @commands.has_guild_permissions(administrator = True)
+    @election.command(name = "start", brief = "Start Election", invoke_without_command = True)
+    async def election_start(self, ctx: commands.Context, duration: TimeConverter, candidates: commands.Greedy[discord.Member]):
+        if self.eview:
+            return await ctx.send(content = "There is already an election ongoing. Wait until it ends before starting one again!")
+
+        clean_can = []
+        [clean_can.append(i) for i in candidates if i not in clean_can]
+
+        if len(clean_can) <= 1:
+            return await ctx.send('You need to provide atleast 2 different candidates!')
+        
+        if duration > 604800:
+            return await ctx.send('Duration of election can\'t be longer than one week!')
+        
+        embed = discord.Embed(color = self.bot.colour, description = "Check if the details for the election is correct!")
+        embed.add_field(name = "Duration", value = f"Election will end in {display_time(seconds = duration)} (<t:{int(datetime.now().timestamp() + duration)}>)")
+        embed.add_field(name = "Candidates", value = '\n'.join([user.mention for user in clean_can]), inline = False)
+
+        view = ConfirmElection(user = ctx.author)
+        view.message = await ctx.send(embed = embed, view = view)
+        await view.wait()
+
+        if not view.value:
+            return
+        
+        await ctx.send("Election config done!")
