@@ -29,16 +29,17 @@ class Moderation(commands.Cog):
 
         if not item:
             return
-        
-        print(item)
 
         channel = await self.bot.fetch_channel(item["channelid"])
         message = await channel.fetch_message(item["messageid"])
         view = ElectionVote(bot = self.bot, user = item["authorid"], candidates = item["candidates"], voters = item["voters"], endtime = item["endtime"])
         view.message = message
 
+        view.original_content = message.content.split('-')[0]
+
         self.bot.add_view(view, message_id = item["messageid"])
 
+        self.eview = view
         self.bot._added_election = True
 
         await discord.utils.sleep_until(when = datetime.fromtimestamp(item["endtime"]))
@@ -126,7 +127,7 @@ class Moderation(commands.Cog):
         view = discord.ui.View()
         view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, emoji = "\U0001f517", label = "Message Link", url = self.eview.message.jump_url))
 
-        await ctx.reply(f"Election ends in {self.eview.endtime}\nClick the button below to go to the voting message", view = view)
+        await ctx.reply(f"Election ends in {display_time(int(self.eview.endtime - datetime.now().timestamp()))}\nClick the button below to go to the voting message", view = view)
     
     @election_check()
     @commands.has_guild_permissions(administrator = True)
@@ -165,6 +166,8 @@ class Moderation(commands.Cog):
         view = ElectionVote(bot = self.bot, user = ctx.author.id, candidates = candidates, voters = voters, endtime = endtime)
         view.message = await ctx.send(content = "Yaaru nambu server oda adutha owner\n\n" + "\n\n".join([f'{self.bot.get_em(index + 1)} {user.mention}' for index, user in enumerate(clean_can)]) + f"\n\nEnd on <t:{int(datetime.now().timestamp() + duration)}>", view = view, allowed_mentions = discord.AllowedMentions.none())
         view.original_content = view.message.content
+
+        self.eview = view
 
         query = "INSERT INTO election(messageid, channelid, authorid, candidates, voters, endtime) VALUES($1, $2, $3, $4, $5, $6) ON CONFLICT (messageid) DO  NOTHING"
         await self.bot.db.execute(query, view.message.id, ctx.channel.id, ctx.author.id, candidates, voters, endtime)

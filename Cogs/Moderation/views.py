@@ -77,7 +77,7 @@ class ElectionVote(discord.ui.View):
         self._cd = commands.CooldownMapping.from_cooldown(2, 10.0, key)
 
         for index, can in enumerate(candidates):
-            self.add_item(self.ElectionVote(bot = bot, num = index + 1))
+            self.add_item(self.ElectionButton(bot = bot, num = index + 1))
         
     async def interaction_check(self, interaction: discord.MessageInteraction) -> bool:
         retry_after = self._cd.update_rate_limit(interaction)
@@ -86,7 +86,7 @@ class ElectionVote(discord.ui.View):
         
         return True
     
-    class ElectionVote(discord.ui.Button):
+    class ElectionButton(discord.ui.Button["ElectionVote"]):
         def __init__(self, bot: commands.Bot, num: int):
             super().__init__(style = discord.ButtonStyle.gray, emoji = bot.get_em(num), custom_id = f"button:{num}")
             self.num = num
@@ -116,8 +116,21 @@ class ElectionVote(discord.ui.View):
             
             query = "UPDATE election SET voters = $2 WHERE messageid = $1"
             await self.view.bot.db.execute(query, self.view.message.id, self.view.voters)
+
+            count = f"`{sum([len(item) for item in self.view.voters.values()])}/{len([member for member in self.view.guild.members if not member.bot])}` users have voted"
+            await self.view.message.edit(content = f"{self.view.original_content} - {count}")
     
-    @discord.ui.button(label = "End Election", style = discord.ButtonStyle.red, row = 2, custom_id = "End:this")
+    @discord.ui.button(label = "Remaining Voters", style = discord.ButtonStyle.blurple, row = 2, custom_id = "Remain:this")
+    async def remain(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.author.id != self.user:
+            return await interaction.response.send_message("Only the creator of this election can use this button.")
+        
+        rem_voters = [user for user in self.guild.members if not user.bot and not [True for value in self.voters.values() if user.id in value]]
+        content = f"Voters Left: `{len(rem_voters)}`\n" + "\n".join([f"**{index + 1}.** {voter.mention}" for index, voter in enumerate(rem_voters)])
+
+        await interaction.response.send_message(content = content, allowed_mentions = discord.AllowedMentions.none(), ephemeral = True)
+    
+    @discord.ui.button(label = "End Election", style = discord.ButtonStyle.red, row = 3, custom_id = "End:this")
     async def end(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.author.id != self.user:
             return await interaction.response.send_message("Only the creator of this election can use this button.")
