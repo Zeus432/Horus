@@ -1,7 +1,6 @@
-import disnake # Useless import just for symbolism sake
-
 from loguru import logger
 import pathlib
+import jishaku # just for symbolism
 
 from bot import Horus
 

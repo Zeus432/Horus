@@ -1,6 +1,6 @@
-import disnake as discord
+import discord
 from bot import Horus
-from disnake.ext import commands
+from discord.ext import commands
 
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -55,8 +55,7 @@ class Dev(commands.Cog):
         `channel` - the current channel object
         `author` - command author's member object
         `message` - the command's message object
-        `disnake` - disnake.py library
-        `discord` - same as disnake
+        `discord` - discord.py library
         `_` - The result of the last dev command.
         """
 
@@ -67,7 +66,6 @@ class Dev(commands.Cog):
             'author': ctx.author,
             'guild': ctx.guild,
             'message': ctx.message,
-            'disnake': discord,
             'reply': get_reply(ctx),
             '_': self._last_result
         }

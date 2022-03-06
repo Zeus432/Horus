@@ -1,6 +1,6 @@
 from bot import Horus
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 from Core.Utils.converters import ModeConverter
 from .views import Guess, MatchView, RpsView

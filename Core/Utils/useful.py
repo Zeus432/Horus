@@ -1,5 +1,5 @@
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 from datetime import datetime
 import subprocess
@@ -100,7 +100,9 @@ features = {
             "VIP_REGIONS": "VIP Voice Servers",
             "WELCOME_SCREEN_ENABLED": "Welcome Screen enabled",
             "THREADS_ENABLED":"Threads Enabled",
-            "NEW_THREAD_PERMISSIONS":"New Thread Permissions Enabled"
+            "NEW_THREAD_PERMISSIONS":"New Thread Permissions Enabled",
+            "HAD_EARLY_ACTIVITIES_ACCESS": "Early Access to Activities",
+            "EXPOSED_TO_ACTIVITIES_WTP_EXPERIMENT": "Activities Experiment"
         }
 
 def get_em(emoji: str | int) -> str:

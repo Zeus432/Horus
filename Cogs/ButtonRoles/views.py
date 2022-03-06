@@ -1,5 +1,5 @@
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 import traceback
 
@@ -90,3 +90,18 @@ class RolesView(discord.ui.View):
         
         if use_role_name is not None:
             self.use_role_name = use_role_name
+
+# Views for the Button Roles Config
+class ConfigView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout = 300)
+
+        self.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = "stuff here"))
+
+    @discord.ui.button(label = "Role Pairs", style = discord.ButtonStyle.blurple)
+    async def role_pair(self, button: discord.Button, interaction: discord.Interaction):
+        pass
+
+    @discord.ui.button(label = "Blacklists", style = discord.ButtonStyle.blurple)
+    async def blacklists(self, button: discord.Button, interaction: discord.Interaction):
+        pass

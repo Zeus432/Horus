@@ -1,6 +1,6 @@
-import disnake as discord
+import discord
 from bot import Horus
-from disnake.ext import commands
+from discord.ext import commands
 
 import asyncio
 import random

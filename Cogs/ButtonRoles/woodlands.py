@@ -1,5 +1,5 @@
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 class PersistentButtons(discord.ui.Button):
     def __init__(self, x: int, y: int, role, emoji):

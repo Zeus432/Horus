@@ -1,5 +1,5 @@
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 from datetime import datetime
 import datetime as dt
@@ -7,7 +7,7 @@ import datetime as dt
 from Core.Utils.useful import display_time
 
 class ConfirmElection(discord.ui.View):
-    def __init__(self, user: discord.Member, timeout: float = 30):
+    def __init__(self, user: int, timeout: float = 30):
         super().__init__(timeout = timeout)
         self.user = user
         self.value = None
@@ -60,7 +60,7 @@ class ConfirmEnd(discord.ui.View):
         await interaction.response.edit_message(view = self)
 
 class ElectionVote(discord.ui.View):
-    def __init__(self, bot: commands.Bot, user: discord.Member, candidates: list, voters: dict, endtime: int):
+    def __init__(self, bot: commands.Bot, user: int, candidates: list, voters: dict, endtime: int):
         super().__init__(timeout = None)
         self.endtime = endtime
         self.bot = bot
@@ -123,7 +123,7 @@ class ElectionVote(discord.ui.View):
     @discord.ui.button(label = "Remaining Voters", style = discord.ButtonStyle.blurple, row = 2, custom_id = "Remain:this")
     async def remain(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.author.id != self.user:
-            return await interaction.response.send_message("Only the creator of this election can use this button.")
+            return await interaction.response.send_message("Only the creator of this election can use this button.", ephemeral = True)
         
         rem_voters = [user for user in self.guild.members if not user.bot and not [True for value in self.voters.values() if user.id in value]]
         content = f"Voters Left: `{len(rem_voters)}`\n" + "\n".join([f"**{index + 1}.** {voter.mention}" for index, voter in enumerate(rem_voters)])
@@ -133,7 +133,7 @@ class ElectionVote(discord.ui.View):
     @discord.ui.button(label = "End Election", style = discord.ButtonStyle.red, row = 3, custom_id = "End:this")
     async def end(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.author.id != self.user:
-            return await interaction.response.send_message("Only the creator of this election can use this button.")
+            return await interaction.response.send_message("Only the creator of this election can use this button.", ephemeral = True)
 
         view = ConfirmEnd(election_view = self)
         count = f"`{sum([len(item) for item in self.voters.values()])}/{len([member for member in self.guild.members if not member.bot])}`"
@@ -146,11 +146,18 @@ class ElectionVote(discord.ui.View):
         if disabled:
             return
 
+        try:
+            user = await self.bot.fetch_user(self.user)
+            await user.send(content = f"**Results:**\n" + "\n".join([f"<@!{user}> - {len(item)} vote{'s' if len(item) != 1 else ''}" for user, item in self.voters.items()]))
+        except:
+            return await self.message.reply(f'<@!{self.user}> you need to open dms to end the poll')
+
+        self.bot.get_cog("Moderation").eview = None
+
         for item in self.children:
             item.disabled = True
 
         await self.message.edit(view = self)
-        await self.message.reply(content = f"**Results:**\n" + "\n".join([f"<@!{user}> - {len(item)} vote{'s' if len(item) != 1 else ''}" for user, item in self.voters.items()]))
 
         query = "UPDATE election SET disabled = $2 WHERE messageid = $1"
         await self.bot.db.execute(query, self.message.id, True)

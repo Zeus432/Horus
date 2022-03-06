@@ -1,5 +1,5 @@
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 class ModeConverter(commands.Converter):
     async def convert(self, ctx, argument):

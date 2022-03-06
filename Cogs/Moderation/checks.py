@@ -1,5 +1,5 @@
-import disnake as discord
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 class Hierarchy(commands.CheckFailure):
     pass
@@ -54,7 +54,7 @@ class RoleHierarchy(commands.Converter):
 
 def election_check():
     def predicate(ctx):
-        if ctx.guild.id == 876697980449718272 or ctx.author.id == 760823877034573864:
+        if ctx.guild.id in [876697980449718272, 920553103147802644] or ctx.author.id == 807866303788220458:
             return True
         raise commands.NotOwner()
         # a function that takes ctx as it's only arg, that returns a truethy or falsey value, or raises an exception

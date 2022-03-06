@@ -1,7 +1,6 @@
 from datetime import datetime
-import disnake as discord
-from disnake.ext import commands
-from disnake.member import Member
+import discord
+from discord.ext import commands
 
 class PollButton(discord.ui.Button):
     def __init__(self, number: int, bot: commands.Bot, yesno: bool):
@@ -62,6 +61,7 @@ class PollMenu(discord.ui.View):
         if interaction.user.id != self.ctx.author.id:
             return await interaction.response.send_message(f"Only the owner of this poll ({self.user.mention}) can close this poll", ephemeral = True)
         self.stop()
+        await interaction.response.defer()
         await self.endpoll()
     
     async def on_timeout(self):
