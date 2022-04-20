@@ -1,14 +1,14 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 import asyncio
 
-class Pagination(discord.ui.View):
-    def __init__(self, embeds: list, bot: commands.Bot, user: discord.User | discord.Member, current_page:int = 1, timeout: int = 180):
+class Pagination(disnake.ui.View):
+    def __init__(self, embeds: list, bot: commands.Bot, user: disnake.User | disnake.Member, current_page:int = 1, timeout: int = 180):
         super().__init__(timeout = timeout)
         self.user = user
         self.bot = bot
-        self.message: discord.Message
+        self.message: disnake.Message
         self._yet_to_respond = False
         self.embeds = embeds
         self.total_pages = len(embeds)
@@ -27,7 +27,7 @@ class Pagination(discord.ui.View):
                 item.label = f"{self.current_page}/{self.total_pages}"
                 item.disabled = False if self.total_pages > 1 else True
 
-    async def edit_buttons(self, interaction: discord.Interaction):
+    async def edit_buttons(self, interaction: disnake.Interaction):
         for item in self.children:
             if '►' in item.label:
                 item.disabled = True if self.current_page >= self.total_pages else False
@@ -41,31 +41,31 @@ class Pagination(discord.ui.View):
         embed = self.embeds[self.current_page - 1]
         await interaction.message.edit(embed = embed, view = self)
 
-    async def interaction_check(self, interaction: discord.MessageInteraction) -> bool:
+    async def interaction_check(self, interaction: disnake.MessageInteraction) -> bool:
         if self.user.id == interaction.user.id:
             await interaction.response.defer()
             return True
         return await interaction.response.send_message('This is not your button to click!', ephemeral = True)
 
-    @discord.ui.button(label = "◄◄")
-    async def leftarrow2(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "◄◄")
+    async def leftarrow2(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         self.current_page = 1
         await self.edit_buttons(interaction)
 
-    @discord.ui.button(label = "◄")
-    async def leftarrow1(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "◄")
+    async def leftarrow1(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         self.current_page -= 1
         await self.edit_buttons(interaction)
     
-    @discord.ui.button(label = "1/1", style = discord.ButtonStyle.blurple)
-    async def go_to_page(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "1/1", style = disnake.ButtonStyle.blurple)
+    async def go_to_page(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if self._yet_to_respond is True:
             return await interaction.followup.send('This button can only be used one at time!', ephemeral = False)
 
         self._yet_to_respond = True
         reply_message = await self.message.reply(content = f'Enter the page you wish to go to: `1` - `{self.total_pages}`')
 
-        def check(message : discord.Message) -> bool: 
+        def check(message : disnake.Message) -> bool: 
             return message.author.id == self.user.id
         
         try:
@@ -92,13 +92,13 @@ class Pagination(discord.ui.View):
 
         self._yet_to_respond = False
 
-    @discord.ui.button(label = "►")
-    async def rightarrow1(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "►")
+    async def rightarrow1(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         self.current_page += 1
         await self.edit_buttons(interaction)
 
-    @discord.ui.button(label = "►►")
-    async def rightarrow2(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "►►")
+    async def rightarrow2(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         self.current_page = self.total_pages
         await self.edit_buttons(interaction)
     

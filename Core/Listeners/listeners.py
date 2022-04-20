@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from Core.settings import BOTMODS
 from Core.Utils.useful import guildanalytics
@@ -15,7 +15,7 @@ class Listeners(commands.Cog):
    #    Add command logging soon ...
 
     @commands.Cog.listener()
-    async def on_guild_join(self, guild: discord.Guild):
+    async def on_guild_join(self, guild: disnake.Guild):
         embed = await guildanalytics(bot = self.bot, guild = guild, type = 1)
         await self.bot.get_channel(874212184828297297).send(embed = embed)
 
@@ -29,7 +29,7 @@ class Listeners(commands.Cog):
             await self.bot.db.execute("INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2", guild.id, {'prevbl': 0, 'blacklisted': False})
     
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild: discord.Guild):
+    async def on_guild_remove(self, guild: disnake.Guild):
         embed = await guildanalytics(bot = self.bot, guild = guild, type = 3 if guild.id in self.bot.blacklists else 2)
 
         await self.bot.get_channel(874212184828297297).send(embed = embed)

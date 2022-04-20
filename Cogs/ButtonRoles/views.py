@@ -1,14 +1,14 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 import traceback
 
-class RolesButton(discord.ui.Button["RolesView"]):
+class RolesButton(disnake.ui.Button["RolesView"]):
     def __init__(self, emoji: str, role: list, use_role_name: bool = False):
         self.role = role[1]
-        super().__init__(emoji = f"{emoji}", label = f"{role[0]}" if use_role_name else None, style = discord.ButtonStyle.gray, custom_id = f'per:{role}')
+        super().__init__(emoji = f"{emoji}", label = f"{role[0]}" if use_role_name else None, style = disnake.ButtonStyle.gray, custom_id = f'per:{role}')
   
-    async def callback(self, interaction: discord.Interaction):
+    async def callback(self, interaction: disnake.Interaction):
         role = interaction.guild.get_role(self.role)
         
         if role is None:
@@ -32,7 +32,7 @@ class RolesButton(discord.ui.Button["RolesView"]):
         await interaction.user.add_roles(role, reason = "Button Roles")
         return await interaction.response.send_message(content = f"I have added the {role.mention} role to you!", ephemeral = True)
 
-class RolesView(discord.ui.View):
+class RolesView(disnake.ui.View):
     def __init__(self, bot: commands.Bot, guild: int, role_emoji: dict, blacklists: list = [], use_role_name: bool = False):
         super().__init__(timeout = None)
         self.bot = bot
@@ -48,13 +48,13 @@ class RolesView(discord.ui.View):
         for emoji, role in role_emoji.items():
             self.add_item(RolesButton(emoji = emoji, role = role, use_role_name = use_role_name))
     
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: disnake.Interaction) -> bool:
         if [role.id for role in interaction.user.roles if role.id in self.blacklists]:
             return await interaction.response.send_message("You're not allowed to use this button roles", ephemeral = True)
 
         return True
     
-    async def on_error(self, error: Exception, button: discord.ui.Button, interaction: discord.Interaction):
+    async def on_error(self, error: Exception, button: disnake.ui.Button, interaction: disnake.Interaction):
         traceback_error = traceback.format_exception(type(error), error, error.__traceback__)
 
         split_error, final_error = "", []
@@ -78,7 +78,7 @@ class RolesView(discord.ui.View):
         await self.message.edit(view = None)
         self.stop()
 
-    async def refresh_view(self, view: discord.ui.View = None):
+    async def refresh_view(self, view: disnake.ui.View = None):
         await self.message.edit(view = view or self)
     
     def update_config(self, blacklists: list = None, role_emoji: dict = None, use_role_name: bool = None):
@@ -92,16 +92,16 @@ class RolesView(discord.ui.View):
             self.use_role_name = use_role_name
 
 # Views for the Button Roles Config
-class ConfigView(discord.ui.View):
+class ConfigView(disnake.ui.View):
     def __init__(self):
         super().__init__(timeout = 300)
 
-        self.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = "stuff here"))
+        self.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = "stuff here"))
 
-    @discord.ui.button(label = "Role Pairs", style = discord.ButtonStyle.blurple)
-    async def role_pair(self, button: discord.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "Role Pairs", style = disnake.ButtonStyle.blurple)
+    async def role_pair(self, button: disnake.Button, interaction: disnake.Interaction):
         pass
 
-    @discord.ui.button(label = "Blacklists", style = discord.ButtonStyle.blurple)
-    async def blacklists(self, button: discord.Button, interaction: discord.Interaction):
+    @disnake.ui.button(label = "Blacklists", style = disnake.ButtonStyle.blurple)
+    async def blacklists(self, button: disnake.Button, interaction: disnake.Interaction):
         pass

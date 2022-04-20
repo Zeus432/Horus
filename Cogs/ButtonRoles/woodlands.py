@@ -1,15 +1,15 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
-class PersistentButtons(discord.ui.Button):
+class PersistentButtons(disnake.ui.Button):
     def __init__(self, x: int, y: int, role, emoji):
-        super().__init__(style=discord.ButtonStyle.secondary, label=f'{role.name}', row=x, custom_id=f'per:{role.name}', emoji=f'{emoji}')
+        super().__init__(style=disnake.ButtonStyle.secondary, label=f'{role.name}', row=x, custom_id=f'per:{role.name}', emoji=f'{emoji}')
         self.rlist = {"Edgy":810018752639795220,"Cherry":810018754582151199,"Pearl":810018758009421834,"Bubblegum":810018760869543936,"Aqua":810018764467732480,"Sunset":810018767555526677,"Sky":810018771385319514,"Random Colour":813387935394562108}
         self.x = x
         self.y = y
         self.role = role
     
-    async def callback(self, interaction: discord.Interaction):
+    async def callback(self, interaction: disnake.Interaction):
         role = self.role
         if dict(interaction.me.guild_permissions)["manage_roles"] == False:
             return await interaction.response.send_message("I'm missing the `Manage Roles` permission!", ephemeral = True)
@@ -24,7 +24,7 @@ class PersistentButtons(discord.ui.Button):
             await interaction.user.add_roles(role, reason = f"Button roles")
             await interaction.response.send_message(f'I have added the {role.mention} role to you', ephemeral = True)
 
-class PersistentView(discord.ui.View):
+class PersistentView(disnake.ui.View):
     def __init__(self, bot: commands.Bot):
         super().__init__(timeout = None)
         rlist = {"00":810018752639795220,"01":810018754582151199,"02":810018758009421834,"03":810018760869543936,"10":810018764467732480,"11":810018767555526677,"12":810018771385319514,"13":813387935394562108}

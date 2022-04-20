@@ -1,6 +1,6 @@
 from bot import Horus
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 from Core.Utils.converters import ModeConverter
 from .views import Guess, MatchView, RpsView
@@ -20,7 +20,7 @@ class Fun(commands.Cog):
     
     @commands.command(name = "rps", aliases = ['rockpaperscissors'], brief = "Play Rps")
     @commands.max_concurrency(1, commands.BucketType.user)
-    async def rps(self, ctx, opponent: discord.Member):
+    async def rps(self, ctx, opponent: disnake.Member):
         """ Play a game of Rock Paper Scissors with someone """
         if opponent.bot:
             return await ctx.send(f"You can't play with bots dude, they'll never respond {self.bot.get_em('yikes')}")

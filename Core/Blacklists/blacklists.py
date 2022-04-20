@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from typing import Union
 
@@ -20,9 +20,9 @@ class Blacklists(commands.Cog):
         return ctx.author.id in BOTMODS or ctx.author.id in self.bot.owner_ids
     
     @commands.command(name = "blacklist", aliases = ['bl'], brief = "Blacklist a Server / User")
-    async def blacklist(self, ctx: commands.Context, what: Union[discord.Guild, discord.User]):
+    async def blacklist(self, ctx: commands.Context, what: Union[disnake.Guild, disnake.User]):
         """ Blacklist a Server / User """
-        what_type = "guild" if isinstance(what, discord.Guild) else "user"
+        what_type = "guild" if isinstance(what, disnake.Guild) else "user"
         if what.id in self.bot.blacklists:
             return await ctx.reply(f'This {what_type} is already blacklisted!')
 
@@ -48,9 +48,9 @@ class Blacklists(commands.Cog):
                 await self.bot.db.execute(query, what.id, what_data)
     
     @commands.command(name = "unblacklist", aliases = ['unbl'], brief = "Unblacklist a Server / User")
-    async def unblacklist(self, ctx: commands.Context, what: Union[discord.Guild, discord.User]):
+    async def unblacklist(self, ctx: commands.Context, what: Union[disnake.Guild, disnake.User]):
         """ Unblacklist a Server / User """
-        what_type = "guild" if isinstance(what, discord.Guild) else "user"
+        what_type = "guild" if isinstance(what, disnake.Guild) else "user"
         if what.id not in self.bot.blacklists:
             return await ctx.reply(f'This {what_type} is not blacklisted!')
         

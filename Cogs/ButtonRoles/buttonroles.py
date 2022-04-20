@@ -1,6 +1,6 @@
 from bot import Horus
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 import asyncio
 import time
@@ -78,7 +78,7 @@ class ButtonRoles(commands.Cog):
     @commands.cooldown(2, 60, commands.BucketType.guild)
     @commands.max_concurrency(1, commands.BucketType.guild)
     @buttonroles.command(name = "make", brief = "Make Button Roles")
-    async def buttonroles_make(self, ctx: commands.Context, message: discord.Message = None):
+    async def buttonroles_make(self, ctx: commands.Context, message: disnake.Message = None):
         """
         An interactive command to make button roles!
         """
@@ -92,7 +92,7 @@ class ButtonRoles(commands.Cog):
             return await ctx.reply(content = f'Currently Guilds are limited to a maximum of 10 button roles!\nYou can free up some space by deleting unnecessary button roles using `{ctx.clean_prefix}buttonroles delete`')
 
         if message is None:
-            def check(m: discord.Message):
+            def check(m: disnake.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
             
             await ctx.reply("Enter the channel to send the message in!")
@@ -114,7 +114,7 @@ class ButtonRoles(commands.Cog):
             except asyncio.TimeoutError:
                 return await ctx.send(f"Can't send them a blank message dumbass {self.bot.get_em('kermitslap')}")
         
-            def check(m: discord.Message):
+            def check(m: disnake.Message):
                 return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
             
             button_message = msg.content
@@ -127,7 +127,7 @@ class ButtonRoles(commands.Cog):
             if message.author.id != self.bot.user.id:
                 return await ctx.send(f'I can add to buttons to messages sent by {self.bot.user.mention} only!')
         
-        def check(m: discord.Message):
+        def check(m: disnake.Message):
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and (m.content.count(";") == 1 or m.content.lower() in ["done", "cancel"])
         
         await ctx.reply(f"Enter the emoji and role pairs in `emoji;role` format. I will react with {self.bot.get_em('tick')} if you've entered properly.\nEnter `done` when your done entering roles and `cancel` to stop.")
@@ -182,8 +182,8 @@ class ButtonRoles(commands.Cog):
             view.message = message
 
             if channel.id != ctx.channel.id:
-                link = discord.ui.View()
-                link.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+                link = disnake.ui.View()
+                link.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
                 await ctx.send("I've sent the message with the button roles menu successfully!", view = link)
         
         else:
@@ -195,8 +195,8 @@ class ButtonRoles(commands.Cog):
                 return await ctx.reply('I was unable to edit the given message, maybe it was deleted?')
             
             else:
-                link = discord.ui.View()
-                link.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+                link = disnake.ui.View()
+                link.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
                 await ctx.send("I've added a button roles menu to the message successfully!", view = link)
         
         message = view.message
@@ -209,7 +209,7 @@ class ButtonRoles(commands.Cog):
 
     @commands.max_concurrency(1, commands.BucketType.guild)
     @buttonroles.command(name = "delete", brief = "Delete Button Roles")
-    async def buttonroles_delete(self, ctx: commands.Context, message: discord.Message):
+    async def buttonroles_delete(self, ctx: commands.Context, message: disnake.Message):
         """
         You can delete old, unnecessary button roles menus by using this command.
         Use message links incease message id doesn't work!
@@ -227,8 +227,8 @@ class ButtonRoles(commands.Cog):
             if isinstance(item, RolesView) and item.message.id == message.id:
                 await item.stop_button()
 
-        view = discord.ui.View()
-        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
+        view = disnake.ui.View()
+        view.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, label = "Message Link", emoji = "\U0001f517", url = message.jump_url))
 
         await ctx.send('I have removed the button roles menu from that message!', view = view)
 
@@ -243,14 +243,14 @@ class ButtonRoles(commands.Cog):
         if not prev:
             return await ctx.send('This server does not have any button roles!')
         
-        embed = discord.Embed(title = "Server Button Roles List", description = "\n".join([f"**{index+1})** [{item['messageid']}](https://discord.com/channels/{ctx.guild.id}/{item['channelid']}/{item['messageid']})" for index, item in enumerate(prev)]), colour = self.bot.colour)
-        embed.set_footer(text = ctx.guild.name, icon_url = f"{ctx.guild.icon}" or discord.Embed.Empty)
+        embed = disnake.Embed(title = "Server Button Roles List", description = "\n".join([f"**{index+1})** [{item['messageid']}](https://disnake.com/channels/{ctx.guild.id}/{item['channelid']}/{item['messageid']})" for index, item in enumerate(prev)]), colour = self.bot.colour)
+        embed.set_footer(text = ctx.guild.name, icon_url = f"{ctx.guild.icon}" or disnake.Embed.Empty)
         await ctx.send(embed = embed)
     
     @commands.cooldown(5, 300, commands.BucketType.guild)
     @commands.max_concurrency(1, commands.BucketType.guild)
     @buttonroles.command(name = "sync", brief = "Refresh button menus")
-    async def buttonroles_sync(self, ctx: commands.Context, message: discord.Message = None):
+    async def buttonroles_sync(self, ctx: commands.Context, message: disnake.Message = None):
         """
         Can be used to refresh your server's button roles incase 
         any of them are out of sync or erroring.
@@ -302,7 +302,7 @@ class ButtonRoles(commands.Cog):
         await notif.edit(content = f'Finished refreshing **{len(allitems)}** view{"s" if len(allitems) != 1 else ""} in `{round(end - start, 2)}s`')
 
     @buttonroles.command(name = "block", brief = "Block a role from Button role", invoke_without_command = True)
-    async def buttonroles_block(self, ctx: commands.Context, role: discord.Role, message: discord.Message):
+    async def buttonroles_block(self, ctx: commands.Context, role: disnake.Role, message: disnake.Message):
         """ 
         Block a certain role from using a Button Role Menu
         """
@@ -333,10 +333,10 @@ class ButtonRoles(commands.Cog):
                 view.update_config(blacklists = item["config"]["blacklists"])
                 break
 
-        await ctx.send(f'I have blocked {role.mention} from using this button roles.', allowed_mentions = discord.AllowedMentions(roles = False))
+        await ctx.send(f'I have blocked {role.mention} from using this button roles.', allowed_mentions = disnake.AllowedMentions(roles = False))
     
     @buttonroles.command(name = "unblock", brief = "Unblock a blacklisted role")
-    async def buttonroles_unblock(self, ctx: commands.Context, role: discord.Role, message: discord.Message):
+    async def buttonroles_unblock(self, ctx: commands.Context, role: disnake.Role, message: disnake.Message):
         """ 
         Unblock a role previously blacklisted from using a Button Role Menu
         """
@@ -368,10 +368,10 @@ class ButtonRoles(commands.Cog):
                 view.update_config(blacklists = item["config"]["blacklists"])
                 break
 
-        await ctx.send(f'I have unblocked {role.mention} from using the button roles menu.', allowed_mentions = discord.AllowedMentions(roles = False))
+        await ctx.send(f'I have unblocked {role.mention} from using the button roles menu.', allowed_mentions = disnake.AllowedMentions(roles = False))
     
     @buttonroles.command(name = "config", brief = "View Button Roles Config")
-    async def brblock_list(self, ctx: commands.Context, message: discord.Message):
+    async def brblock_list(self, ctx: commands.Context, message: disnake.Message):
         """ Get the config of specified button roles. """
         if message.guild.id != ctx.guild.id:
             return await ctx.send_help(ctx.command)
@@ -394,7 +394,7 @@ class ButtonRoles(commands.Cog):
         page = 0
 
         while blroles:
-            embed = discord.Embed(description = "\n".join([f'**{(page*20) + index + 1})** <@&{role}> (`{role}`)' for index, role in enumerate(blroles[:20])]), colour = self.bot.colour)
+            embed = disnake.Embed(description = "\n".join([f'**{(page*20) + index + 1})** <@&{role}> (`{role}`)' for index, role in enumerate(blroles[:20])]), colour = self.bot.colour)
             embed.set_author(name = f"Blacklisted Roles", icon_url = f"{ctx.guild.icon}", url = "")
             embed.set_footer(text = f"Page {page + 1}/{total}")
 

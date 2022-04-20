@@ -1,4 +1,4 @@
-from discord.ext import commands
+from disnake.ext import commands
 
 def cleanup_code(content) -> str:
     """Automatically removes code blocks from the code."""

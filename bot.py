@@ -1,6 +1,6 @@
 import re
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
@@ -24,10 +24,10 @@ class HorusCtx(commands.Context):
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict,  *args, **kwargs):
-        super().__init__(command_prefix = self.getprefix,  intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, sync_commands_on_cog_unload = True, sync_permissions = True, description = CONFIG['description'], **kwargs)
+        super().__init__(command_prefix = self.getprefix,  intents = disnake.Intents.all(), activity = disnake.Game(name = "Waking Up"), status = disnake.Status.online, case_insensitive = True, sync_commands_on_cog_unload = True, sync_permissions = True, description = CONFIG['description'], **kwargs)
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self._config = CONFIG
-        self.colour = discord.Colour(0x9c9cff)
+        self.colour = disnake.Colour(0x9c9cff)
         self._noprefix = False
         self._added_views = False
         self._added_election = False
@@ -51,7 +51,7 @@ class Horus(commands.Bot):
         if restart:
             self.loop.create_task(self.restartcheck(**restart))
     
-    async def getprefix(self, bot: commands.Bot, message: discord.Message):
+    async def getprefix(self, bot: commands.Bot, message: disnake.Message):
         # Check for prefix in cache, if not then get from db and build cache
         prefix = self._config['prefix'] # Default prefix
         devprefix = []
@@ -114,7 +114,7 @@ class Horus(commands.Bot):
 
         await asyncio.sleep(10)
         if not self.dev_mode:
-            await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
+            await self.change_presence(status = disnake.Status.idle, activity = disnake.Activity(type = disnake.ActivityType.watching, name = f"for @{self.user.name} help"))
 
         logger.info(f"{self.user} is Online!")
         self.if_ready = True
@@ -250,13 +250,13 @@ class Horus(commands.Bot):
         
         return uptime_string
     
-    async def get_context(self, message: discord.Message, *, cls = HorusCtx):
+    async def get_context(self, message: disnake.Message, *, cls = HorusCtx):
         return await super().get_context(message, cls = cls)
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: disnake.Message):
         if self.http.token in message.content:
-            view = discord.ui.View(timeout = 50)
-            view.add_item(discord.ui.Button(label = "Message Link", url = f"{message.jump_url}", emoji = "\U0001f517"))
+            view = disnake.ui.View(timeout = 50)
+            view.add_item(disnake.ui.Button(label = "Message Link", url = f"{message.jump_url}", emoji = "\U0001f517"))
             await self._notif_webhook.send(content = f"{self.zeus.mention} Token has been leaked, please regenerate it as soon as posssible!!", view = view)
 
         if not (message.guild and self.if_ready):
@@ -300,7 +300,7 @@ class Horus(commands.Bot):
 
         await self.process_commands(message)
     
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+    async def on_message_edit(self, before: disnake.Message, after: disnake.Message):
         if not (after.channel.permissions_for(after.guild.me).send_messages and after.channel.permissions_for(after.guild.me).embed_links):
             return
 

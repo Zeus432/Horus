@@ -1,5 +1,5 @@
 import emojis
-from discord.ext import commands
+from disnake.ext import commands
 
 class EmojiConverter(commands.Converter):
     async def convert(self, ctx, argument):

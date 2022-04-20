@@ -1,11 +1,11 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 class Hierarchy(commands.CheckFailure):
     pass
 
 class CheckHierarchy1(commands.Converter):
-    async def convert(self, ctx: commands.Context, user: discord.Member) -> discord.Member:
+    async def convert(self, ctx: commands.Context, user: disnake.Member) -> disnake.Member:
         user = await commands.MemberConverter().convert(ctx, user)
 
         if ctx.author == user:
@@ -23,7 +23,7 @@ class CheckHierarchy1(commands.Converter):
         return user
 
 class CheckHierarchy2(commands.Converter):
-    async def convert(self, ctx: commands.Context, user: discord.Member) -> discord.Member:
+    async def convert(self, ctx: commands.Context, user: disnake.Member) -> disnake.Member:
         user = await commands.MemberConverter().convert(ctx, user)
 
         if user == ctx.guild.owner:
@@ -38,7 +38,7 @@ class CheckHierarchy2(commands.Converter):
         return user
 
 class RoleHierarchy(commands.Converter):
-    async def convert(self, ctx: commands.Context, role: discord.Role) -> discord.Role:
+    async def convert(self, ctx: commands.Context, role: disnake.Role) -> disnake.Role:
         role = await commands.RoleConverter().convert(ctx, role)
 
         if ctx.me.top_role <= role:

@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from .pagination import HelpView, DeleteButton
 
@@ -13,7 +13,7 @@ class NewHelp(commands.HelpCommand):
                 'help': 'Shows help about the bot, a command, or a category'
             }
         )
-        self.colour = discord.Colour(0x9c9cff)
+        self.colour = disnake.Colour(0x9c9cff)
         self.footer = "https://cdn.discordapp.com/avatars/858335663571992618/358132def732d61ce9ed7dbfb8f9a6c1.png?size=1024"
 
         def cog_emojis(bot, cog):
@@ -50,7 +50,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
     # Get Help
     
     async def get_bot_help(self, mapping) -> list[dict]:
-        embed = discord.Embed(title = 'Horus Help Menu', colour = self.colour)
+        embed = disnake.Embed(title = 'Horus Help Menu', colour = self.colour)
         embed.set_thumbnail(url = self.footer)
 
         for cog, commands in mapping.items():
@@ -72,7 +72,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
         current_page = 1
 
         while filtered:
-            embed = discord.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
+            embed = disnake.Embed(title = f'{cog.qualified_name} Help', colour = self.colour, description = f'{cog.description or "No Information"}')
             embed.set_footer(text = (f"Page {current_page} of {pages} - "  if pages > 1 else "") + self.get_ending_note())
     
             for index, command in enumerate(filtered[:8]):
@@ -119,7 +119,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
         try: await group.can_run(self.context)
         except: return # Return if user can't run this group commands
 
-        embed = discord.Embed(colour = self.colour, title = f"{group.cog_name} Help" if group.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n>>> {group.help or 'No documentation'}\n\u200b")
+        embed = disnake.Embed(colour = self.colour, title = f"{group.cog_name} Help" if group.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(group)}```\n>>> {group.help or 'No documentation'}\n\u200b")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in group.aliases):
@@ -144,7 +144,7 @@ Use `[$prefix$]help <command | category>` to get help for any command"""
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
         except: return # Return if user can't run this command
-        embed = discord.Embed(colour = self.colour, title = f"{command.cog_name} Help" if command.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n>>> {command.help or 'No documentation'}")
+        embed = disnake.Embed(colour = self.colour, title = f"{command.cog_name} Help" if command.cog_name else "Horus Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.get_command_signature(command)}```\n>>> {command.help or 'No documentation'}")
         embed.set_footer(text = self.get_ending_note(), icon_url = self.footer)
 
         if aliases := '`, `'.join(c for c in command.aliases):

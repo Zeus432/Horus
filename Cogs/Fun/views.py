@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 import asyncio
 import random
@@ -8,7 +8,7 @@ import time
 
 from Core.Utils.useful import get_em
 
-class Guess(discord.ui.View):
+class Guess(disnake.ui.View):
     """ View for Guess the number """
     def __init__(self, bot: Horus, ctx: commands.Context):
         super().__init__(timeout = 100)
@@ -24,29 +24,29 @@ class Guess(discord.ui.View):
         for index, number in enumerate(self.choices):
             self.add_item(self.Button(index = index, number = number, author = self.author))
             
-    class Button(discord.ui.Button):
+    class Button(disnake.ui.Button):
         """ Buttons to loop through to add to the view """
-        def __init__(self, index: int, number: int, author: discord.Member):
+        def __init__(self, index: int, number: int, author: disnake.Member):
             self.index = index
             self.author = author
-            super().__init__(label = f"{number}", style = discord.ButtonStyle.gray, row = index//3)
+            super().__init__(label = f"{number}", style = disnake.ButtonStyle.gray, row = index//3)
 
-        async def callback(self, interaction: discord.Interaction):
+        async def callback(self, interaction: disnake.Interaction):
             if interaction.user.id != self.author.id:
                 return await interaction.response.send_message(content = f"This is not your guessing game. Run `{self.view.ctx.clean_prefix}{self.view.ctx.invoked_with}` if you wanna play", ephemeral = True)
 
             if self.view.choices[self.index] == self.view.correct:
                 msg = f"You choose the correct number {get_em('pog')}!"
-                self.style = discord.ButtonStyle.green
+                self.style = disnake.ButtonStyle.green
             else:
                 self.view.guess -= 1
                 msg = f"`{self.label}` is not the correct number. Try again, you have `{self.view.guess}` guess{'es' if self.view.guess != 1 else ''} left" if self.view.guess else f"`{self.label}` is not the correct number either! The correct number was `{self.view.correct}`\nImagine not being able to choose the right even with 3 guesses lmao {get_em('kekexplode')}"
-                self.style, self.disabled = discord.ButtonStyle.red, True
+                self.style, self.disabled = disnake.ButtonStyle.red, True
 
             if (not self.view.guess) or self.view.choices[self.index] == self.view.correct:
                 for item in self.view.children:
                     if item.label == f"{self.view.correct}":
-                        item.style = discord.ButtonStyle.green if self.view.choices[self.index] == self.view.correct else discord.ButtonStyle.blurple
+                        item.style = disnake.ButtonStyle.green if self.view.choices[self.index] == self.view.correct else disnake.ButtonStyle.blurple
                     item.disabled = True
                     self.view.stop()
 
@@ -56,25 +56,25 @@ class Guess(discord.ui.View):
     async def on_timeout(self):
         for item in self.children:
             if item.label == f"{self.correct}":
-                item.style = discord.ButtonStyle.blurple
+                item.style = disnake.ButtonStyle.blurple
             item.disabled = True
         await self.message.reply(f"You took too long to respond smh {get_em('idrk')}\nThe correct number was `{self.correct}`")
         await self.message.edit(view = self)
 
-class RpsView(discord.ui.View):
-    def __init__(self, ctx: commands.Context, opponent: discord.Member, timeout: float = 180):
+class RpsView(disnake.ui.View):
+    def __init__(self, ctx: commands.Context, opponent: disnake.Member, timeout: float = 180):
         super().__init__(timeout = timeout)
         self.user_answer = None
         self.opponent_answer = None
         self.ctx = ctx
         self.opponent = opponent
     
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: disnake.Interaction) -> bool:
         if interaction.user.id != self.ctx.author.id  and interaction.user.id != self.opponent.id:
             return await interaction.response.send_message(f"This isn't your game to play! Run `{self.ctx.clean_prefix}{self.ctx.invoked_with}` if you wanna play", ephemeral = True)
         return True
 
-    async def button_pressed(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def button_pressed(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         if interaction.user.id == self.ctx.author.id:
             if not self.user_answer:
                 self.user_answer = button.label
@@ -110,31 +110,31 @@ class RpsView(discord.ui.View):
             await self.message.edit(content = self.message.content, view = self)
             self.stop()
     
-    @discord.ui.button(style=discord.ButtonStyle.primary, label="Rock", emoji = "\U0001faa8")
-    async def rock(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(style=disnake.ButtonStyle.primary, label="Rock", emoji = "\U0001faa8")
+    async def rock(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         await self.button_pressed(button, interaction)
 
-    @discord.ui.button(style=discord.ButtonStyle.primary, label="Paper", emoji = "\U0001f4f0")
-    async def paper(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(style=disnake.ButtonStyle.primary, label="Paper", emoji = "\U0001f4f0")
+    async def paper(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         await self.button_pressed(button, interaction)
 
-    @discord.ui.button(style=discord.ButtonStyle.primary, label="Scissors", emoji = "\U00002702")
-    async def scissors(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @disnake.ui.button(style=disnake.ButtonStyle.primary, label="Scissors", emoji = "\U00002702")
+    async def scissors(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         await self.button_pressed(button, interaction)
 
     async def on_timeout(self):
         who_late = f'{self.ctx.author.mention}' if not self.user_answer else f'{self.opponent.mention}' if not self.opponent_answer else 'You both'
 
-        await self.message.reply(f"{who_late} took too long to respond", allowed_mentions = discord.AllowedMentions.none())
+        await self.message.reply(f"{who_late} took too long to respond", allowed_mentions = disnake.AllowedMentions.none())
         for item in self.children:
             item.disabled = True
-        self.message : discord.Message
+        self.message : disnake.Message
         self.message.content += f'\n\n> {who_late} too long to respond'
         await self.message.edit(content = self.message.content, view = self)
         self.stop()
     
-class MatchView(discord.ui.View):
-    def __init__(self, mode: str, user: discord.Member, total: int):
+class MatchView(disnake.ui.View):
+    def __init__(self, mode: str, user: disnake.Member, total: int):
         super().__init__(timeout = 30 + (total * 5))
         self.user = user
         self.matches = 0
@@ -143,7 +143,7 @@ class MatchView(discord.ui.View):
         self.mode = mode
         self.timer_start = time.perf_counter()
         self.last_used_button = None
-        def key(interaction: discord.Interaction):
+        def key(interaction: disnake.Interaction):
             return interaction.user
         self._cd = commands.CooldownMapping.from_cooldown(2, 2.0, key)
 
@@ -166,12 +166,12 @@ class MatchView(discord.ui.View):
         await self.message.edit(content = "You took too long to finish this puzzle, Better luck next time!", view = self)
         self.stop()
     
-    class MatchButton(discord.ui.Button):
+    class MatchButton(disnake.ui.Button):
         def __init__(self, payload: str):
-            super().__init__(style = discord.ButtonStyle.gray, emoji = "<:BlankSpace:929004286078226492>")
+            super().__init__(style = disnake.ButtonStyle.gray, emoji = "<:BlankSpace:929004286078226492>")
             self.payload = payload
 
-        async def callback(self, interaction: discord.MessageInteraction):
+        async def callback(self, interaction: disnake.MessageInteraction):
             await interaction.response.defer()
 
             self.view.pressed += 1
@@ -184,30 +184,30 @@ class MatchView(discord.ui.View):
             
             else:
                 if self.view.last_used_button.payload == self.payload:
-                    self.view.last_used_button.style = discord.ButtonStyle.green
-                    self.style = discord.ButtonStyle.green
+                    self.view.last_used_button.style = disnake.ButtonStyle.green
+                    self.style = disnake.ButtonStyle.green
 
                     await self.view.message.edit(view = self.view)
                     await asyncio.sleep(0.5)
 
-                    self.view.last_used_button.style = discord.ButtonStyle.blurple
-                    self.style = discord.ButtonStyle.blurple
+                    self.view.last_used_button.style = disnake.ButtonStyle.blurple
+                    self.style = disnake.ButtonStyle.blurple
 
                     self.view.matches += 1
 
                 else:
-                    self.view.last_used_button.style = discord.ButtonStyle.red
-                    self.style = discord.ButtonStyle.red
+                    self.view.last_used_button.style = disnake.ButtonStyle.red
+                    self.style = disnake.ButtonStyle.red
 
                     await self.view.message.edit(view = self.view)
                     await asyncio.sleep(0.5)
 
                     self.view.last_used_button.emoji = "<:BlankSpace:929004286078226492>"
-                    self.view.last_used_button.style = discord.ButtonStyle.gray
+                    self.view.last_used_button.style = disnake.ButtonStyle.gray
                     self.view.last_used_button.disabled = False
 
                     self.emoji = "<:BlankSpace:929004286078226492>"
-                    self.style = discord.ButtonStyle.gray
+                    self.style = disnake.ButtonStyle.gray
                     self.disabled = False
 
                 self.view.last_used_button = None
@@ -220,7 +220,7 @@ class MatchView(discord.ui.View):
                 timer = (time.perf_counter() - self.view.timer_start)
                 await self.view.message.edit(content = f"Finished this `{self.view.mode}` puzzle in `{round(timer, 2)}s` with about `{round(accuracy, 2)}%` accuracy!")
 
-    async def interaction_check(self, interaction: discord.MessageInteraction):
+    async def interaction_check(self, interaction: disnake.MessageInteraction):
         if interaction.user.id != self.user.id:
             return await interaction.response.send_message(content = "Not your button to click!", ephemeral = True)
 

@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from datetime import datetime
 
@@ -19,14 +19,14 @@ class Utility(commands.Cog):
     
     @commands.command(name = "userinfo", aliases = ['ui'], brief = "Get User Info", ignore_extra = True)
     @commands.cooldown(2, 5, commands.BucketType.user)
-    async def userinfo(self, ctx: commands.Context, *, user: discord.Member = None):
+    async def userinfo(self, ctx: commands.Context, *, user: disnake.Member = None):
         """ Get information about a user """
         user = user or ctx.author
-        embed = discord.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour)
+        embed = disnake.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != disnake.Colour(000000) else self.bot.colour)
         embed.timestamp = ctx.message.created_at
         embed.set_thumbnail(url = user.display_avatar)
         join_position = [m for m in sorted(ctx.guild.members, key = lambda u: u.joined_at)].index(user) + 1
-        embed.set_footer(text = f"Member #{join_position}\U000030fbID: {user.id}", icon_url = user.avatar if user.display_avatar != user.avatar else discord.Embed.Empty)
+        embed.set_footer(text = f"Member #{join_position}\U000030fbID: {user.id}", icon_url = user.avatar if user.display_avatar != user.avatar else disnake.Embed.Empty)
 
         embed.add_field(name = "Joined Discord:", value = f"<t:{round(user.created_at.timestamp())}:D>\n(<t:{round(user.created_at.timestamp())}:R>)\n\u200b")
         embed.add_field(name = "Joined Server:", value = f"<t:{round(user.joined_at.timestamp())}:D>\n(<t:{round(user.joined_at.timestamp())}:R>)\n\u200b")
@@ -51,11 +51,11 @@ class Utility(commands.Cog):
         await ctx.send(embed = embed)
     
     @commands.user_command(name = "View User Info", default_permission = True)
-    async def user_data(self, interaction: discord.MessageCommandInteraction, user: discord.User):
-        embed = discord.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour)
+    async def user_data(self, interaction: disnake.MessageCommandInteraction, user: disnake.User):
+        embed = disnake.Embed(title = f"{user.display_name}\U000030fb{user}", colour = user.colour if user.colour != disnake.Colour(000000) else self.bot.colour)
         embed.set_thumbnail(url = user.display_avatar)
         join_position = [m for m in sorted(interaction.guild.members, key = lambda u: u.joined_at)].index(user) + 1
-        embed.set_footer(text = f"Member #{join_position}\U000030fbID: {user.id}", icon_url = user.avatar if user.display_avatar != user.avatar else discord.Embed.Empty)
+        embed.set_footer(text = f"Member #{join_position}\U000030fbID: {user.id}", icon_url = user.avatar if user.display_avatar != user.avatar else disnake.Embed.Empty)
 
         embed.add_field(name = "Joined Discord:", value = f"<t:{round(user.created_at.timestamp())}:D>\n(<t:{round(user.created_at.timestamp())}:R>)\n\u200b")
         embed.add_field(name = "Joined Server:", value = f"<t:{round(user.joined_at.timestamp())}:D>\n(<t:{round(user.joined_at.timestamp())}:R>)\n\u200b")
@@ -82,11 +82,11 @@ class Utility(commands.Cog):
 
     @commands.command(name = "avatar", brief = "Get User Avatar", aliases = ['av'])
     @commands.cooldown(2, 5, commands.BucketType.user)
-    async def avatar(self, ctx: commands.Context, user: discord.Member = None):
+    async def avatar(self, ctx: commands.Context, user: disnake.Member = None):
         """ Get a user's avatar """
         user = user or ctx.author
-        colour = user.colour if user.colour != discord.Colour(000000) else self.bot.colour
-        embed = discord.Embed(title = f"Avatar for {user}", colour = colour, timestamp = ctx.message.created_at)
+        colour = user.colour if user.colour != disnake.Colour(000000) else self.bot.colour
+        embed = disnake.Embed(title = f"Avatar for {user}", colour = colour, timestamp = ctx.message.created_at)
         embed.set_footer(text = f"{ctx.guild}", icon_url = f"{ctx.guild.icon}")
 
         avatar = user.display_avatar.with_static_format('png')
@@ -95,10 +95,10 @@ class Utility(commands.Cog):
 
         embed.set_image(url = avatar)
 
-        view = discord.ui.View()
-        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, url = f"{avatar}", label = ".png"))
-        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, url = f"{jpgav}", label = ".jpg"))
-        view.add_item(discord.ui.Button(style = discord.ButtonStyle.link, url = f"{webpav}", label = ".webp"))
+        view = disnake.ui.View()
+        view.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, url = f"{avatar}", label = ".png"))
+        view.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, url = f"{jpgav}", label = ".jpg"))
+        view.add_item(disnake.ui.Button(style = disnake.ButtonStyle.link, url = f"{webpav}", label = ".webp"))
 
         await ctx.send(embed = embed, view = view)
 
@@ -106,7 +106,7 @@ class Utility(commands.Cog):
     @commands.cooldown(2, 5, commands.BucketType.user)
     async def serverinfo(self, ctx: commands.Context):
         """ Get some useful stats about this server """
-        embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.guild}", description = f"Owner: {ctx.guild.owner.mention} (`{ctx.guild.owner.id}`)\nServer ID: `{ctx.guild.id}`\nServer Roles: `{len(ctx.guild.roles)}`\nVerif Level: `{str(ctx.guild.verification_level).capitalize()}`")
+        embed = disnake.Embed(colour = self.bot.colour, title = f"{ctx.guild}", description = f"Owner: {ctx.guild.owner.mention} (`{ctx.guild.owner.id}`)\nServer ID: `{ctx.guild.id}`\nServer Roles: `{len(ctx.guild.roles)}`\nVerif Level: `{str(ctx.guild.verification_level).capitalize()}`")
         embed.set_thumbnail(url = f"{ctx.guild.icon}")
         embed.set_footer(text = "Created at")
         embed.timestamp = ctx.guild.created_at
@@ -141,16 +141,16 @@ class Utility(commands.Cog):
     
     @commands.command(name = "snipe", brief = "Snipe Deleted Messges")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def snipe(self, ctx: commands.Context, channel: discord.TextChannel = None):
+    async def snipe(self, ctx: commands.Context, channel: disnake.TextChannel = None):
         """ Snipe the latest deleted message in the current or specified channel """
         channel = channel or ctx.channel
 
         try:
-            message: discord.Message = self.delete_cache[channel.id]
+            message: disnake.Message = self.delete_cache[channel.id]
         except KeyError:
             return await ctx.reply("There are no messages to snipe!")
 
-        embed = discord.Embed(description = f"{message.content}", colour = discord.Colour(0x2F3136))
+        embed = disnake.Embed(description = f"{message.content}", colour = disnake.Colour(0x2F3136))
         embed.set_author(icon_url = f"{message.author.display_avatar or message.author.default_avatar}", name = f"{message.author} ({message.author.id})")
         if message.attachments:
             embed.add_field(name = "Attachments:", value = "\n".join([f"\U000030fb **[{file.filename}]({file.url})**" for file in message.attachments]), inline = False)
@@ -160,16 +160,16 @@ class Utility(commands.Cog):
     
     @commands.command(name = "esnipe", brief = "Snipe Edited Messges")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def esnipe(self, ctx: commands.Context, channel: discord.TextChannel = None):
+    async def esnipe(self, ctx: commands.Context, channel: disnake.TextChannel = None):
         """ Snipe the latest edited message in the current or specified channel """
         channel = channel or ctx.channel
 
         try:
-            message: discord.Message = self.edit_cache[channel.id]["before"]
+            message: disnake.Message = self.edit_cache[channel.id]["before"]
         except KeyError:
             return await ctx.reply("There are no messages to snipe!")
 
-        embed = discord.Embed(description = f"{message.content}", colour = discord.Colour(0x2F3136))
+        embed = disnake.Embed(description = f"{message.content}", colour = disnake.Colour(0x2F3136))
         embed.set_author(icon_url = f"{message.author.display_avatar or message.author.default_avatar}", name = f"{message.author} ({message.author.id})")
         if message.attachments:
             embed.add_field(name = "Attachments:", value = "\n".join([f"\U000030fb **[{file.filename}]({file.url})**" for file in message.attachments]), inline = False)
@@ -178,14 +178,14 @@ class Utility(commands.Cog):
         await ctx.reply(embed = embed)
     
     @commands.Cog.listener()
-    async def on_message_delete(self, message: discord.Message):
+    async def on_message_delete(self, message: disnake.Message):
         if message.author.bot:
             return
 
         self.delete_cache[message.channel.id] = message
     
     @commands.Cog.listener()
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+    async def on_message_edit(self, before: disnake.Message, after: disnake.Message):
         if before.author.bot:
             return
 
@@ -237,7 +237,7 @@ class Utility(commands.Cog):
         yesno = flags.yesno
         webhook = None
 
-        content = f"{ctx.author.mention} asks:\n{content}" if not yesno else content
+        content = f"{content}" if not yesno else content
 
         if len(options) < 2 and not yesno:
             return await ctx.reply("You need to give atleast 2 options!")
@@ -280,13 +280,13 @@ class Utility(commands.Cog):
                 content = f"{content}",
                 username = f"{ctx.author.display_name}", 
                 avatar_url = f"{ctx.author.avatar}" or f"{ctx.author.default_avatar}",
-                allowed_mentions = discord.AllowedMentions.none(),
+                allowed_mentions = disnake.AllowedMentions.none(),
                 view = view,
                 wait = True
             )
         
         else:
-            view.message = await ctx.send(f"{content}", allowed_mentions = discord.AllowedMentions.none(), view = view)
+            view.message = await ctx.send(f"{content}", allowed_mentions = disnake.AllowedMentions.none(), view = view)
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.group(name = "todo", brief = "Todo list related commands", invoke_without_command = True)
@@ -308,7 +308,7 @@ class Utility(commands.Cog):
         embeds = []
 
         while neat_todo:
-            embed = discord.Embed(title = f"**{ctx.author.display_name}**'s To Do List", description = "\n".join(neat_todo[:10]), color = self.bot.colour)
+            embed = disnake.Embed(title = f"**{ctx.author.display_name}**'s To Do List", description = "\n".join(neat_todo[:10]), color = self.bot.colour)
             neat_todo = neat_todo[10:]
             embeds.append(embed)
         
@@ -357,8 +357,8 @@ class Utility(commands.Cog):
                 deleted = todo['data'][task_id]
                 del todo['data'][task_id]
                 self.todo_cache[ctx.author.id] = todo
-                view = discord.ui.View()
-                view.add_item(discord.ui.Button(label = "Source", emoji = "\U0001f517", style = discord.ButtonStyle.link, url = f'{deleted["messagelink"]}'))
+                view = disnake.ui.View()
+                view.add_item(disnake.ui.Button(label = "Source", emoji = "\U0001f517", style = disnake.ButtonStyle.link, url = f'{deleted["messagelink"]}'))
                 await self.bot.db.execute(f'UPDATE todo SET lastupdated = $2, data = $3 WHERE userid = $1', ctx.author.id, int(datetime.now().timestamp()), todo['data'])
                 return await ctx.reply(f'I have removed this task from your todo list:\n  (**{id}**) {deleted["stuff"]}', view = view)
 

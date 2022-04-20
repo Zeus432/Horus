@@ -1,6 +1,6 @@
-import discord
+import disnake
 from bot import Horus
-from discord.ext import commands
+from disnake.ext import commands
 
 from loguru import logger
 
@@ -41,7 +41,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             ending = f'Use {ctx.clean_prefix}help [command] for more info on a command.'
             syntax = f"Syntax: {ctx.clean_prefix}{ctx.command.qualified_name} {ctx.command.signature}"
 
-            embed = discord.Embed(colour = self.bot.colour, title = f"{ctx.command.cog_name} Help" if ctx.command.cog_name else "Horus Help", description = f"```yaml\n{syntax}```\n{ctx.command.help or 'No documentation'}")
+            embed = disnake.Embed(colour = self.bot.colour, title = f"{ctx.command.cog_name} Help" if ctx.command.cog_name else "Horus Help", description = f"```yaml\n{syntax}```\n{ctx.command.help or 'No documentation'}")
             embed.set_footer(text = ending, icon_url = "https://cdn.discordapp.com/avatars/858335663571992618/358132def732d61ce9ed7dbfb8f9a6c1.png?size=1024")
 
             if aliases := '`, `'.join(c for c in ctx.command.aliases):
@@ -88,7 +88,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await ctx.reply(f"{error}", mention_author = False)
         
         elif isinstance(error, commands.MissingPermissions):
-            if isinstance(ctx.channel, discord.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
+            if isinstance(ctx.channel, disnake.TextChannel) and ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
                 senderror = True
             else: pass
         else:
@@ -98,7 +98,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             await send_error(bot = self.bot, ctx = ctx, error = error)
     
     @commands.Cog.listener()
-    async def on_message_command_error(self, interaction: discord.MessageCommandInteraction, error):
+    async def on_message_command_error(self, interaction: disnake.MessageCommandInteraction, error):
         command = interaction.application_command
         senderror = None
     
@@ -134,7 +134,7 @@ class ErrorHandler(commands.Cog, name = "ErrorHandler"):
             return await interaction.response.send_message(f'Whoa chill with the spam boi, Try again in {round(error.retry_after, 2)} seconds', ephemeral = True)
         
         elif isinstance(error, commands.MissingPermissions):
-            if isinstance(interaction.channel, discord.TextChannel) and interaction.channel.permissions_for(interaction.guild.me).send_messages:
+            if isinstance(interaction.channel, disnake.TextChannel) and interaction.channel.permissions_for(interaction.guild.me).send_messages:
                 senderror = True
             else: pass
         else:

@@ -1,15 +1,15 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 from loguru import logger
 import traceback
 
-async def send_error(bot: commands.Bot, ctx: commands.Context | discord.MessageInteraction, error):
+async def send_error(bot: commands.Bot, ctx: commands.Context | disnake.MessageInteraction, error):
     """ Properly send error to error channel and log it in the error logs """
-    embed = discord.Embed(title = "Command Error!", description = f"This error has been forwarded to the bot developer and will be fixed soon.\nIn the meanwhile please refrain from trying to recreate this error unnecessarily.\n\n```py\n{error}```", colour = discord.Colour(0x2F3136))
+    embed = disnake.Embed(title = "Command Error!", description = f"This error has been forwarded to the bot developer and will be fixed soon.\nIn the meanwhile please refrain from trying to recreate this error unnecessarily.\n\n```py\n{error}```", colour = disnake.Colour(0x2F3136))
     embed.set_footer(text = "Spamming errored commands will get you blacklisted!", icon_url = ctx.author.avatar or ctx.author.default_avatar)
 
-    if isinstance(ctx, discord.MessageInteraction):
+    if isinstance(ctx, disnake.MessageInteraction):
         await ctx.response.send_message(embed = embed, ephemeral = True)
     else:
         await ctx.reply(embed = embed, mention_author = False)
