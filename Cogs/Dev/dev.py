@@ -13,7 +13,7 @@ import sys
 import io
 import os
 
-from Core.Utils.useful import write_json, guildanalytics, get_commits
+from Core.Utils.useful import write_toml, guildanalytics, get_commits
 from Core.Utils.math import NumericStringParser
 from Core.settings import INITIAL_EXTENSIONS
 
@@ -119,6 +119,7 @@ class Dev(commands.Cog):
         def restart_program():
             python = sys.executable
             os.execl(python, python, * sys.argv)
+
         message = await ctx.send(f"**{self.bot.user.name}** is Restarting")
         try:
             await ctx.message.add_reaction("\U000023f0")
@@ -130,7 +131,7 @@ class Dev(commands.Cog):
                 "message": [message.channel.id, message.id],
                 "invoke": [ctx.message.channel.id, ctx.message.id]
             }
-            write_json('Core/config.json', self.bot._config)
+            write_toml('Core/config.toml', self.bot._config)
             restart_program()
         except:
             await message.add_reaction(self.bot.get_em('cross'))

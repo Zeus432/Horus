@@ -4,9 +4,9 @@ import jishaku # just for symbolism
 
 from bot import Horus
 
-from Core.Utils.useful import load_json
+from Core.Utils.useful import load_toml
 
-CONFIG = load_json('Core/config.json')
+CONFIG = load_toml('Core/config.toml')
 TOKEN = CONFIG['TOKEN']
 
 rootdir = pathlib.Path(__file__).parent.resolve()

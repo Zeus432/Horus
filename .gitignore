@@ -3,7 +3,7 @@ __pycache__
 *.log
 Assets
 Releases
-config.json
+config.toml
 botnews.md
 Test*
 horus-env

@@ -1,0 +1,26 @@
+# rename the file as config.toml to use it
+
+version = "v0"
+prefix = [ "?",] # enter default prefix(es) here
+webhook = 123 # webhook id here
+errorchannel = 345 # error channel id here
+description = "Hi I am bot" # enter a bot description
+TOKEN = "wejdfnjkonfj" # enter bot token (be careful not to leak it)
+
+[db] # Postgresql info for connection
+port = "5432" # db port
+database = "db"
+user = "user"
+host = "127.0.0.1" # 127.0.0.1 for local host change if necessary
+password = "123" # password if any
+
+[github]
+branch = "main" # github branch
+source = "https://github.com/Zeus432/Horus" # github link to repo
+
+[invite] # 3 variant invite links to bot
+normal = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=67420289&scope=bot+applications.commands"
+mod = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=1116922503303&scope=bot+applications.commands"
+admin = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=8&scope=bot+applications.commands"
+
+[restart] # don't edit this var, used for bot restarts

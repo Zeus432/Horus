@@ -12,7 +12,7 @@ import asyncpg
 import json
 import time
 
-from Core.Utils.useful import load_json, write_json
+from Core.Utils.useful import load_json, write_toml
 from Core.settings import INITIAL_EXTENSIONS, OWNER_IDS
 
 class HorusCtx(commands.Context):
@@ -79,7 +79,7 @@ class Horus(commands.Bot):
         await self.wait_until_ready()
         self._config['restart'] = {}
         self._config = self._config
-        write_json(f'Core/config.json', self._config)
+        write_toml(f'Core/config.toml', self._config)
 
         message = kwargs.pop("message")
         invoke = kwargs.pop("invoke")
