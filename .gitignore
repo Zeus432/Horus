@@ -1,9 +1,0 @@
-.DS_Store
-__pycache__
-*.log
-Assets
-Releases
-config.toml
-botnews.md
-Test*
-horus-env
