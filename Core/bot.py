@@ -8,6 +8,12 @@ import asyncpg
 import json
 
 
+class HorusCtx(commands.Context):
+    async def try_add_reaction(self, *args, **kwargs):
+        try:
+            await self.message.add_reaction(*args, **kwargs)
+        except: pass
+
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict, *args, **kwargs) -> None:
         super().__init__(command_prefix = commands.when_mentioned_or("h!"), intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, description = CONFIG['description'])
@@ -69,3 +75,6 @@ class Horus(commands.Bot):
         except Exception as e:
             print(f"Unable to connect to Lavalink...\n{e}")
             return
+    
+    async def get_context(self, message: discord.Message, *, cls = HorusCtx):
+        return await super().get_context(message, cls = cls)

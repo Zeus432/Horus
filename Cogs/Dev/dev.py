@@ -75,7 +75,7 @@ class Dev(commands.Cog):
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
             value = stdout.getvalue()
-            await ctx.try_add_reaction(self.bot.get_em("tick"))
+            await ctx.try_add_reaction("<:TickYes:904315692311011360>")
 
             if ret is None:
                 if value:
