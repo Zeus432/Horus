@@ -18,6 +18,11 @@ normal = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&
 mod = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=1116922503303&scope=bot+applications.commands"
 admin = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=8&scope=bot+applications.commands"
 
+[lavalink]
+host = "0.0.0.0"
+port = 8080
+password = "youshallnotpass"
+
 [spotify] # Spotify Developer credentials
 client_id = "<Client ID>"
 client_secret = "<Client Secret>"
