@@ -1,0 +1,7 @@
+aiohttp==3.8.1
+asyncpg==0.25.0
+discord.py==1.7.3 @ git+https://github.com/Rapptz/discord.py@7905d63f7c988640a0848cb2a26c8dc3c3eaa862
+jishaku==2.5.0
+redis==4.3.1
+toml==0.10.2
+wavelink==1.2.5

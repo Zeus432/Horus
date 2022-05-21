@@ -1,1 +1,9 @@
+__pycache__
+.DS_Store
+.vscode
+application.yml
+Core/config.toml
+dump.rdb
 horus-env
+Lavalink.jar
+redis.conf

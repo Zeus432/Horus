@@ -1,0 +1,165 @@
+2022-05-21 15:51:30.868  INFO 11473 --- [main] lavalink.server.Launcher                 : 
+
+[32m       .  [31m _                  _ _       _    [32m__ _ _
+[32m      /\\ [31m| | __ ___   ____ _| (_)_ __ | | __[32m\ \ \ \
+[32m     ( ( )[31m| |/ _` \ \ / / _` | | | '_ \| |/ /[32m \ \ \ \
+[32m      \\/ [31m| | (_| |\ V / (_| | | | | | |   < [32m  ) ) ) )
+[32m       '  [31m|_|\__,_| \_/ \__,_|_|_|_| |_|_|\_\[32m / / / /
+[0m    =========================================[32m/_/_/_/[0m
+
+	Version:        3.4
+	Build:          1257
+	Build time:     26.10.2021 14:18:37 UTC
+	Branch          master
+	Commit:         a364833
+	Commit time:    26.10.2021 14:15:20 UTC
+	JVM:            11.0.11
+	Lavaplayer      1.3.96-original
+
+2022-05-21 15:51:31.031  INFO 11473 --- [main] lavalink.server.Launcher                 : Starting Launcher on 192.168.1.5 with PID 11473 (/Users/siddharthm/Desktop/mine/discord/discord-bots/Horus2/Lavalink.jar started by siddharthm in /Users/siddharthm/Desktop/mine/discord/discord-bots/Horus2)
+2022-05-21 15:51:31.032  INFO 11473 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
+2022-05-21 15:51:31.226  WARN 11473 --- [background-preinit] o.s.h.c.j.Jackson2ObjectMapperBuilder    : For Jackson Kotlin classes support please add "com.fasterxml.jackson.module:jackson-module-kotlin" to the classpath
+2022-05-21 15:51:32.852  WARN 11473 --- [main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2022-05-21 15:51:32.915  INFO 11473 --- [main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
+2022-05-21 15:51:32.916  INFO 11473 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 1826 ms
+2022-05-21 15:51:33.687  WARN 11473 --- [main] l.server.config.SentryConfiguration      : Turning off sentry
+2022-05-21 15:51:34.123  INFO 11473 --- [main] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring enabled, reporting results every 2 minutes.
+2022-05-21 15:51:34.375  INFO 11473 --- [main] lavalink.server.config.KoeConfiguration  : OS: Mac OS X, Arch: x86_64
+2022-05-21 15:51:34.376  WARN 11473 --- [main] lavalink.server.config.KoeConfiguration  : This system and architecture appears to not support native audio sending! GC pauses may cause your bot to stutter during playback.
+2022-05-21 15:51:34.684  INFO 11473 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2022-05-21 15:51:35.107  INFO 11473 --- [main] org.xnio                                 : XNIO version 3.3.8.Final
+2022-05-21 15:51:35.123  INFO 11473 --- [main] org.xnio.nio                             : XNIO NIO Implementation Version 3.3.8.Final
+2022-05-21 15:51:35.228  INFO 11473 --- [main] o.s.b.w.e.u.UndertowServletWebServer     : Undertow started on port(s) 8080 (http) with context path ''
+2022-05-21 15:51:35.234  INFO 11473 --- [main] lavalink.server.Launcher                 : Started Launcher in 5.106 seconds (JVM running for 5.944)
+2022-05-21 15:51:35.236  INFO 11473 --- [main] lavalink.server.Launcher                 : You can safely ignore the big red warning about illegal reflection. See https://github.com/freyacodes/Lavalink/issues/295
+2022-05-21 16:14:49.557  INFO 11473 --- [XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2022-05-21 16:14:49.562  INFO 11473 --- [XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2022-05-21 16:14:49.626  INFO 11473 --- [XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 64 ms
+2022-05-21 16:14:49.713  INFO 11473 --- [XNIO-1 task-1] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:60444
+2022-05-21 16:14:49.884  INFO 11473 --- [XNIO-1 task-1] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 16:14:49.919  INFO 11473 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "be07a7bfb8ba78e9", "timeout": 60}
+2022-05-21 16:19:26.957  INFO 11473 --- [XNIO-1 task-2] l.server.player.AudioLoaderRestHandler   : Got request to load for identifier "ytsearch:my money don't jiggle jiggle"
+2022-05-21 16:19:28.262  INFO 11473 --- [lava-daemon-pool-info-loader-2-thread-1] lavalink.server.player.AudioLoader       : Loaded playlist Search results for: my money don't jiggle jiggle
+2022-05-21 16:19:34.840  INFO 11473 --- [XNIO-1 task-4] l.server.player.AudioLoaderRestHandler   : Got request to load for identifier "ytsearch:my money don't jiggle jiggle"
+2022-05-21 16:19:35.353  INFO 11473 --- [lava-daemon-pool-info-loader-2-thread-1] lavalink.server.player.AudioLoader       : Loaded playlist Search results for: my money don't jiggle jiggle
+2022-05-21 16:23:31.421  INFO 11473 --- [XNIO-1 task-6] l.server.player.AudioLoaderRestHandler   : Got request to load for identifier "ytsearch:my money don't jiggle jiggle"
+2022-05-21 16:23:31.955  INFO 11473 --- [lava-daemon-pool-info-loader-2-thread-1] lavalink.server.player.AudioLoader       : Loaded playlist Search results for: my money don't jiggle jiggle
+2022-05-21 16:23:31.975  INFO 11473 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : {"op": "play", "guildId": "873127663840137256", "track": "QAAArAIASUR1a2UgJiBKb25lcyAtIE15IE1vbmV5IERvbid0IEppZ2dsZSBKaWdnbGUgSXQgRm9sZHMgKEx5cmljcykgVGlrVG9rIFNvbmcACUxhdGluSHlwZQAAAAAAAX7QAAtYNEx0aXlzTUVVMAABACtodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PVg0THRpeXNNRVUwAAd5b3V0dWJlAAAAAAAAAAA=", "noReplace": false, "startTime": "0"}
+2022-05-21 16:23:32.030  INFO 11473 --- [XNIO-1 task-8] l.server.player.AudioLoaderRestHandler   : GET /decodetrack
+2022-05-21 16:23:32.504  INFO 11473 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : {"op": "voiceUpdate", "guildId": "873127663840137256", "sessionId": "44d924066fb6638c3a8aca1450fa5298", "event": {"token": "671a38313a7e5787", "guild_id": "873127663840137256", "endpoint": "india5661.discord.media:443"}}
+2022-05-21 16:25:11.632  INFO 11473 --- [XNIO-1 task-9] l.server.player.AudioLoaderRestHandler   : GET /decodetrack
+2022-05-21 16:25:35.662  INFO 11473 --- [XNIO-1 task-10] l.server.player.AudioLoaderRestHandler   : Got request to load for identifier "ytsearch:(Stay) True - Lars Eriksson"
+2022-05-21 16:25:36.225  INFO 11473 --- [lava-daemon-pool-info-loader-2-thread-1] lavalink.server.player.AudioLoader       : Loaded playlist Search results for: (Stay) True - Lars Eriksson
+2022-05-21 16:25:47.017  INFO 11473 --- [XNIO-1 task-12] l.server.player.AudioLoaderRestHandler   : Got request to load for identifier "ytsearch:(Stay) True - Lars Eriksson"
+2022-05-21 16:25:47.394  INFO 11473 --- [lava-daemon-pool-info-loader-2-thread-1] lavalink.server.player.AudioLoader       : Loaded playlist Search results for: (Stay) True - Lars Eriksson
+2022-05-21 16:25:59.190  INFO 11473 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:60444 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key be07a7bfb8ba78e9
+2022-05-21 16:26:07.587  INFO 11473 --- [XNIO-1 task-14] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:60603
+2022-05-21 16:26:07.597  INFO 11473 --- [XNIO-1 task-14] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 16:26:07.602  INFO 11473 --- [XNIO-1 I/O-4] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "08ce57367e67dc98", "timeout": 60}
+2022-05-21 16:26:11.782  INFO 11473 --- [XNIO-1 task-15] l.server.player.AudioLoaderRestHandler   : Got request to load for identifier "ytsearch:(Stay) True - Lars Eriksson"
+2022-05-21 16:26:12.392  INFO 11473 --- [lava-daemon-pool-info-loader-2-thread-1] lavalink.server.player.AudioLoader       : Loaded playlist Search results for: (Stay) True - Lars Eriksson
+2022-05-21 16:26:12.399  INFO 11473 --- [XNIO-1 I/O-4] lavalink.server.io.SocketServer          : {"op": "play", "guildId": "873127663840137256", "track": "QAAAfQIAG0xhcnMgRXJpa3Nzb24gLSAoU3RheSkgVHJ1ZQAIRXBpZGVtaWMAAAAAAANACAALQ1RvWk4zT3V1R1UAAQAraHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g/dj1DVG9aTjNPdXVHVQAHeW91dHViZQAAAAAAAAAA", "noReplace": false, "startTime": "0"}
+2022-05-21 16:26:12.403  INFO 11473 --- [XNIO-1 task-17] l.server.player.AudioLoaderRestHandler   : GET /decodetrack
+2022-05-21 16:26:13.151  INFO 11473 --- [XNIO-1 I/O-4] lavalink.server.io.SocketServer          : {"op": "voiceUpdate", "guildId": "873127663840137256", "sessionId": "d37e023b38b1faa1eae904948ef89995", "event": {"token": "a7e55f248f686b48", "guild_id": "873127663840137256", "endpoint": "india5661.discord.media:443"}}
+2022-05-21 16:26:59.210  INFO 11473 --- [pool-1-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 16:29:46.324  INFO 11473 --- [XNIO-1 task-18] l.server.player.AudioLoaderRestHandler   : GET /decodetrack
+2022-05-21 16:51:04.610  INFO 11473 --- [XNIO-1 I/O-4] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:60603 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key 08ce57367e67dc98
+2022-05-21 16:52:04.618  INFO 11473 --- [pool-2-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:30:39.825  INFO 11473 --- [XNIO-1 task-19] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61063
+2022-05-21 17:30:39.896  INFO 11473 --- [XNIO-1 task-19] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:30:39.900  INFO 11473 --- [XNIO-1 I/O-8] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "dbf0908de20db9bd", "timeout": 60}
+2022-05-21 17:31:48.585  INFO 11473 --- [XNIO-1 I/O-8] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61063 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key dbf0908de20db9bd
+2022-05-21 17:32:48.586  INFO 11473 --- [pool-3-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:32:50.017  INFO 11473 --- [XNIO-1 task-20] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61085
+2022-05-21 17:32:50.066  INFO 11473 --- [XNIO-1 task-20] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:32:50.068  INFO 11473 --- [XNIO-1 I/O-6] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "228fddcc42cde377", "timeout": 60}
+2022-05-21 17:33:07.016  INFO 11473 --- [XNIO-1 I/O-6] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61085 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key 228fddcc42cde377
+2022-05-21 17:33:11.130  INFO 11473 --- [XNIO-1 task-21] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61101
+2022-05-21 17:33:11.135  INFO 11473 --- [XNIO-1 task-21] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:33:11.137  INFO 11473 --- [XNIO-1 I/O-6] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "d538e65da06ac47d", "timeout": 60}
+2022-05-21 17:34:07.023  INFO 11473 --- [pool-4-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:51:16.392  INFO 11473 --- [XNIO-1 I/O-6] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61101 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key d538e65da06ac47d
+2022-05-21 17:51:18.741  INFO 11473 --- [XNIO-1 task-22] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61191
+2022-05-21 17:51:18.775  INFO 11473 --- [XNIO-1 task-22] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:51:18.776  INFO 11473 --- [XNIO-1 I/O-8] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "a15f1746946cdda1", "timeout": 60}
+2022-05-21 17:51:48.595  INFO 11473 --- [XNIO-1 I/O-8] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61191 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key a15f1746946cdda1
+2022-05-21 17:51:50.649  INFO 11473 --- [XNIO-1 task-23] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61208
+2022-05-21 17:51:50.662  INFO 11473 --- [XNIO-1 task-23] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:51:50.664  INFO 11473 --- [XNIO-1 I/O-1] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "bab83fe0b0df3d12", "timeout": 60}
+2022-05-21 17:52:07.019  INFO 11473 --- [XNIO-1 I/O-1] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61208 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key bab83fe0b0df3d12
+2022-05-21 17:52:09.226  INFO 11473 --- [XNIO-1 task-24] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61224
+2022-05-21 17:52:09.233  INFO 11473 --- [XNIO-1 task-24] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:52:09.238  INFO 11473 --- [XNIO-1 I/O-1] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "4cb7d30818d6f5d5", "timeout": 60}
+2022-05-21 17:52:16.399  INFO 11473 --- [pool-5-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:52:48.599  INFO 11473 --- [pool-6-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:53:07.024  INFO 11473 --- [pool-7-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:55:02.569  INFO 11473 --- [XNIO-1 I/O-1] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61224 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key 4cb7d30818d6f5d5
+2022-05-21 17:55:08.683  INFO 11473 --- [XNIO-1 task-25] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61279
+2022-05-21 17:55:08.716  INFO 11473 --- [XNIO-1 task-25] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:55:08.724  INFO 11473 --- [XNIO-1 I/O-8] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "b2f2795538754a57", "timeout": 60}
+2022-05-21 17:55:42.932  INFO 11473 --- [XNIO-1 I/O-8] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61279 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key b2f2795538754a57
+2022-05-21 17:55:45.199  INFO 11473 --- [XNIO-1 task-26] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61298
+2022-05-21 17:55:45.229  INFO 11473 --- [XNIO-1 task-26] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 17:55:45.234  INFO 11473 --- [XNIO-1 I/O-3] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "0e019e7414f8c4f4", "timeout": 60}
+2022-05-21 17:56:02.572  INFO 11473 --- [pool-8-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:56:20.848  INFO 11473 --- [XNIO-1 I/O-3] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61298 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key 0e019e7414f8c4f4
+2022-05-21 17:56:42.938  INFO 11473 --- [pool-9-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 17:57:20.853  INFO 11473 --- [pool-10-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 18:23:59.760  INFO 11473 --- [Thread-1] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'
+2022-05-21 18:23:59.801  INFO 11473 --- [Thread-1] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring disabled.
+2022-05-21 18:23:59.879  INFO 11473 --- [Thread-1] io.undertow.servlet                      : Destroying Spring FrameworkServlet 'dispatcherServlet'
+2022-05-21 18:24:54.981  INFO 15144 --- [main] lavalink.server.Launcher                 : 
+
+[32m       .  [31m _                  _ _       _    [32m__ _ _
+[32m      /\\ [31m| | __ ___   ____ _| (_)_ __ | | __[32m\ \ \ \
+[32m     ( ( )[31m| |/ _` \ \ / / _` | | | '_ \| |/ /[32m \ \ \ \
+[32m      \\/ [31m| | (_| |\ V / (_| | | | | | |   < [32m  ) ) ) )
+[32m       '  [31m|_|\__,_| \_/ \__,_|_|_|_| |_|_|\_\[32m / / / /
+[0m    =========================================[32m/_/_/_/[0m
+
+	Version:        3.4
+	Build:          1257
+	Build time:     26.10.2021 14:18:37 UTC
+	Branch          master
+	Commit:         a364833
+	Commit time:    26.10.2021 14:15:20 UTC
+	JVM:            11.0.11
+	Lavaplayer      1.3.96-original
+
+2022-05-21 18:24:55.133  INFO 15144 --- [main] lavalink.server.Launcher                 : Starting Launcher on 192.168.1.5 with PID 15144 (/Users/siddharthm/Desktop/mine/discord/discord-bots/Horus2/Lavalink.jar started by siddharthm in /Users/siddharthm/Desktop/mine/discord/discord-bots/Horus2)
+2022-05-21 18:24:55.134  INFO 15144 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
+2022-05-21 18:24:55.301  WARN 15144 --- [background-preinit] o.s.h.c.j.Jackson2ObjectMapperBuilder    : For Jackson Kotlin classes support please add "com.fasterxml.jackson.module:jackson-module-kotlin" to the classpath
+2022-05-21 18:24:56.663  WARN 15144 --- [main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2022-05-21 18:24:56.705  INFO 15144 --- [main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
+2022-05-21 18:24:56.706  INFO 15144 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 1515 ms
+2022-05-21 18:24:57.241  WARN 15144 --- [main] l.server.config.SentryConfiguration      : Turning off sentry
+2022-05-21 18:24:57.689  INFO 15144 --- [main] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring enabled, reporting results every 2 minutes.
+2022-05-21 18:24:57.955  INFO 15144 --- [main] lavalink.server.config.KoeConfiguration  : OS: Mac OS X, Arch: x86_64
+2022-05-21 18:24:57.955  WARN 15144 --- [main] lavalink.server.config.KoeConfiguration  : This system and architecture appears to not support native audio sending! GC pauses may cause your bot to stutter during playback.
+2022-05-21 18:24:58.253  INFO 15144 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2022-05-21 18:24:58.837  INFO 15144 --- [main] org.xnio                                 : XNIO version 3.3.8.Final
+2022-05-21 18:24:58.869  INFO 15144 --- [main] org.xnio.nio                             : XNIO NIO Implementation Version 3.3.8.Final
+2022-05-21 18:24:59.035  INFO 15144 --- [main] o.s.b.w.e.u.UndertowServletWebServer     : Undertow started on port(s) 8080 (http) with context path ''
+2022-05-21 18:24:59.041  INFO 15144 --- [main] lavalink.server.Launcher                 : Started Launcher in 4.755 seconds (JVM running for 5.556)
+2022-05-21 18:24:59.047  INFO 15144 --- [main] lavalink.server.Launcher                 : You can safely ignore the big red warning about illegal reflection. See https://github.com/freyacodes/Lavalink/issues/295
+2022-05-21 18:27:58.488  INFO 15144 --- [XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2022-05-21 18:27:58.489  INFO 15144 --- [XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2022-05-21 18:27:58.499  INFO 15144 --- [XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 10 ms
+2022-05-21 18:27:58.532  INFO 15144 --- [XNIO-1 task-1] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61460
+2022-05-21 18:27:58.663  INFO 15144 --- [XNIO-1 task-1] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 18:27:58.693  INFO 15144 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "b7d943c3a3b5d7c7", "timeout": 60}
+2022-05-21 18:27:58.720  INFO 15144 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61460 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key b7d943c3a3b5d7c7
+2022-05-21 18:28:58.728  INFO 15144 --- [pool-1-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 18:29:02.151  INFO 15144 --- [XNIO-1 task-2] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61476
+2022-05-21 18:29:02.158  INFO 15144 --- [XNIO-1 task-2] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 18:29:02.159  INFO 15144 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "38c804126114e56d", "timeout": 60}
+2022-05-21 18:29:42.553  INFO 15144 --- [XNIO-1 I/O-5] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61476 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key 38c804126114e56d
+2022-05-21 18:30:42.553  INFO 15144 --- [pool-2-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 18:42:35.715  INFO 15144 --- [XNIO-1 task-3] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61525
+2022-05-21 18:42:35.735  INFO 15144 --- [XNIO-1 task-3] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 18:42:35.737  INFO 15144 --- [XNIO-1 I/O-6] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "65a7596639447563", "timeout": 60}
+2022-05-21 18:43:07.180  INFO 15144 --- [XNIO-1 I/O-6] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61525 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key 65a7596639447563
+2022-05-21 18:44:07.185  INFO 15144 --- [pool-3-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2022-05-21 18:51:38.402  INFO 15144 --- [XNIO-1 task-4] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61618
+2022-05-21 18:51:38.426  INFO 15144 --- [XNIO-1 task-4] lavalink.server.io.SocketServer          : Connection successfully established from WaveLink
+2022-05-21 18:51:38.428  INFO 15144 --- [XNIO-1 I/O-3] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "ff9d2a083a8e7884", "timeout": 60}
