@@ -30,7 +30,6 @@ class ConfirmShutdown(discord.ui.View):
     async def cancel(self,  interaction: discord.Interaction, button: discord.ui.Button):
         for item in self.children:
             item.disabled = True
-            print(dir(item))
             item.style = discord.ButtonStyle.red if item.label == button.label else discord.ButtonStyle.gray 
         self.stop()
         await self.message.edit(content = "Cancelled Shutdown...", view = self)
