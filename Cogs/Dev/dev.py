@@ -8,6 +8,7 @@ import textwrap
 import io
 
 from .functions import get_reply, cleanup_code
+from .views import ConfirmShutdown
 
 
 class Dev(commands.Cog):
@@ -90,3 +91,9 @@ class Dev(commands.Cog):
             await ctx.send(f"Give me something I can't eval empty space.")
         else:
             print(error)
+    
+    @commands.command(name="shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
+    async def shutdown(self, ctx: commands.Context):
+        # Define some confirm buttons functions
+        view = ConfirmShutdown(self.bot, ctx, 60)
+        view.message = await ctx.reply("Are you sure you want to shutdown?", view = view)
