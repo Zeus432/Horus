@@ -26,6 +26,7 @@ class Horus(commands.Bot):
         self.colour = discord.Colour(0x9C9CFF)
         self._config = CONFIG
         self._launch = None
+        self._webhook = None
 
     async def on_ready(self) -> None:
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
@@ -37,8 +38,18 @@ class Horus(commands.Bot):
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
 
         self._launch = datetime.now()
+        self._webhook = await self.fetch_webhook(self._config["webhook"])
         
         logger.info(f"{self.user}: All systems Online!")
+        await self._webhook.send(
+            f'{self.user.mention} is now online! <t:{int(datetime.now().timestamp())}>\n'
+            f'```py\nGuilds: {len(self.guilds)}\n'
+            f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
+            f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
+            f'Members: {len(list(self.get_all_members()))}\n'
+            f'Channels: {len([1 for x in self.get_all_channels()])}```'
+        )
+
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
 
     async def setup_hook(self) -> None:
@@ -93,6 +104,15 @@ class Horus(commands.Bot):
     async def close(self):
         await self.vac_api.close()
         await self.session.close()
+
+        await self._webhook.send(
+            f'{self.user.mention} is now going offline! <t:{int(datetime.now().timestamp())}>\n'
+            f'```prolog\nGuilds: {len(self.guilds)}\n'
+            f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
+            f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
+            f'Members: {len(list(self.get_all_members()))}\n'
+            f'Channels: {len([1 for x in self.get_all_channels()])}```'
+        )
 
         await super().close()
 
