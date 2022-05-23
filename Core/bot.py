@@ -2,14 +2,17 @@ import discord
 from discord.ext import commands
 
 import wavelink, wavelink.ext.spotify as spotify
-from .settings import INITIAL_EXTENSIONS
 import redis.asyncio as redis
+from loguru import logger
 import asyncpg
 import json
 
+from .settings import INITIAL_EXTENSIONS
+
 
 class HorusCtx(commands.Context):
-    async def try_add_reaction(self, *args, **kwargs):
+    async def try_add_reaction(self, *args, **kwargs) -> None:
+        """Tries to add a reaction, ignores the error if it can't """
         try:
             await self.message.add_reaction(*args, **kwargs)
         except: pass
@@ -20,7 +23,7 @@ class Horus(commands.Bot):
         self._config = CONFIG
         self.colour = discord.Colour(0x9C9CFF)
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
         print(f'Guilds: {len(self.guilds)}')
         print(f'Large Guilds: {sum(g.large for g in self.guilds)}')
@@ -28,17 +31,11 @@ class Horus(commands.Bot):
         print(f'Members: {len(list(self.get_all_members()))}')
         print(f'Channels: {len([1 for x in self.get_all_channels()])}')
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
-
+        
+        logger.info(f"{self.user}: All systems Online!")
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
-    
-    async def setup_hook(self):
-        await self.connector()
 
-        for ext in INITIAL_EXTENSIONS:
-            await self.load_extension(ext)
-        await self.load_extension('jishaku')
-  
-    async def connector(self):
+    async def setup_hook(self) -> None:
         try: # Try Connecting to Postgres
             async def init_connection(conn):
                 await conn.set_type_codec(
@@ -50,9 +47,14 @@ class Horus(commands.Bot):
 
             self.db = await asyncpg.create_pool(self._config["postgresuri"], init = init_connection)
             print('Connected to Postgresql!')
+
+            #with open("schema.sql", encoding='utf-8') as f:
+            #    schema = f.read()
+            #    await self.db.execute(schema) # To add the tables to database if they don't exist
     
         except Exception as e:
             print(f"Unable to connect to Postgresql...\n{e}")
+            return await self.close()
         
 
         try: # Try connecting to Redis
@@ -61,7 +63,7 @@ class Horus(commands.Bot):
         
         except Exception as e:
             print(f"Unable to connect to Redis...\n{e}")
-            return
+            return await self.close()
         
 
         try: # Try connecting to Lavalink
@@ -74,7 +76,13 @@ class Horus(commands.Bot):
         
         except Exception as e:
             print(f"Unable to connect to Lavalink...\n{e}")
-            return
+            return await self.close()
+        
+        # Now Load extensions
+        for ext in INITIAL_EXTENSIONS:
+            await self.load_extension(ext)
+        await self.load_extension('jishaku')
+        logger.info(f"Loaded: {', '.join(INITIAL_EXTENSIONS)}, jishaku")
     
-    async def get_context(self, message: discord.Message, *, cls = HorusCtx):
+    async def get_context(self, message: discord.Message, *, cls = HorusCtx) -> HorusCtx:
         return await super().get_context(message, cls = cls)

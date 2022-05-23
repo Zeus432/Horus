@@ -3,6 +3,7 @@ __pycache__
 .vscode
 application.yml
 Core/config.toml
+Core/Horus.log
 dump.rdb
 horus-env
 Lavalink.jar
