@@ -46,6 +46,8 @@ pip install -U -r requirements.txt
 
 6. Fill out the necessary details in the [config file](Core/config-sample.toml) and then rename the file to `config.toml`
 
+7. For emojis you have to fill out the [emojis.json](Core/Assets/emojis.json) on your own, I have no other solution for that as of now
+
 ### Hosting the Bot
 Now to host the bot make sure your postgresql, redis and lavalink servers are online.  
 Then make sure you're in the directory where [`__main__.py`](__main__.py) is in and then run this command

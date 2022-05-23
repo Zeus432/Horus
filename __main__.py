@@ -1,5 +1,6 @@
 from Core.bot import Horus
 from loguru import logger
+import vacefron
 import asyncio
 import aiohttp
 import pathlib
@@ -17,6 +18,7 @@ bot = Horus(CONFIG)
 async def startup():
     async with bot, aiohttp.ClientSession() as session:
         bot.session = session
+        bot.vac_api = vacefron.Client(session = bot.session)
 
         await bot.start(CONFIG["TOKEN"], reconnect = True)
 

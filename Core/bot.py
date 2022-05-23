@@ -2,11 +2,14 @@ import discord
 from discord.ext import commands
 
 import wavelink, wavelink.ext.spotify as spotify
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 import redis.asyncio as redis
 from loguru import logger
 import asyncpg
 import json
 
+from Core.Utils.functions import load_json
 from .settings import INITIAL_EXTENSIONS
 
 
@@ -20,8 +23,9 @@ class HorusCtx(commands.Context):
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict, *args, **kwargs) -> None:
         super().__init__(command_prefix = commands.when_mentioned_or("h!"), intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, description = CONFIG['description'])
-        self._config = CONFIG
         self.colour = discord.Colour(0x9C9CFF)
+        self._config = CONFIG
+        self._launch = None
 
     async def on_ready(self) -> None:
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
@@ -31,6 +35,8 @@ class Horus(commands.Bot):
         print(f'Members: {len(list(self.get_all_members()))}')
         print(f'Channels: {len([1 for x in self.get_all_channels()])}')
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
+
+        self._launch = datetime.now()
         
         logger.info(f"{self.user}: All systems Online!")
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
@@ -84,5 +90,46 @@ class Horus(commands.Bot):
         await self.load_extension('jishaku')
         logger.info(f"Loaded: {', '.join(INITIAL_EXTENSIONS)}, jishaku")
     
+    async def close(self):
+        await self.vac_api.close()
+        await self.session.close()
+
+        await super().close()
+
     async def get_context(self, message: discord.Message, *, cls = HorusCtx) -> HorusCtx:
         return await super().get_context(message, cls = cls)
+    
+    async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None: # Process commands when owner edits a message
+        if not (after.channel.permissions_for(after.guild.me).send_messages and after.channel.permissions_for(after.guild.me).embed_links):
+            return
+
+        if self.is_owner(after.author):
+            await self.process_commands(after)
+    
+    def get_em(self, emoji: str | int) -> str:
+        if isinstance(emoji, int):
+            return self.get_emoji(emoji)
+
+        emojis = load_json(f'Core/Assets/emojis.json')
+        try:
+            return emojis[emoji]
+        except:
+            return emojis["error"]
+    
+    def get_uptime(self) -> str:
+        """ Get Bot Uptime in a neatly converted string """
+        delta_uptime = relativedelta(datetime.now(), self._launch)
+        days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
+
+        uptimes = {x[0]: x[1] for x in [('day', days), ('hour', hours), ('minute', minutes), ('second', seconds)] if x[1]}
+        l = len(uptimes) 
+
+        last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes) - 1)
+
+        uptime_string = ", ".join(
+            f"{uptimes[value]} {value}{'s' if uptimes[value] > 1 else ''}" for index, value in enumerate(uptimes.keys()) if index != l-1
+        )
+        uptime_string += f" and {uptimes[last]}" if l > 1 else f"{uptimes[last]}"
+        uptime_string += f" {last}{'s' if uptimes[last] > 1 else ''}"
+
+        return uptime_string
