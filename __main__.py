@@ -20,7 +20,7 @@ async def startup():
         bot.session = session
         bot.vac_api = vacefron.Client(session = bot.session)
 
-        await bot.start(CONFIG["TOKEN"], reconnect = True)
+        await bot.start(CONFIG['TOKEN'], reconnect = True)
 
 
 if __name__ == "__main__":

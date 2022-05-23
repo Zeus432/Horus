@@ -25,7 +25,7 @@ def write_toml(file: str, contents: dict) -> None:
 
 def _size(num):
     """ Convert Size from Bytes to appropriate size."""
-    for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
+    for unit in ['B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB']:
         if abs(num) < 1024.0:
             return f"{num:.1f}{unit}"
         num /= 1024.0
@@ -33,7 +33,7 @@ def _size(num):
             
 def _bitsize(num):
     """ Convert from Bytes to appropriate size."""
-    for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"]:
+    for unit in ['B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB']:
         if abs(num) < 1000.0:
             return f"{num:.1f}{unit}"
         num /= 1000.0

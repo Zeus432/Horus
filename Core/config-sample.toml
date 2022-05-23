@@ -1,7 +1,7 @@
 # rename the file as config.toml to use it
 
 version = "v0.2.0"
-prefix = [ "?",] # enter default prefix(es) here
+prefix = "?" # enter default prefix here
 webhook = 977405120830664724 # webhook id here
 errorchannel = 977405248748519444 # error channel id here
 description = "I am bot" # enter a bot description
