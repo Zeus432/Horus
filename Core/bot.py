@@ -23,6 +23,7 @@ class HorusCtx(commands.Context):
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict, *args, **kwargs) -> None:
         super().__init__(command_prefix = self.getprefix, intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, description = CONFIG['description'])
+        self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self.owner_ids = frozenset(CONFIG['Owners']) # I like freezing my bot owner ids you can remove this frozenset if you want to
         self.colour = discord.Colour(0x9C9CFF)
         self._config = CONFIG
@@ -125,7 +126,24 @@ class Horus(commands.Bot):
         except Exception as e:
             print(f"Unable to connect to Lavalink...\n{e}")
             return await self.close()
-        
+
+        # Check if bot just started or if it was restarted
+        r = self._config['restart']
+        message = r.pop('message')
+        invoke = r.pop('invoke')
+        start = r.pop('start')
+        end = datetime.utcnow().timestamp()
+
+        try:
+            msg = self.get_channel(message[0]).get_partial_message(message[1])
+            await msg.edit(content = f"Restarted **{self.user.name}** in `{round(end - start, 2)}s`")
+        except: pass
+
+        try:
+            react = self.get_channel(invoke[0]).get_partial_message(invoke[1])
+            await react.add_reaction(self.get_em('tick'))
+        except: pass
+   
         # Now Load extensions
         for ext in INITIAL_EXTENSIONS:
             await self.load_extension(ext)

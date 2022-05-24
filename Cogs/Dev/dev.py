@@ -1,5 +1,5 @@
 import discord
-from Core.bot import Horus
+from Core.bot import Horus, HorusCtx
 from discord.ext import commands
 
 from contextlib import redirect_stdout
@@ -18,13 +18,13 @@ class Dev(commands.Cog):
         self.bot = bot
         self._last_result = None
 
-    async def cog_check(self, ctx: commands.Context):
+    async def cog_check(self, ctx: HorusCtx):
         if await self.bot.is_owner(ctx.author):
             return True
         raise commands.NotOwner()
     
     @commands.command(name = 'eval', brief = "Evaluate Code", aliases = ['e'])
-    async def _eval(self, ctx: commands.Context, *, body: str):
+    async def _eval(self, ctx: HorusCtx, *, body: str):
         """ 
         **Execute asynchronous code.**
         This command wraps code into the body of an async function and then
@@ -92,8 +92,8 @@ class Dev(commands.Cog):
         else:
             print(error)
     
-    @commands.command(name="shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
-    async def shutdown(self, ctx: commands.Context):
+    @commands.command(name = "shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
+    async def shutdown(self, ctx: HorusCtx):
         # Define some confirm buttons functions
         view = ConfirmShutdown(self.bot, ctx, 60)
         view.message = await ctx.reply("Are you sure you want to shutdown?", view = view)

@@ -1,7 +1,8 @@
 import discord
+from Core.bot import HorusCtx
 from discord.ext import commands
 
-def get_reply(ctx: commands.Context) -> discord.Message | discord.DeletedReferencedMessage | None:
+def get_reply(ctx: HorusCtx) -> discord.Message | discord.DeletedReferencedMessage | None:
     """ Returns the reference to message of given ctx or None """
     if ctx.message.reference:
         return ctx.message.reference.resolved

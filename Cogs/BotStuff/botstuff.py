@@ -1,5 +1,5 @@
 import discord
-from Core.bot import Horus
+from Core.bot import Horus, HorusCtx
 from discord.ext import commands
 
 import time
@@ -12,12 +12,12 @@ class BotStuff(commands.Cog):
         self.bot = bot
     
     @commands.command(name = "info", aliases = ['about','botinfo'], brief = "Get Bot Info")
-    async def info(self, ctx: commands.Context):
+    async def info(self, ctx: HorusCtx):
         """ View some info about the bot """
         await ctx.send(f"Hello there, I'm {self.bot.user.name}") # develop this later
     
     @commands.command(name = "ping", brief = "Take a wild guess")
-    async def ping(self, ctx: commands.Context):
+    async def ping(self, ctx: HorusCtx):
         """ View the ping of the bot """
         async with ctx.typing():
             start = time.perf_counter()
@@ -44,13 +44,13 @@ class BotStuff(commands.Cog):
         await msg.edit(content = "Pong \U0001f3d3", embed = embed)
     
     @commands.command(name = 'uptime', aliases = ["ut"], brief = "Bot Uptime")
-    async def uptime(self, ctx: commands.Context):
+    async def uptime(self, ctx: HorusCtx):
         """Gets the uptime of the bot"""
         uptime_string = self.bot.get_uptime()
         await ctx.channel.send(f'**{self.bot.user.name}** has been up for {uptime_string}.\nSince <t:{round(self.bot._launch.timestamp())}>')
     
     @commands.command(name = "prefix", brief = "Get Server prefix")
-    async def prefix(self, ctx: commands.Context):
+    async def prefix(self, ctx: HorusCtx):
         """ Get a list of server prefixes """
         embed = discord.Embed(colour = self.bot.colour, description = "`" + "`\n`".join([f'@{self.bot.user.name}', *(prefix if prefix else '\u200b' for index, prefix in enumerate(await self.bot.getprefix(self.bot, ctx.message)) if index > 1) ]) + "`")
         embed.set_author(name = f"{ctx.guild}", icon_url = f"{ctx.guild.icon}")
