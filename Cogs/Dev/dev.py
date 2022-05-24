@@ -3,11 +3,13 @@ from Core.bot import Horus, HorusCtx
 from discord.ext import commands
 
 from contextlib import redirect_stdout
+from datetime import datetime
 import traceback
 import textwrap
 import io
 
-from .functions import get_reply, cleanup_code
+from Core.Utils.functions import write_toml
+from .functions import get_reply, cleanup_code, restart_program
 from .views import ConfirmShutdown
 
 
@@ -23,7 +25,7 @@ class Dev(commands.Cog):
             return True
         raise commands.NotOwner()
     
-    @commands.command(name = 'eval', brief = "Evaluate Code", aliases = ['e'])
+    @commands.command(name = 'eval', aliases = ['e'], brief = "Evaluate Code")
     async def _eval(self, ctx: HorusCtx, *, body: str):
         """ 
         **Execute asynchronous code.**
@@ -91,6 +93,23 @@ class Dev(commands.Cog):
             await ctx.send(f"Give me something I can't eval empty space.")
         else:
             print(error)
+
+    @commands.command(name = "restart", brief = "Restart Bot")
+    async def restart(self, ctx: HorusCtx):
+        """ Easier way to restart the bot without having to stop it and then manually start it again """
+        message = await ctx.send(f"**{self.bot.user.name}** is Restarting")
+        await ctx.try_add_reaction("\U000023f0")
+
+        try:
+            self.bot._config['restart'] = {
+                "start": datetime.utcnow().timestamp(),
+                "message": [message.channel.id, message.id],
+                "invoke": [ctx.message.channel.id, ctx.message.id]
+            }
+            write_toml('Core/config.toml', self.bot._config)
+            restart_program()
+        except:
+            await message.add_reaction(self.bot.get_em('cross'))
     
     @commands.command(name = "shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
     async def shutdown(self, ctx: HorusCtx):

@@ -6,10 +6,11 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import redis.asyncio as redis
 from loguru import logger
+from typing import List
 import asyncpg
 import json
 
-from Core.Utils.functions import load_json
+from Core.Utils.functions import load_json, write_toml
 from .settings import INITIAL_EXTENSIONS
 
 
@@ -31,7 +32,7 @@ class Horus(commands.Bot):
         self._webhook = None
         self._noprefix = None
     
-    async def getprefix(self, bot: commands.Bot, message: discord.Message) -> list[str]:
+    async def getprefix(self, bot: commands.Bot, message: discord.Message) -> List[str]:
         # Check for prefix in cache, if not then get from db and build cache
         default = await self.redis.hget("prefix", "default")
         prefix = [default]
@@ -127,22 +128,11 @@ class Horus(commands.Bot):
             print(f"Unable to connect to Lavalink...\n{e}")
             return await self.close()
 
-        # Check if bot just started or if it was restarted
-        r = self._config['restart']
-        message = r.pop('message')
-        invoke = r.pop('invoke')
-        start = r.pop('start')
-        end = datetime.utcnow().timestamp()
+        if restart := self._config['restart']: # Check if bot just started or if it was restarted
+            self.loop.create_task(self.restartchk(**restart))
+            self._config['restart'] = {}
+            write_toml(f'Core/config.toml', self._config)
 
-        try:
-            msg = self.get_channel(message[0]).get_partial_message(message[1])
-            await msg.edit(content = f"Restarted **{self.user.name}** in `{round(end - start, 2)}s`")
-        except: pass
-
-        try:
-            react = self.get_channel(invoke[0]).get_partial_message(invoke[1])
-            await react.add_reaction(self.get_em('tick'))
-        except: pass
    
         # Now Load extensions
         for ext in INITIAL_EXTENSIONS:
@@ -154,14 +144,15 @@ class Horus(commands.Bot):
         await self.vac_api.close()
         await self.session.close()
 
-        await self._webhook.send(
-            f'{self.user.mention} is now going offline! <t:{round(datetime.now().timestamp())}>\n'
-            f'```prolog\nGuilds: {len(self.guilds)}\n'
-            f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
-            f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
-            f'Members: {len(list(self.get_all_members()))}\n'
-            f'Channels: {len([1 for x in self.get_all_channels()])}```'
-        )
+        if self._webhook:
+            await self._webhook.send(
+                f'{self.user.mention} is now going offline! <t:{round(datetime.now().timestamp())}>\n'
+                f'```prolog\nGuilds: {len(self.guilds)}\n'
+                f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
+                f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
+                f'Members: {len(list(self.get_all_members()))}\n'
+                f'Channels: {len([1 for x in self.get_all_channels()])}```'
+            )
 
         await super().close()
 
@@ -202,3 +193,18 @@ class Horus(commands.Bot):
         uptime_string += f" {last}{'s' if uptimes[last] > 1 else ''}"
 
         return uptime_string
+    
+    async def restartchk(self, message: List[int], invoke: List[int], start: int) -> None:
+        """ Do stuff if bot has been restarted """
+        await self.wait_until_ready()
+        end = datetime.utcnow().timestamp()
+
+        try:
+            msg = self.get_channel(message[0]).get_partial_message(message[1])
+            await msg.edit(content = f"Restarted **{self.user.name}** in `{round(end - start, 2)}s`")
+        except: pass
+
+        try:
+            react = self.get_channel(invoke[0]).get_partial_message(invoke[1])
+            await react.add_reaction(self.get_em('tick'))
+        except: pass

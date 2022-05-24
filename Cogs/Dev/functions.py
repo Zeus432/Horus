@@ -2,6 +2,10 @@ import discord
 from Core.bot import HorusCtx
 from discord.ext import commands
 
+import sys
+import os
+
+
 def get_reply(ctx: HorusCtx) -> discord.Message | discord.DeletedReferencedMessage | None:
     """ Returns the reference to message of given ctx or None """
     if ctx.message.reference:
@@ -14,3 +18,8 @@ def cleanup_code(content: str) -> str:
         num = 6 if content.startswith('```py\n') else (4 if content.startswith('```\n') else 3)
         return content[num:-3]
     else: return content
+
+def restart_program() -> None:
+    """ Restart the program """
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
