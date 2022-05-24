@@ -4,6 +4,7 @@ from discord.ext import commands
 
 import time
 
+
 class BotStuff(commands.Cog):
     """ Bot Related Stuff """
 
@@ -55,6 +56,6 @@ class BotStuff(commands.Cog):
         embed.set_author(name = f"{ctx.guild}", icon_url = f"{ctx.guild.icon}")
 
         if ctx.author.guild_permissions.administrator:
-            embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}prefix set <prefix>`")
+            embed.set_footer(text = f"Set prefix with `{ctx.clean_prefix}setprefix <prefix>`")
 
         await ctx.reply(embed = embed, mention_author = False)

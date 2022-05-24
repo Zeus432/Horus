@@ -8,6 +8,7 @@ description = "I am bot" # enter a bot description
 redisuri = "redis://foo.bar.com:12345" # Redis info for connection
 postgresuri = "postgresql://user:password@host/database" # Postgresql info for connection
 TOKEN = "ODU4MzM1NjYzNTcxOTkyNjE4.YNcpYQ.vXnLsRySx0sJBo-0D10xCue2X9s" # enter bot token (be careful not to leak it)
+Owners = [1994005784, 399005990003] # ids of all owners - I like to do this so that I can give owner permissions to others at times without having to give them access to the application itself.
 
 [github]
 branch = "main" # github branch

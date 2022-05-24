@@ -5,6 +5,7 @@ os.environ['JISHAKU_HIDE'] = "True"
 os.environ['JISHAKU_NO_DM_TRACEBACK'] = "True"
 
 INITIAL_EXTENSIONS = [
-    'Cogs.Dev',
-    'Cogs.BotStuff'
+    'Cogs.Admin',
+    'Cogs.BotStuff',
+    'Cogs.Dev'
 ]

@@ -22,15 +22,40 @@ class HorusCtx(commands.Context):
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict, *args, **kwargs) -> None:
-        super().__init__(command_prefix = commands.when_mentioned_or("h!"), intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, description = CONFIG['description'])
+        super().__init__(command_prefix = self.getprefix, intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, description = CONFIG['description'])
+        self.owner_ids = frozenset(CONFIG['Owners']) # I like freezing my bot owner ids you can remove this frozenset if you want to
         self.colour = discord.Colour(0x9C9CFF)
         self._config = CONFIG
         self._launch = None
         self._webhook = None
+        self._noprefix = None
     
-    async def getprefix(self, bot: commands.Bot, message: discord.Message):
+    async def getprefix(self, bot: commands.Bot, message: discord.Message) -> list[str]:
         # Check for prefix in cache, if not then get from db and build cache
-        0
+        default = await self.redis.hget("prefix", "default")
+        prefix = [default]
+
+        if message.guild:
+            if pre := await self.redis.hget("prefix", message.guild.id):
+                prefix = [pre]
+            
+            else:
+                if pre := await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id):
+                    prefix = pre
+                
+                else:
+                    prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix', message.guild.id, default)
+
+                await self.redis.hset("prefix", message.guild.id, prefix[0]) # Update cache to have new value
+
+        if message.author.id in self.owner_ids:
+            if default not in prefix:
+                prefix.append(default)
+
+            if self._noprefix:
+                prefix.append("")
+        
+        return commands.when_mentioned_or(*prefix)(bot, message) # Return Prefix
 
     async def on_ready(self) -> None:
         print(f'\nLogged in as {self.user} (ID: {self.user.id})')
@@ -44,11 +69,11 @@ class Horus(commands.Bot):
         self._launch = datetime.now()
         self._webhook = await self.fetch_webhook(self._config['webhook'])
 
-        await self.redis.hmset("prefix", {"default": {self._config['prefix']}}) # make prefix cache
+        await self.redis.hmset("prefix", {"default": self._config['prefix']}) # make redis prefix cache
         
         logger.info(f"{self.user}: All systems Online!")
         await self._webhook.send(
-            f'{self.user.mention} is now online! <t:{int(datetime.now().timestamp())}>\n'
+            f'{self.user.mention} is now online! <t:{round(datetime.now().timestamp())}>\n'
             f'```py\nGuilds: {len(self.guilds)}\n'
             f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
             f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
@@ -112,7 +137,7 @@ class Horus(commands.Bot):
         await self.session.close()
 
         await self._webhook.send(
-            f'{self.user.mention} is now going offline! <t:{int(datetime.now().timestamp())}>\n'
+            f'{self.user.mention} is now going offline! <t:{round(datetime.now().timestamp())}>\n'
             f'```prolog\nGuilds: {len(self.guilds)}\n'
             f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
             f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
@@ -129,7 +154,7 @@ class Horus(commands.Bot):
         if not (after.channel.permissions_for(after.guild.me).send_messages and after.channel.permissions_for(after.guild.me).embed_links):
             return
 
-        if self.is_owner(after.author):
+        if after.author.id in self.owner_ids:
             await self.process_commands(after)
     
     def get_em(self, emoji: str | int) -> str:
