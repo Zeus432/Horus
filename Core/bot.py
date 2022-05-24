@@ -29,6 +29,7 @@ class Horus(commands.Bot):
         self.colour = discord.Colour(0x9C9CFF)
         self._config = CONFIG
         self._launch = None
+        self._devmode = None
         self._webhook = None
         self._noprefix = None
     
@@ -208,3 +209,9 @@ class Horus(commands.Bot):
             react = self.get_channel(invoke[0]).get_partial_message(invoke[1])
             await react.add_reaction(self.get_em('tick'))
         except: pass
+    
+    async def on_message(self, message: discord.Message):
+        if self.dev_mode and message.author.id not in self.owner_ids:
+            return # Only Developers can run commands in dev mode
+        
+        await self.process_commands(message)
