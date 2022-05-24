@@ -211,7 +211,7 @@ class Horus(commands.Bot):
         except: pass
     
     async def on_message(self, message: discord.Message):
-        if self.dev_mode and message.author.id not in self.owner_ids:
+        if self._devmode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
-        
+
         await self.process_commands(message)
