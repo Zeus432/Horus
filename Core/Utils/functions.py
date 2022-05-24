@@ -1,6 +1,7 @@
 import json
 import toml
 
+
 def load_json(file: str) -> dict:
     """ Load json content from the given file """
     with open(file, encoding = 'utf-8') as newfile:

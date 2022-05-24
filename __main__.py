@@ -7,6 +7,7 @@ import pathlib
 
 from Core.Utils.functions import load_toml
 
+
 CONFIG = load_toml('Core/config.toml')
 rootdir = pathlib.Path(__file__).parent.resolve()
 

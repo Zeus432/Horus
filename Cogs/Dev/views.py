@@ -2,6 +2,7 @@ import discord
 from Core.bot import Horus, HorusCtx
 from discord.ext import commands
 
+
 class ConfirmShutdown(discord.ui.View):
     """ A view for confirming shutdown """
     def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 30.0, **kwargs) -> None:
