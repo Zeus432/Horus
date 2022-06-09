@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 
+from typing import Any, List, Optional, Union, Sequence
 import wavelink, wavelink.ext.spotify as spotify
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import redis.asyncio as redis
 from loguru import logger
-from typing import List
 import asyncpg
 import json
 
@@ -35,6 +35,17 @@ class HorusCtx(commands.Context):
         else:
             await self.message.add_reaction(self.bot.get_em("cross"))
 
+    async def send(self, content: Optional[str] = None, *, tts: bool = False, embed: Optional[discord.Embed] = None, embeds: Optional[Sequence[discord.Embed]] = None, file: Optional[discord.File] = None, files: Optional[Sequence[discord.File]] = None, stickers: Optional[Sequence[Union[discord.GuildSticker, discord.StickerItem]]] = None, delete_after: Optional[float] = None, nonce: Optional[Union[str, int]] = None, allowed_mentions: Optional[discord.AllowedMentions] = None, reference: Optional[Union[discord.Message, discord.MessageReference, discord.PartialMessage]] = None, mention_author: Optional[bool] = None, view: Optional[discord.ui.View] = None, suppress_embeds: bool = False, ephemeral: bool = False) -> discord.Message:
+        obj = await super().send(content, tts = tts, embed = embed, embeds = embeds, file = file, files = files, stickers = stickers, delete_after = delete_after, nonce = nonce, allowed_mentions = allowed_mentions, reference = reference, mention_author = mention_author, view = view, suppress_embeds = suppress_embeds, ephemeral = ephemeral)
+        if view is not None:
+            view.message = obj
+        return obj
+    
+    async def reply(self, content: Optional[str] = None, **kwargs: Any) -> discord.Message:
+        obj = await super().reply(content, **kwargs)
+        if "view" in kwargs.keys():
+            kwargs["view"].message = obj
+        return obj
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict, *args, **kwargs) -> None:
