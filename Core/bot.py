@@ -15,11 +15,26 @@ from .settings import INITIAL_EXTENSIONS
 
 
 class HorusCtx(commands.Context):
-    async def try_add_reaction(self, *args, **kwargs) -> None:
+    async def try_add_reaction(self, emoji: str) -> None:
         """Tries to add a reaction, ignores the error if it can't """
         try:
-            await self.message.add_reaction(*args, **kwargs)
+            await self.message.add_reaction(emoji)
         except: pass
+    
+    async def tick(self, ignore_errors: bool = False) -> None:
+        """ Easy way to react with tick emoji """
+        if ignore_errors is True:
+            await self.try_add_reaction(self.bot.get_em("tick"))
+        else:
+            await self.message.add_reaction(self.bot.get_em("tick"))
+    
+    async def cross(self, ignore_errors: bool = False) -> None:
+        """ Easy way to react with cross emoji """
+        if ignore_errors is True:
+            await self.try_add_reaction(self.bot.get_em("cross"))
+        else:
+            await self.message.add_reaction(self.bot.get_em("cross"))
+
 
 class Horus(commands.Bot):
     def __init__(self, CONFIG: dict, *args, **kwargs) -> None:
@@ -211,6 +226,9 @@ class Horus(commands.Bot):
         except: pass
     
     async def on_message(self, message: discord.Message):
+        if message.guild is None:
+            return # Return if command is in dms
+
         if self._devmode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
 
