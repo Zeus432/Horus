@@ -11,7 +11,7 @@ import io
 
 from Core.Utils.functions import write_toml
 from .functions import get_reply, cleanup_code, restart_program, plural, TabularData
-from .views import ConfirmShutdown
+from .views import ConfirmShutdown, ChangeStatus
 
 
 class Dev(commands.Cog):
@@ -43,7 +43,6 @@ class Dev(commands.Cog):
         `channel` - the current channel object
         `author` - command author's member object
         `message` - the command's message object
-        `discord` - disnake.py library
         `_` - The result of the last dev command.
         """
 
@@ -79,7 +78,7 @@ class Dev(commands.Cog):
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
             value = stdout.getvalue()
-            await ctx.try_add_reaction("<:TickYes:904315692311011360>")
+            await ctx.tick(ignore_errors = True)
 
             if ret is None:
                 if value:
@@ -112,11 +111,10 @@ class Dev(commands.Cog):
         except:
             await message.add_reaction(self.bot.get_em('cross'))
     
-    @commands.command(name = "shutdown", aliases = ['die','sd','stop'], help = "Shutdown the Bot", brief = "Shutdown")
+    @commands.command(name = "shutdown", aliases = ['die','sd','stop', 'https://tenor.com/view/thanos-gamora-infinity-war-soul-stone-sacrifice-gif-14289940'], help = "Shutdown the Bot", brief = "Shutdown")
     async def shutdown(self, ctx: HorusCtx):
         # Define some confirm buttons functions
-        view = ConfirmShutdown(self.bot, ctx, 60)
-        view.message = await ctx.reply("Are you sure you want to shutdown?", view = view)
+        await ctx.reply("Are you sure you want to shutdown?", view = ConfirmShutdown(self.bot, ctx, 60))
     
     @commands.command(name = "enable", aliases = ['en'], brief = "Enable Command")
     async def enable(self, ctx: HorusCtx, command: str):
@@ -198,3 +196,13 @@ class Dev(commands.Cog):
         self.bot._noprefix = False if self.bot._noprefix else True
         state = f"disabled, use default prefixes now {self.bot.get_em('hadtodoittoem')}" if not self.bot._noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
+    
+    @commands.command(name = "status", brief = "Change Bot Status")
+    @commands.max_concurrency(1, commands.BucketType.user)
+    async def status(self, ctx: HorusCtx):
+        embed = discord.Embed(colour = self.bot.colour)
+        embed.add_field(name = "Status:", value = f"{self.bot.get_em(ctx.guild.me.status.name)} {ctx.guild.me.status.name.capitalize()}", inline = False)
+        if (act := ctx.guild.me.activity) is not None:
+            embed.add_field(name = "Activity:", value = f"```{act.type.name.capitalize()} {act.name}```", inline = False)
+
+        await ctx.send(embed = embed, view = ChangeStatus(self.bot, ctx))
