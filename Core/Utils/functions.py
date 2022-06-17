@@ -119,31 +119,6 @@ class GuildEmbed:
         return embed
 
 
-vc_regions = {
-            "vip-us-east": "__VIP__ US East " + "\U0001F1FA\U0001F1F8",
-            "vip-us-west": "__VIP__ US West " + "\U0001F1FA\U0001F1F8",
-            "vip-amsterdam": "__VIP__ Amsterdam " + "\U0001F1F3\U0001F1F1",
-            "eu-west": "EU West " + "\U0001F1EA\U0001F1FA",
-            "eu-central": "EU Central " + "\U0001F1EA\U0001F1FA",
-            "europe": "Europe " + "\U0001F1EA\U0001F1FA",
-            "london": "London " + "\U0001F1EC\U0001F1E7",
-            "frankfurt": "Frankfurt " + "\U0001F1E9\U0001F1EA",
-            "amsterdam": "Amsterdam " + "\U0001F1F3\U0001F1F1",
-            "us_west": "US West " + "\U0001F1FA\U0001F1F8",
-            "us-east": "US East " + "\U0001F1FA\U0001F1F8",
-            "us-south": "US South " + "\U0001F1FA\U0001F1F8",
-            "us-central": "US Central " + "\U0001F1FA\U0001F1F8",
-            "singapore": "Singapore " + "\U0001F1F8\U0001F1EC",
-            "sydney": "Sydney " + "\U0001F1E6\U0001F1FA",
-            "brazil": "Brazil " + "\U0001F1E7\U0001F1F7",
-            "hongkong": "Hong Kong " + "\U0001F1ED\U0001F1F0",
-            "russia": "Russia " + "\U0001F1F7\U0001F1FA",
-            "japan": "Japan " + "\U0001F1EF\U0001F1F5",
-            "southafrica": "South Africa " + "\U0001F1FF\U0001F1E6",
-            "india": "India " + "\U0001F1EE\U0001F1F3",
-            "south-korea": "South Korea " + "\U0001f1f0\U0001f1f7",
-            'dubai':'\U0001f1e6\U0001f1ea'
-        }
 verif = {
             "none": "0 - None",
             "low": "1 - Low",
