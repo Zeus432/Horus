@@ -1,7 +1,8 @@
-from cProfile import label
 import discord
-from Core.bot import Horus, HorusCtx
 from discord.ext import commands
+from Core.bot import Horus, HorusCtx
+
+from Core.Utils.functions import emojis
 
 
 class ConfirmShutdown(discord.ui.View):
@@ -14,7 +15,7 @@ class ConfirmShutdown(discord.ui.View):
         self.ctx = ctx
         self.message: discord.Message
     
-    async def interaction_check(self, interaction: discord.MessageInteraction) -> bool:
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if self.user.id == interaction.user.id:
             await interaction.response.defer()
             return True
@@ -43,6 +44,7 @@ class ConfirmShutdown(discord.ui.View):
             item.style = discord.ButtonStyle.red if item.label == "Cancel" else discord.ButtonStyle.gray 
         await self.message.edit(content = "Decide faster next time", view = self)
 
+
 class ChangeStatus(discord.ui.View):
     def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 90.0, **kwargs) -> None:
         super().__init__(timeout = timeout)
@@ -56,7 +58,7 @@ class ChangeStatus(discord.ui.View):
             if ctx.guild.me.status.name == item.custom_id:
                 item.disabled = True
     
-    async def interaction_check(self, interaction: discord.MessageInteraction) -> bool:
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if self.user.id == interaction.user.id:
             return True
         
@@ -76,19 +78,19 @@ class ChangeStatus(discord.ui.View):
 
         await interaction.response.edit_message(embed = embed, view = self)
     
-    @discord.ui.button(emoji = '<:_:984147000540930109>', style = discord.ButtonStyle.grey, custom_id = "online")
+    @discord.ui.button(emoji = emojis("online"), style = discord.ButtonStyle.grey, custom_id = "online")
     async def online(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.change_status(interaction, discord.Status.online)
     
-    @discord.ui.button(emoji = '<:_:984147387629052004>', style = discord.ButtonStyle.grey, custom_id = "idle")
+    @discord.ui.button(emoji = emojis("idle"), style = discord.ButtonStyle.grey, custom_id = "idle")
     async def idle(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.change_status(interaction, discord.Status.idle)
     
-    @discord.ui.button(emoji = '<:_:984147117306183781>', style = discord.ButtonStyle.grey, custom_id = "dnd")
+    @discord.ui.button(emoji = emojis("dnd"), style = discord.ButtonStyle.grey, custom_id = "dnd")
     async def dnd(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.change_status(interaction, discord.Status.dnd)
     
-    @discord.ui.button(emoji = '<:_:984147221094215700>', style = discord.ButtonStyle.grey, custom_id = "offline")
+    @discord.ui.button(emoji = emojis("offline"), style = discord.ButtonStyle.grey, custom_id = "offline")
     async def offline(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.change_status(interaction, discord.Status.offline)
     
@@ -115,6 +117,7 @@ class ChangeStatus(discord.ui.View):
             item.disabled = True
         
         await self.message.edit(view = self)
+
 
 class Activity(discord.ui.Modal):
     def __init__(self, *, ctx: HorusCtx, bot: Horus) -> None:
@@ -158,3 +161,51 @@ class Activity(discord.ui.Modal):
         embed.add_field(name = "Activity:", value = f"```{self.atype.values[0]} {self.aname.value}```", inline = False)
 
         await interaction.response.edit_message(embed = embed)
+
+
+class ConfirmLeave(discord.ui.View):
+    def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 90):
+        super().__init__(timeout = timeout)
+        self.bot = bot
+        self.ctx = ctx
+        self.guild = ctx.guild
+        self.user = ctx.author
+    
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if self.user.id == interaction.user.id:
+            await interaction.response.defer()
+            return True
+        
+        await interaction.response.send_message('This is not your button to click!', ephemeral = True)
+        return False
+    
+    async def edit_embed(self, button, interaction, message, colour):
+        for item in self.children:
+            item.disabled = True
+            item.style = discord.ButtonStyle.gray if item != button else button.style
+
+        await interaction.message.edit(embed = discord.Embed(description = message, colour = colour), view = self)
+    
+    @discord.ui.button(label = 'Confirm', style = discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try:
+            await self.guild.leave()
+        except:
+            button.style = discord.ButtonStyle.red
+            await self.edit_embed(button, interaction, f"I was unable to leave **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**!", discord.Colour.red())
+        else:
+            await self.edit_embed(button, interaction, f"I have left **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**, sucks for them.", discord.Colour.green())
+        self.stop()
+
+    @discord.ui.button(label = 'Cancel', style = discord.ButtonStyle.gray)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        button.style = discord.ButtonStyle.red
+        await self.edit_embed(button, interaction, f"Guess I'm not leaving **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})** today", discord.Colour.red())
+        self.stop()
+    
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+            item.style = discord.ButtonStyle.red if item.label == "Cancel" else discord.ButtonStyle.gray
+
+        await self.message.edit(embed = discord.Embed(description = f"You took too long to respond!", colour = discord.Colour.red()), view = self)

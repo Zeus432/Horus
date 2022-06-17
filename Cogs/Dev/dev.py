@@ -9,10 +9,10 @@ import textwrap
 import time
 import io
 
-from Core.Utils.functions import write_toml
+from Core.Utils.functions import GuildEmbed, write_toml
 from Core.settings import INITIAL_EXTENSIONS
 from .functions import get_reply, cleanup_code, restart_program, plural, TabularData
-from .views import ConfirmShutdown, ChangeStatus
+from .views import ConfirmShutdown, ChangeStatus, GuildView, ConfirmLeave
 
 
 class Dev(commands.Cog):
@@ -271,3 +271,10 @@ class Dev(commands.Cog):
             await msg.edit(content = f"```glsl\n{guilds}```")
         else:
             await ctx.send(content = f"```glsl\n{guilds}```")
+    
+    @commands.command(name = "leave", brief = "Leave Guild")
+    async def leave(self, ctx: HorusCtx, guild: discord.Guild = None):
+        guild = ctx.guild if not guild else guild
+        embed = discord.Embed(description = f"Are you sure you want to leave **[{guild}]({guild.icon})**?", colour = discord.Colour(0x2F3136))
+
+        await ctx.reply(embed = embed, view = ConfirmLeave(self.bot, ctx))
