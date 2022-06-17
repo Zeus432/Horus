@@ -1,6 +1,6 @@
 import discord
-from Core.bot import Horus, HorusCtx
 from discord.ext import commands
+from Core.bot import Horus, HorusCtx
 
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -257,3 +257,17 @@ class Dev(commands.Cog):
         else:
             await ctx.send(f"\U0001f4e4 Unloaded Module `{cog}`")
             self._last_cog = cog
+
+    @commands.command(name = "guildlist", brief = "Guilds List")
+    async def guildlist(self, ctx: HorusCtx):
+        """ Get a list of all Guilds Horus is in """
+        async with ctx.typing():
+            msg = await ctx.reply("Fetching Guilds", mention_author = False)
+            guilds = "\n".join([f"{index + 1}) {guild.name} ({guild.id})" for index, guild in enumerate(sorted(self.bot.guilds, key = lambda u: u.me.joined_at))])
+        
+        try:
+            await msg.delete()
+        except:
+            await msg.edit(content = f"```glsl\n{guilds}```")
+        else:
+            await ctx.send(content = f"```glsl\n{guilds}```")

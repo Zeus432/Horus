@@ -1,7 +1,6 @@
-from sys import prefix
 import discord
-from Core.bot import Horus, HorusCtx
 from discord.ext import commands
+from Core.bot import Horus, HorusCtx
 
 
 class Admin(commands.Cog):
