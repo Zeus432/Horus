@@ -10,6 +10,7 @@ import time
 import io
 
 from Core.Utils.functions import write_toml
+from Core.settings import INITIAL_EXTENSIONS
 from .functions import get_reply, cleanup_code, restart_program, plural, TabularData
 from .views import ConfirmShutdown, ChangeStatus
 
@@ -20,6 +21,7 @@ class Dev(commands.Cog):
     def __init__(self, bot: Horus):
         self.bot = bot
         self._last_result = None
+        self._last_cog = None
 
     async def cog_check(self, ctx: HorusCtx):
         if await self.bot.is_owner(ctx.author):
@@ -206,3 +208,52 @@ class Dev(commands.Cog):
             embed.add_field(name = "Activity:", value = f"```{act.type.name.capitalize()} {act.name}```", inline = False)
 
         await ctx.send(embed = embed, view = ChangeStatus(self.bot, ctx))
+    
+    @commands.command(name = "load", aliases = ['l'], brief = "Load Cogs")
+    async def load(self, ctx: HorusCtx, cog: str = None):
+        """ Loads/Reloads the Cog(s) given. If no cog is mentioned it reloads the last loaded cog """
+        if cog is None and (cog := self._last_cog) is None:
+            return await ctx.reply("You need to provide a cog to load!")
+        
+        for c in INITIAL_EXTENSIONS:
+            if cog.lower() in c.lower():
+                cog = c
+                break
+        
+        try:
+            await self.bot.load_extension(cog)
+        except commands.ExtensionAlreadyLoaded:
+            try:
+                await self.bot.unload_extension(cog)
+                await self.bot.load_extension(cog)
+            except Exception as error:
+                await ctx.send(f"I was unable to reload `{cog}`\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+            
+            else:
+                await ctx.send(f"\U0001f501 Reloaded Module `{cog}`")
+                self._last_cog = cog
+        
+        except Exception as error:
+            await ctx.send(f"I was unable to load `{cog}`\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+        else:
+            await ctx.send(f"\U0001f4e5 Loaded Module `{cog}`")
+            self._last_cog = cog
+    
+    @commands.command(name = "unload", aliases = ['ul'], brief = "Unload Cogs")
+    async def unload(self, ctx: HorusCtx, cog: str = None):
+        """ Unloads the Cog(s) given. If no cog is mentioned it unloads the last loaded cog """
+        if cog is None and (cog := self._last_cog) is None:
+            return await ctx.reply("You need to provide a cog to unload!")
+        
+        for c in INITIAL_EXTENSIONS:
+            if cog.lower() in c.lower():
+                cog = c
+                break
+        
+        try:
+            await self.bot.unload_extension(cog)
+        except Exception as error:
+            await ctx.send(f"I was unable to unload `{cog}`\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+        else:
+            await ctx.send(f"\U0001f4e4 Unloaded Module `{cog}`")
+            self._last_cog = cog

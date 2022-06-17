@@ -170,6 +170,7 @@ class Horus(commands.Bot):
     async def close(self):
         await self.vac_api.close()
         await self.session.close()
+        await self.redis.shutdown()
 
         if self._webhook:
             await self._webhook.send(
