@@ -278,3 +278,10 @@ class Dev(commands.Cog):
         embed = discord.Embed(description = f"Are you sure you want to leave **[{guild}]({guild.icon})**?", colour = discord.Colour(0x2F3136))
 
         await ctx.reply(embed = embed, view = ConfirmLeave(self.bot, ctx))
+
+    @commands.command(name = "getguild", aliases = ["gg"], brief = "Get Guild Info")
+    async def getguild(self, ctx: HorusCtx, guild: discord.Guild = None):
+        """ Get all information and staistics about the specified guild """
+        guild = ctx.guild if not guild else guild
+
+        await ctx.send(embed = GuildEmbed.default(self.bot, guild), view = GuildView(self.bot, ctx))

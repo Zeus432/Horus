@@ -10,7 +10,7 @@ from loguru import logger
 import asyncpg
 import json
 
-from Core.Utils.functions import load_json, write_toml
+from Core.Utils.functions import write_toml, emojis
 from .settings import INITIAL_EXTENSIONS
 
 
@@ -163,7 +163,10 @@ class Horus(commands.Bot):
    
         # Now Load extensions
         for ext in INITIAL_EXTENSIONS:
-            await self.load_extension(ext)
+            try:
+                await self.load_extension(ext)
+            except Exception as e:
+                print(f'\nFailed to load extension: {ext}\n{type(e).__name__}: {e}')
         await self.load_extension('jishaku')
         logger.info(f"Loaded: {', '.join(INITIAL_EXTENSIONS)}, jishaku")
     
@@ -198,11 +201,7 @@ class Horus(commands.Bot):
         if isinstance(emoji, int):
             return self.get_emoji(emoji)
 
-        emojis = load_json(f'Core/Assets/emojis.json')
-        try:
-            return emojis[emoji]
-        except:
-            return emojis['error']
+        return emojis(emoji)
     
     def get_uptime(self) -> str:
         """ Get Bot Uptime in a neatly converted string """

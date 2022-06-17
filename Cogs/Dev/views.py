@@ -209,3 +209,51 @@ class ConfirmLeave(discord.ui.View):
             item.style = discord.ButtonStyle.red if item.label == "Cancel" else discord.ButtonStyle.gray
 
         await self.message.edit(embed = discord.Embed(description = f"You took too long to respond!", colour = discord.Colour.red()), view = self)
+
+
+class GuildView(discord.ui.View):
+    def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 90):
+        super().__init__(timeout = timeout)
+        self.bot = bot
+        self.ctx = ctx
+        self.guild = ctx.guild
+        self.user = ctx.author
+    
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if self.user.id == interaction.user.id:
+            return True
+        
+        await interaction.response.send_message('This is not your button to click!', ephemeral = True)
+        return False
+    
+    @discord.ui.button(label = "Join Guild", style = discord.ButtonStyle.green)
+    async def joinguild(self, interaction: discord.Interaction, button: discord.ui.Button):
+        for chan in self.guild.text_channels:
+            try:
+                invite = await chan.create_invite(reason = f"Requested by {self.user}", max_age = 7, temporary = True)
+                break
+            except: pass
+
+        if invite:
+            return await interaction.response.send_message(f"Invite Generated for **[{self.guild}]( {invite} )**", ephemeral = True)
+        await interaction.response.send_message(f"I was unable to generate an invite to this guild {self.bot.get_em('cross')}", ephemeral = True)
+    
+    @discord.ui.button(label = "Leave Guild", style = discord.ButtonStyle.red)
+    async def leaveguild(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if self.bot.get_guild(self.guild.id) is None:
+            await self.ctx.send(embed = discord.Embed(description = f"Error Bot is not in **[{self.guild}]({self.guild.icon})**", color = discord.Color.red()))
+            return
+
+        command = self.bot.get_command("leave")
+        await command(self.ctx, self.guild)
+    
+    @discord.ui.button(emoji = emojis("trash"), style = discord.ButtonStyle.blurple)
+    async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.user.id:
+            return
+        await interaction.message.delete()
+        self.stop()
+    
+    async def on_timeout(self):
+        await self.message.edit(view = None)
