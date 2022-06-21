@@ -53,6 +53,7 @@ class Horus(commands.Bot):
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self.owner_ids = frozenset(CONFIG['Owners']) # I like freezing my bot owner ids you can remove this frozenset if you want to
         self.colour = discord.Colour(0x9C9CFF)
+        self.memoji = self.get_em("me")
         self._config = CONFIG
         self._launch = None
         self._devmode = None

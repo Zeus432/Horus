@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS tags (
     serverid BIGINT NOT NULL,
     content TEXT NOT NULL,
     usage BIGINT DEFAULT 0,
-    info jsonb DEFAULT '{"owner":null, "created_at": null}',
+    info jsonb DEFAULT '{"owner": null, "created_at": null}',
     aliases VARCHAR[] DEFAULT '{}'
 );
 

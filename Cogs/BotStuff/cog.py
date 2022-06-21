@@ -10,6 +10,7 @@ class BotStuff(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
+        self.emote = bot.get_em("botstuff")
     
     @commands.command(name = "info", aliases = ['about','botinfo'], brief = "Get Bot Info")
     async def info(self, ctx: HorusCtx):

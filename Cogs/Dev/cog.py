@@ -20,6 +20,7 @@ class Dev(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
+        self.emote = bot.get_em("dev")
         self._last_result = None
         self._last_cog = None
 
@@ -286,3 +287,9 @@ class Dev(commands.Cog):
         guild = ctx.guild if not guild else guild
 
         await ctx.send(embed = GuildEmbed.default(self.bot, guild), view = GuildView(self.bot, ctx))
+    
+    @discord.app_commands.command(name = "test")
+    @discord.app_commands.guilds(discord.Object(id=873127663840137256))
+    async def my_top_command(self, interaction: discord.Interaction) -> None:
+        raise discord.app_commands.AppCommandError
+        await interaction.response.send_message("Hello from top level command!", ephemeral = True)

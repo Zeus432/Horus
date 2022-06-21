@@ -11,6 +11,7 @@ class Listeners(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
+        self.emote = bot.get_em("listeners")
         self._config = load_toml("Cogs/Listeners/config.toml")
     
     async def cog_check(self, ctx: HorusCtx):

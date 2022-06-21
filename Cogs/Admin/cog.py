@@ -7,6 +7,7 @@ class Admin(commands.Cog):
     """ Guild Admin commands """
     def __init__(self, bot: Horus):
         self.bot = bot
+        self.emote = bot.get_em("admin")
 
     @commands.command(name = "setprefix", brief = "Set Server prefix")
     async def setprefix(self, ctx: HorusCtx, prefix: str):
