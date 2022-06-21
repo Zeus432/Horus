@@ -2,7 +2,7 @@ __pycache__
 .DS_Store
 .vscode
 application.yml
-Core/config.toml
+*config.toml
 Core/Horus.log
 dump.rdb
 horus-env

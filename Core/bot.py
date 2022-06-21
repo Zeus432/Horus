@@ -142,18 +142,19 @@ class Horus(commands.Bot):
             print(f"Unable to connect to Redis...\n{e}")
             return await self.close()
         
+        # Comment out lavalink until i actually start using it
 
-        try: # Try connecting to Lavalink
-            self.node = await wavelink.NodePool.create_node(
-                bot = self,
-                spotify_client = spotify.SpotifyClient(**self._config['spotify']),
-                **self._config['lavalink']
-            )
-            print('Connected to Lavalink!')
+        # try: # Try connecting to Lavalink
+        #     self.node = await wavelink.NodePool.create_node(
+        #         bot = self,
+        #         spotify_client = spotify.SpotifyClient(**self._config['spotify']),
+        #         **self._config['lavalink']
+        #     )
+        #     print('Connected to Lavalink!')
         
-        except Exception as e:
-            print(f"Unable to connect to Lavalink...\n{e}")
-            return await self.close()
+        # except Exception as e:
+        #     print(f"Unable to connect to Lavalink...\n{e}")
+        #     return await self.close()
 
         if restart := self._config['restart']: # Check if bot just started or if it was restarted
             self.loop.create_task(self.restartchk(**restart))
