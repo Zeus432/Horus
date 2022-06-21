@@ -7,9 +7,8 @@ from Core.Utils.functions import emojis
 
 class ConfirmShutdown(discord.ui.View):
     """ A view for confirming shutdown """
-    def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 30.0, **kwargs) -> None:
+    def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 30) -> None:
         super().__init__(timeout = timeout)
-        self.kwargs = kwargs
         self.user = ctx.author
         self.bot = bot
         self.ctx = ctx
@@ -46,9 +45,8 @@ class ConfirmShutdown(discord.ui.View):
 
 
 class ChangeStatus(discord.ui.View):
-    def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 90.0, **kwargs) -> None:
+    def __init__(self, bot: Horus, ctx: HorusCtx, timeout: float = 90) -> None:
         super().__init__(timeout = timeout)
-        self.kwargs = kwargs
         self.user = ctx.author
         self.bot = bot
         self.ctx = ctx
@@ -250,8 +248,6 @@ class GuildView(discord.ui.View):
     
     @discord.ui.button(emoji = emojis("trash"), style = discord.ButtonStyle.blurple)
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.user.id:
-            return
         await interaction.message.delete()
         self.stop()
     

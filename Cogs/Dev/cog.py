@@ -99,6 +99,7 @@ class Dev(commands.Cog):
     @commands.command(name = "restart", brief = "Restart Bot")
     async def restart(self, ctx: HorusCtx):
         """ Easier way to restart the bot without having to stop it and then manually start it again """
+        print("\nRestarting Bot . . .\n")
         message = await ctx.send(f"**{self.bot.user.name}** is Restarting")
         await ctx.try_add_reaction("\U000023f0")
 
