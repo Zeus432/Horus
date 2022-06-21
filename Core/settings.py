@@ -9,5 +9,6 @@ INITIAL_EXTENSIONS = [
     'Cogs.Admin',
     'Cogs.BotStuff',
     'Cogs.Dev',
+    'Cogs.Listeners',
     'Cogs.Utility'
 ]
