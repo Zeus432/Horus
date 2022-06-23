@@ -206,10 +206,13 @@ class Dev(commands.Cog):
     async def status(self, ctx: HorusCtx):
         embed = discord.Embed(colour = self.bot.colour)
         embed.add_field(name = "Status:", value = f"{self.bot.get_em(ctx.guild.me.status.name)} {ctx.guild.me.status.name.capitalize()}", inline = False)
+
         if (act := ctx.guild.me.activity) is not None:
             embed.add_field(name = "Activity:", value = f"```{act.type.name.capitalize()} {act.name}```", inline = False)
 
-        await ctx.send(embed = embed, view = ChangeStatus(self.bot, ctx))
+        view = ChangeStatus(self.bot, ctx)
+        await ctx.send(embed = embed, view = view)
+        await view.wait()
     
     @commands.command(name = "load", aliases = ['l'], brief = "Load Cogs")
     async def load(self, ctx: HorusCtx, cog: str = None):
@@ -288,8 +291,9 @@ class Dev(commands.Cog):
 
         await ctx.send(embed = GuildEmbed.default(self.bot, guild), view = GuildView(self.bot, ctx))
     
-    @discord.app_commands.command(name = "test")
-    @discord.app_commands.guilds(discord.Object(id=873127663840137256))
-    async def my_top_command(self, interaction: discord.Interaction) -> None:
-        raise discord.app_commands.AppCommandError
-        await interaction.response.send_message("Hello from top level command!", ephemeral = True)
+    @commands.command(name = "bypasscooldown", aliases = ["bypasscd"], brief = "Toggle Cooldown Bypass")
+    async def bypasscd(self, ctx: HorusCtx):
+        """ Enable/Disable Cooldown Bypass for Bot Owners """
+        self.bot._bypasscd = False if self.bot._bypasscd else True
+        state = f"disabled!" if not self.bot._bypasscd else f"enabled for bot owners!"
+        await ctx.reply(f"Cooldown bypass has been {state}")
