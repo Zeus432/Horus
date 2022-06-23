@@ -59,6 +59,7 @@ class Horus(commands.Bot):
         self._devmode = None
         self._webhook = None
         self._noprefix = None
+        self._bypasscd = None
     
     async def getprefix(self, bot: commands.Bot, message: discord.Message) -> List[str]:
         # Check for prefix in cache, if not then get from db and build cache
@@ -97,9 +98,9 @@ class Horus(commands.Bot):
         print(f'Message Cache Size: {len(self.cached_messages)}\n')
 
         self._launch = datetime.now()
-        self._webhook = await self.fetch_webhook(self._config['webhook'])
+        self._webhook = await self.fetch_webhook(self._config.get("webhook"))
 
-        await self.redis.hmset("prefix", {"default": self._config['prefix']}) # make redis prefix cache
+        await self.redis.hmset("prefix", {"default": self._config.get("prefix")}) # make redis prefix cache
         
         logger.info(f"{self.user}: All systems Online!")
         await self._webhook.send(
@@ -123,7 +124,7 @@ class Horus(commands.Bot):
                         schema = 'pg_catalog'
                     )
 
-            self.db = await asyncpg.create_pool(self._config['postgresuri'], init = init_connection)
+            self.db = await asyncpg.create_pool(self._config.get('postgresuri'), init = init_connection)
             print('Connected to Postgresql!')
 
             #with open("schema.sql", encoding='utf-8') as f:
@@ -136,7 +137,7 @@ class Horus(commands.Bot):
         
 
         try: # Try connecting to Redis
-            self.redis = await redis.from_url(self._config['redisuri'], decode_responses = True)
+            self.redis = await redis.from_url(self._config.get('redisuri'), decode_responses = True)
             print('Connected to Redis!')
         
         except Exception as e:
@@ -148,8 +149,8 @@ class Horus(commands.Bot):
         # try: # Try connecting to Lavalink
         #     self.node = await wavelink.NodePool.create_node(
         #         bot = self,
-        #         spotify_client = spotify.SpotifyClient(**self._config['spotify']),
-        #         **self._config['lavalink']
+        #         spotify_client = spotify.SpotifyClient(**self._config.get('spotify')),
+        #         **self._config.get('lavalink')
         #     )
         #     print('Connected to Lavalink!')
         
@@ -157,7 +158,7 @@ class Horus(commands.Bot):
         #     print(f"Unable to connect to Lavalink...\n{e}")
         #     return await self.close()
 
-        if restart := self._config['restart']: # Check if bot just started or if it was restarted
+        if restart := self._config.get('restart'): # Check if bot just started or if it was restarted
             self.loop.create_task(self.restartchk(**restart))
             self._config['restart'] = {}
             write_toml(f'Core/config.toml', self._config)
