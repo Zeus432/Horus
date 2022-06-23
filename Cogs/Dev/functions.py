@@ -14,8 +14,8 @@ def get_reply(ctx: HorusCtx) -> discord.Message | discord.DeletedReferencedMessa
 
 def cleanup_code(content: str) -> str:
     """Automatically removes code blocks from the code."""
-    if content.startswith('```') and content.endswith('```'):
-        num = 6 if content.startswith('```py\n') else (4 if content.startswith('```\n') else 3)
+    if content.startswith("```") and content.endswith("```"):
+        num = 6 if content.startswith("```py\n") else (4 if content.startswith("```\n") else 3)
         return content[num:-3]
     else: return content
 
@@ -30,11 +30,11 @@ class plural:
 
     def __format__(self, format_spec):
         v = self.value
-        singular, sep, plural = format_spec.partition('|')
-        plural = plural or f'{singular}s'
+        singular, sep, plural = format_spec.partition("|")
+        plural = plural or f"{singular}s"
         if abs(v) != 1:
-            return f'{v} {plural}'
-        return f'{v} {singular}'
+            return f"{v} {plural}"
+        return f"{v} {singular}"
 
 class TabularData:
     """ Tabularize given data properly """
@@ -71,14 +71,14 @@ class TabularData:
         +-------+-----+
         """
 
-        sep = '+'.join('-' * w for w in self._widths)
-        sep = f'+{sep}+'
+        sep = "+".join("-" * w for w in self._widths)
+        sep = f"+{sep}+"
 
         to_draw = [sep]
 
         def get_entry(d):
-            elem = '|'.join(f'{e:^{self._widths[i]}}' for i, e in enumerate(d))
-            return f'|{elem}|'
+            elem = "|".join(f"{e:^{self._widths[i]}}" for i, e in enumerate(d))
+            return f"|{elem}|"
 
         to_draw.append(get_entry(self._columns))
         to_draw.append(sep)
@@ -87,4 +87,4 @@ class TabularData:
             to_draw.append(get_entry(row))
 
         to_draw.append(sep)
-        return '\n'.join(to_draw)
+        return "\n".join(to_draw)

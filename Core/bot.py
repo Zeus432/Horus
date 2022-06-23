@@ -24,16 +24,16 @@ class HorusCtx(commands.Context):
     async def tick(self, ignore_errors: bool = False) -> None:
         """ Easy way to react with tick emoji """
         if ignore_errors is True:
-            await self.try_add_reaction(self.bot.get_em("tick"))
+            await self.try_add_reaction(self.bot.get_em('tick'))
         else:
-            await self.message.add_reaction(self.bot.get_em("tick"))
+            await self.message.add_reaction(self.bot.get_em('tick'))
     
     async def cross(self, ignore_errors: bool = False) -> None:
         """ Easy way to react with cross emoji """
         if ignore_errors is True:
-            await self.try_add_reaction(self.bot.get_em("cross"))
+            await self.try_add_reaction(self.bot.get_em('cross'))
         else:
-            await self.message.add_reaction(self.bot.get_em("cross"))
+            await self.message.add_reaction(self.bot.get_em('cross'))
 
     async def send(self, content: Optional[str] = None, *, tts: bool = False, embed: Optional[discord.Embed] = None, embeds: Optional[Sequence[discord.Embed]] = None, file: Optional[discord.File] = None, files: Optional[Sequence[discord.File]] = None, stickers: Optional[Sequence[Union[discord.GuildSticker, discord.StickerItem]]] = None, delete_after: Optional[float] = None, nonce: Optional[Union[str, int]] = None, allowed_mentions: Optional[discord.AllowedMentions] = None, reference: Optional[Union[discord.Message, discord.MessageReference, discord.PartialMessage]] = None, mention_author: Optional[bool] = None, view: Optional[discord.ui.View] = None, suppress_embeds: bool = False, ephemeral: bool = False) -> discord.Message:
         obj = await super().send(content, tts = tts, embed = embed, embeds = embeds, file = file, files = files, stickers = stickers, delete_after = delete_after, nonce = nonce, allowed_mentions = allowed_mentions, reference = reference, mention_author = mention_author, view = view, suppress_embeds = suppress_embeds, ephemeral = ephemeral)
@@ -44,7 +44,7 @@ class HorusCtx(commands.Context):
     async def reply(self, content: Optional[str] = None, **kwargs: Any) -> discord.Message:
         obj = await super().reply(content, **kwargs)
         if "view" in kwargs.keys():
-            kwargs["view"].message = obj
+            kwargs['view'].message = obj
         return obj
 
 class Horus(commands.Bot):
@@ -53,7 +53,7 @@ class Horus(commands.Bot):
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self.owner_ids = frozenset(CONFIG['Owners']) # I like freezing my bot owner ids you can remove this frozenset if you want to
         self.colour = discord.Colour(0x9C9CFF)
-        self.memoji = self.get_em("me")
+        self.memoji = self.get_em('me')
         self._config = CONFIG
         self._launch = None
         self._devmode = None
@@ -71,11 +71,11 @@ class Horus(commands.Bot):
                 prefix = [pre]
             
             else:
-                if pre := await self.db.fetchval('SELECT prefix FROM guilddata WHERE guildid = $1', message.guild.id):
+                if pre := await self.db.fetchval("SELECT prefix FROM guilddata WHERE guildid = $1", message.guild.id):
                     prefix = pre
                 
                 else:
-                    prefix = await self.db.fetchval(f'INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix', message.guild.id, default)
+                    prefix = await self.db.fetchval(f"INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix", message.guild.id, default)
 
                 await self.redis.hset("prefix", message.guild.id, prefix[0]) # Update cache to have new value
 
@@ -89,27 +89,27 @@ class Horus(commands.Bot):
         return commands.when_mentioned_or(*prefix)(bot, message) # Return Prefix
 
     async def on_ready(self) -> None:
-        print(f'\nLogged in as {self.user} (ID: {self.user.id})')
-        print(f'Guilds: {len(self.guilds)}')
-        print(f'Large Guilds: {sum(g.large for g in self.guilds)}')
-        print(f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}')
-        print(f'Members: {len(list(self.get_all_members()))}')
-        print(f'Channels: {len([1 for x in self.get_all_channels()])}')
-        print(f'Message Cache Size: {len(self.cached_messages)}\n')
+        print(f"\nLogged in as {self.user} (ID: {self.user.id})")
+        print(f"Guilds: {len(self.guilds)}")
+        print(f"Large Guilds: {sum(g.large for g in self.guilds)}")
+        print(f"Chunked Guilds: {sum(g.chunked for g in self.guilds)}")
+        print(f"Members: {len(list(self.get_all_members()))}")
+        print(f"Channels: {len([1 for x in self.get_all_channels()])}")
+        print(f"Message Cache Size: {len(self.cached_messages)}\n")
 
         self._launch = datetime.now()
-        self._webhook = await self.fetch_webhook(self._config.get("webhook"))
+        self._webhook = await self.fetch_webhook(self._config.get('webhook'))
 
-        await self.redis.hmset("prefix", {"default": self._config.get("prefix")}) # make redis prefix cache
+        await self.redis.hmset("prefix", {'default': self._config.get('prefix')}) # make redis prefix cache
         
         logger.info(f"{self.user}: All systems Online!")
         await self._webhook.send(
-            f'{self.user.mention} is now online! <t:{round(datetime.now().timestamp())}>\n'
-            f'```py\nGuilds: {len(self.guilds)}\n'
-            f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
-            f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
-            f'Members: {len(list(self.get_all_members()))}\n'
-            f'Channels: {len([1 for x in self.get_all_channels()])}```'
+            f"{self.user.mention} is now online! <t:{round(datetime.now().timestamp())}>\n"
+            f"```py\nGuilds: {len(self.guilds)}\n"
+            f"Large Guilds: {sum(g.large for g in self.guilds)}\n"
+            f"Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n"
+            f"Members: {len(list(self.get_all_members()))}\n"
+            f"Channels: {len([1 for x in self.get_all_channels()])}```"
         )
 
         await self.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.user.name} help"))
@@ -118,16 +118,16 @@ class Horus(commands.Bot):
         try: # Try Connecting to Postgres
             async def init_connection(conn):
                 await conn.set_type_codec(
-                        'jsonb',
+                        "jsonb",
                         encoder = json.dumps,
                         decoder = json.loads,
-                        schema = 'pg_catalog'
+                        schema = "pg_catalog"
                     )
 
             self.db = await asyncpg.create_pool(self._config.get('postgresuri'), init = init_connection)
-            print('Connected to Postgresql!')
+            print("Connected to Postgresql!")
 
-            #with open("schema.sql", encoding='utf-8') as f:
+            #with open("schema.sql", encoding="utf-8") as f:
             #    schema = f.read()
             #    await self.db.execute(schema) # To add the tables to database if they don't exist
     
@@ -138,7 +138,7 @@ class Horus(commands.Bot):
 
         try: # Try connecting to Redis
             self.redis = await redis.from_url(self._config.get('redisuri'), decode_responses = True)
-            print('Connected to Redis!')
+            print("Connected to Redis!")
         
         except Exception as e:
             print(f"Unable to connect to Redis...\n{e}")
@@ -152,7 +152,7 @@ class Horus(commands.Bot):
         #         spotify_client = spotify.SpotifyClient(**self._config.get('spotify')),
         #         **self._config.get('lavalink')
         #     )
-        #     print('Connected to Lavalink!')
+        #     print("Connected to Lavalink!")
         
         # except Exception as e:
         #     print(f"Unable to connect to Lavalink...\n{e}")
@@ -161,7 +161,7 @@ class Horus(commands.Bot):
         if restart := self._config.get('restart'): # Check if bot just started or if it was restarted
             self.loop.create_task(self.restartchk(**restart))
             self._config['restart'] = {}
-            write_toml(f'Core/config.toml', self._config)
+            write_toml(f"Core/config.toml", self._config)
 
    
         # Now Load extensions
@@ -169,9 +169,9 @@ class Horus(commands.Bot):
             try:
                 await self.load_extension(ext)
             except Exception as e:
-                print(f'\nFailed to load extension: {ext}\n{type(e).__name__}: {e}')
-        await self.load_extension('jishaku')
-        logger.info(f"Loaded: {', '.join(INITIAL_EXTENSIONS)}, jishaku")
+                print(f"\nFailed to load extension: {ext}\n{type(e).__name__}: {e}")
+        await self.load_extension("jishaku")
+        logger.info(f"Loaded: " + ", ".join(INITIAL_EXTENSIONS) + ", jishaku")
     
     async def close(self):
         await self.vac_api.close()
@@ -180,12 +180,12 @@ class Horus(commands.Bot):
 
         if self._webhook:
             await self._webhook.send(
-                f'{self.user.mention} is now going offline! <t:{round(datetime.now().timestamp())}>\n'
-                f'```prolog\nGuilds: {len(self.guilds)}\n'
-                f'Large Guilds: {sum(g.large for g in self.guilds)}\n'
-                f'Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n'
-                f'Members: {len(list(self.get_all_members()))}\n'
-                f'Channels: {len([1 for x in self.get_all_channels()])}```'
+                f"{self.user.mention} is now going offline! <t:{round(datetime.now().timestamp())}>\n"
+                f"```prolog\nGuilds: {len(self.guilds)}\n"
+                f"Large Guilds: {sum(g.large for g in self.guilds)}\n"
+                f"Chunked Guilds: {sum(g.chunked for g in self.guilds)}\n"
+                f"Members: {len(list(self.get_all_members()))}\n"
+                f"Channels: {len([1 for x in self.get_all_channels()])}```"
             )
 
         await super().close()
@@ -211,7 +211,7 @@ class Horus(commands.Bot):
         delta_uptime = relativedelta(datetime.now(), self._launch)
         days, hours, minutes, seconds = delta_uptime.days, delta_uptime.hours, delta_uptime.minutes, delta_uptime.seconds
 
-        uptimes = {x[0]: x[1] for x in [('day', days), ('hour', hours), ('minute', minutes), ('second', seconds)] if x[1]}
+        uptimes = {x[0]: x[1] for x in [("day", days), ("hour", hours), ("minute", minutes), ("second", seconds)] if x[1]}
         l = len(uptimes) 
 
         last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes) - 1)

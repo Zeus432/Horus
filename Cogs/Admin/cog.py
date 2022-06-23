@@ -7,7 +7,7 @@ class Admin(commands.Cog):
     """ Guild Admin commands """
     def __init__(self, bot: Horus):
         self.bot = bot
-        self.emote = bot.get_em("admin")
+        self.emote = bot.get_em('admin')
 
     @commands.command(name = "setprefix", brief = "Set Server prefix")
     async def setprefix(self, ctx: HorusCtx, prefix: str):
@@ -19,5 +19,5 @@ class Admin(commands.Cog):
             return await ctx.reply("I asked for prefix not a goddamn paragraph.")
 
         await self.bot.redis.hset("prefix", ctx.guild.id, prefix)
-        await self.bot.db.execute('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, [prefix])
+        await self.bot.db.execute("UPDATE guilddata SET prefix = $2 WHERE guildid = $1", ctx.guild.id, [prefix])
         await ctx.send(f"Prefix changed to: {discord.utils.escape_markdown(prefix)}")

@@ -10,9 +10,9 @@ class Utility(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
-        self.emote = bot.get_em("utility")
+        self.emote = bot.get_em('utility')
     
-    @commands.command(name = "math", aliases = ["m"], brief = "Do math")
+    @commands.command(name = "math", aliases = ['m'], brief = "Do math")
     async def math(self, ctx: HorusCtx, *, equation: str):
         """ Do some math, most normal mathematical signs are allowed """
         NSP = NumericStringParser()

@@ -28,7 +28,7 @@ async def send_error(bot: Horus, ctx: HorusCtx, error: commands.CommandError):
     embed.add_field(name = "Message ID:", value = f"`{ctx.message.id}`")
     embed.add_field(name = "\u200b", value = f"**[\U0001f517 Jump to Error]({ctx.message.jump_url})**")
 
-    webhook = await bot.fetch_webhook(bot._config.get("errorlog"))
+    webhook = await bot.fetch_webhook(bot._config.get('errorlog'))
     await webhook.send(embed = embed)
     senderror = ""
 

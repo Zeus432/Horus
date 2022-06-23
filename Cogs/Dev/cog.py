@@ -20,7 +20,7 @@ class Dev(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
-        self.emote = bot.get_em("dev")
+        self.emote = bot.get_em('dev')
         self._last_result = None
         self._last_cog = None
 
@@ -29,7 +29,7 @@ class Dev(commands.Cog):
             return True
         raise commands.NotOwner()
     
-    @commands.command(name = 'eval', aliases = ['e'], brief = "Evaluate Code")
+    @commands.command(name = "eval", aliases = ['e'], brief = "Evaluate Code")
     async def _eval(self, ctx: HorusCtx, *, body: str):
         """ 
         **Execute asynchronous code.**
@@ -50,14 +50,14 @@ class Dev(commands.Cog):
         """
 
         env = {
-            'bot': self.bot,
-            'ctx': ctx,
-            'channel': ctx.channel,
-            'author': ctx.author,
-            'guild': ctx.guild,
-            'message': ctx.message,
-            'reply': get_reply(ctx),
-            '_': self._last_result
+            "bot": self.bot,
+            "ctx": ctx,
+            "channel": ctx.channel,
+            "author": ctx.author,
+            "guild": ctx.guild,
+            "message": ctx.message,
+            "reply": get_reply(ctx),
+            "_": self._last_result
         }
 
         env.update(globals())
@@ -65,12 +65,12 @@ class Dev(commands.Cog):
         body = cleanup_code(content = body)
         stdout = io.StringIO()
 
-        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+        to_compile = f"async def func():\n{textwrap.indent(body, '  ')}"
 
         try:
             exec(to_compile, env)
         except Exception as e:
-            return await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
+            return await ctx.send(f"```py\n{e.__class__.__name__}: {e}\n```")
 
         func = env['func']
         try:
@@ -78,17 +78,17 @@ class Dev(commands.Cog):
                 ret = await func()
         except Exception as e:
             value = stdout.getvalue()
-            await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
+            await ctx.send(f"```py\n{value}{traceback.format_exc()}\n```")
         else:
             value = stdout.getvalue()
             await ctx.tick(ignore_errors = True)
 
             if ret is None:
                 if value:
-                    await ctx.send(f'```py\n{value}\n```')
+                    await ctx.send(f"```py\n{value}\n```")
             else:
                 self._last_result = ret
-                await ctx.send(f'```py\n{value}{ret}\n```')
+                await ctx.send(f"```py\n{value}{ret}\n```")
     
     @_eval.error
     async def _eval_error(self, ctx, error):
@@ -110,12 +110,12 @@ class Dev(commands.Cog):
                 "message": [message.channel.id, message.id],
                 "invoke": [ctx.message.channel.id, ctx.message.id]
             }
-            write_toml('Core/config.toml', self.bot._config)
+            write_toml("Core/config.toml", self.bot._config)
             restart_program()
         except:
             await message.add_reaction(self.bot.get_em('cross'))
     
-    @commands.command(name = "shutdown", aliases = ['die','sd','stop', 'https://tenor.com/view/thanos-gamora-infinity-war-soul-stone-sacrifice-gif-14289940'], help = "Shutdown the Bot", brief = "Shutdown")
+    @commands.command(name = "shutdown", aliases = ['die', 'sd', 'stop', 'https://tenor.com/view/thanos-gamora-infinity-war-soul-stone-sacrifice-gif-14289940'], help = "Shutdown the Bot", brief = "Shutdown")
     async def shutdown(self, ctx: HorusCtx):
         # Define some confirm buttons functions
         await ctx.reply("Are you sure you want to shutdown?", view = ConfirmShutdown(self.bot, ctx, 60))
@@ -151,7 +151,7 @@ class Dev(commands.Cog):
         """
         query = cleanup_code(query)
 
-        is_multistatement = query.count(';') > 1
+        is_multistatement = query.count(";") > 1
         if is_multistatement:
             # fetch does not support multiple statements
             execute = self.bot.db.execute
@@ -163,11 +163,11 @@ class Dev(commands.Cog):
             results = await execute(query)
             exectime = (time.perf_counter() - start) * 1000.0
         except Exception:
-            return await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+            return await ctx.send(f"```py\n{traceback.format_exc()}\n```")
 
         rows = len(results)
         if is_multistatement or rows == 0:
-            return await ctx.send(f'`{exectime:.2f}ms: {results}`')
+            return await ctx.send(f"`{exectime:.2f}ms: {results}`")
 
         headers = list(results[0].keys())
         table = TabularData()
@@ -175,10 +175,10 @@ class Dev(commands.Cog):
         table.add_rows(list(r.values()) for r in results)
         render = table.render()
 
-        endresult = f'```\n{render}\n```\n*Returned {plural(rows):row} in {exectime:.2f}ms*'
+        endresult = f"```\n{render}\n```\n*Returned {plural(rows):row} in {exectime:.2f}ms*"
         if len(endresult) > 2000:
-            file = io.BytesIO(endresult.encode('utf-8'))
-            await ctx.send('Too many results...', file = discord.File(file, 'results.txt'))
+            file = io.BytesIO(endresult.encode("utf-8"))
+            await ctx.send("Too many results...", file = discord.File(file, "results.txt"))
         else:
             await ctx.send(endresult)
     
@@ -188,11 +188,11 @@ class Dev(commands.Cog):
         if self.bot._devmode:
             self.bot._devmode = False
             await self.bot.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.bot.user.name} help"))
-            return await ctx.reply('Developer Mode has been disabled!')
+            return await ctx.reply("Developer Mode has been disabled!")
         
         self.bot._devmode = True
         await self.bot.change_presence(status = discord.Status.invisible)
-        return await ctx.reply('Developer Mode has been enabled!')
+        return await ctx.reply("Developer Mode has been enabled!")
     
     @commands.command(name = "noprefix", brief = "Toggle Noprefix")
     async def noprefix(self, ctx: HorusCtx):
@@ -232,14 +232,14 @@ class Dev(commands.Cog):
                 await self.bot.unload_extension(cog)
                 await self.bot.load_extension(cog)
             except Exception as error:
-                await ctx.send(f"I was unable to reload `{cog}`\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+                await ctx.send(f"I was unable to reload `{cog}`\n```py\n" + "".join(traceback.format_exception(type(error), error, error.__traceback__, 1)) + "```")
             
             else:
                 await ctx.send(f"\U0001f501 Reloaded Module `{cog}`")
                 self._last_cog = cog
         
         except Exception as error:
-            await ctx.send(f"I was unable to load `{cog}`\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+            await ctx.send(f"I was unable to load `{cog}`\n```py\n" + "".join(traceback.format_exception(type(error), error, error.__traceback__, 1)) + "```")
         else:
             await ctx.send(f"\U0001f4e5 Loaded Module `{cog}`")
             self._last_cog = cog
@@ -258,7 +258,7 @@ class Dev(commands.Cog):
         try:
             await self.bot.unload_extension(cog)
         except Exception as error:
-            await ctx.send(f"I was unable to unload `{cog}`\n```py\n{''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))}```")
+            await ctx.send(f"I was unable to unload `{cog}`\n```py\n" + "".join(traceback.format_exception(type(error), error, error.__traceback__, 1)) + "```")
         else:
             await ctx.send(f"\U0001f4e4 Unloaded Module `{cog}`")
             self._last_cog = cog
@@ -284,14 +284,14 @@ class Dev(commands.Cog):
 
         await ctx.reply(embed = embed, view = ConfirmLeave(self.bot, ctx))
 
-    @commands.command(name = "getguild", aliases = ["gg"], brief = "Get Guild Info")
+    @commands.command(name = "getguild", aliases = ['gg'], brief = "Get Guild Info")
     async def getguild(self, ctx: HorusCtx, guild: discord.Guild = None):
         """ Get all information and staistics about the specified guild """
         guild = ctx.guild if not guild else guild
 
         await ctx.send(embed = GuildEmbed.default(self.bot, guild), view = GuildView(self.bot, ctx))
     
-    @commands.command(name = "bypasscooldown", aliases = ["bypasscd"], brief = "Toggle Cooldown Bypass")
+    @commands.command(name = "bypasscooldown", aliases = ['bypasscd'], brief = "Toggle Cooldown Bypass")
     async def bypasscd(self, ctx: HorusCtx):
         """ Enable/Disable Cooldown Bypass for Bot Owners """
         self.bot._bypasscd = False if self.bot._bypasscd else True

@@ -22,14 +22,14 @@ class ConfirmShutdown(discord.ui.View):
         await interaction.response.send_message("This is not your button to click!", ephemeral = True)
         return False
     
-    @discord.ui.button(label = 'Confirm', style = discord.ButtonStyle.green)
+    @discord.ui.button(label = "Confirm", style = discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.message.edit(content = "https://tenor.com/view/nick-fury-mother-damn-it-gone-bye-bye-gif-16387502", view = None)
         await self.ctx.try_add_reaction("<:TickYes:904315692311011360>")
         self.stop()
         await self.bot.close()
     
-    @discord.ui.button(label = 'Cancel', style = discord.ButtonStyle.grey)
+    @discord.ui.button(label = "Cancel", style = discord.ButtonStyle.grey)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         for item in self.children:
             item.disabled = True
@@ -60,7 +60,7 @@ class ChangeStatus(discord.ui.View):
         if self.user.id == interaction.user.id:
             return True
         
-        await interaction.response.send_message('This is not your button to click!', ephemeral = True)
+        await interaction.response.send_message("This is not your button to click!", ephemeral = True)
         return False
     
     async def change_status(self, interaction: discord.Interaction, state: discord.Status):
@@ -92,11 +92,11 @@ class ChangeStatus(discord.ui.View):
     async def offline(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.change_status(interaction, discord.Status.offline)
     
-    @discord.ui.button(label = 'Change Activity', style = discord.ButtonStyle.blurple, row = 1)
+    @discord.ui.button(label = "Change Activity", style = discord.ButtonStyle.blurple, row = 1)
     async def activity(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(Activity(ctx = self.ctx, bot = self.bot))
     
-    @discord.ui.button(label = 'Clear Activity', style = discord.ButtonStyle.red, row = 1)
+    @discord.ui.button(label = "Clear Activity", style = discord.ButtonStyle.red, row = 1)
     async def clear(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.bot.change_presence(status = self.ctx.guild.me.status)
         
@@ -151,7 +151,7 @@ class Activity(discord.ui.Modal):
         self.aname = aname
     
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        activity = {"Competing": discord.ActivityType.competing, "Listening": discord.ActivityType.listening, "Playing": discord.ActivityType.playing, "Watching": discord.ActivityType.watching}
+        activity = {'Competing': discord.ActivityType.competing, 'Listening': discord.ActivityType.listening, 'Playing': discord.ActivityType.playing, 'Watching': discord.ActivityType.watching}
         await self.bot.change_presence(status = self.ctx.guild.me.status, activity = discord.Activity(type = activity[self.atype.values[0]], name = self.aname.value))
 
         embed = discord.Embed(colour = self.bot.colour)
@@ -174,7 +174,7 @@ class ConfirmLeave(discord.ui.View):
             await interaction.response.defer()
             return True
         
-        await interaction.response.send_message('This is not your button to click!', ephemeral = True)
+        await interaction.response.send_message("This is not your button to click!", ephemeral = True)
         return False
     
     async def edit_embed(self, button, interaction, message, colour):
@@ -184,7 +184,7 @@ class ConfirmLeave(discord.ui.View):
 
         await interaction.message.edit(embed = discord.Embed(description = message, colour = colour), view = self)
     
-    @discord.ui.button(label = 'Confirm', style = discord.ButtonStyle.green)
+    @discord.ui.button(label = "Confirm", style = discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await self.guild.leave()
@@ -195,7 +195,7 @@ class ConfirmLeave(discord.ui.View):
             await self.edit_embed(button, interaction, f"I have left **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})**, sucks for them.", discord.Colour.green())
         self.stop()
 
-    @discord.ui.button(label = 'Cancel', style = discord.ButtonStyle.gray)
+    @discord.ui.button(label = "Cancel", style = discord.ButtonStyle.gray)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         button.style = discord.ButtonStyle.red
         await self.edit_embed(button, interaction, f"Guess I'm not leaving **[{self.guild}]({self.guild.icon or self.bot.user.display_avatar})** today", discord.Colour.red())
@@ -221,7 +221,7 @@ class GuildView(discord.ui.View):
         if self.user.id == interaction.user.id:
             return True
         
-        await interaction.response.send_message('This is not your button to click!', ephemeral = True)
+        await interaction.response.send_message("This is not your button to click!", ephemeral = True)
         return False
     
     @discord.ui.button(label = "Join Guild", style = discord.ButtonStyle.green)

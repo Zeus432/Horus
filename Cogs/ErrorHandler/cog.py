@@ -14,12 +14,12 @@ class ErrorHandler(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
-        self.emote = bot.get_em("errorhandler")
+        self.emote = bot.get_em('errorhandler')
         self.bot.tree.on_error = self.on_tree_error
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx: HorusCtx, error: commands.CommandError):
-        if hasattr(ctx.command, 'on_error'):
+        if hasattr(ctx.command, "on_error"):
             return # return if command has local error handler
 
         command = self.bot.get_command(ctx.invoked_with)
@@ -28,7 +28,7 @@ class ErrorHandler(commands.Cog):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return # return if cog has local error handler
         
-        error = getattr(error, 'original', error)
+        error = getattr(error, "original", error)
         ignored = (commands.CommandNotFound, commands.NoPrivateMessage, commands.ExpectedClosingQuoteError, commands.NotOwner)
 
         if isinstance(error, ignored):
@@ -46,7 +46,7 @@ class ErrorHandler(commands.Cog):
             embed.set_footer(text = f"Use {ctx.clean_prefix}help [command] for more info on a command.")
 
             if aliases := [c for c in ctx.command.aliases]:
-                embed.add_field(name = "Aliases:", value = f"`{'`, `'.join(aliases)}`", inline = False)
+                embed.add_field(name = "Aliases:", value = f"`" + "`, `".join(aliases) + "`", inline = False)
             
             if isinstance(ctx.command, commands.Group):
                 filtered = await self.bot.help_command.filter_commands(ctx.command.commands, sort = True)
@@ -57,10 +57,10 @@ class ErrorHandler(commands.Cog):
                     except:
                         pass
                     else:
-                        embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or 'No documentation'), inline = False)
+                        embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or "No documentation"), inline = False)
             
-            param = f"{error.param}".split(':')[0]
-            space = len(syntax.split(f'<{param}>')[0])
+            param = f"{error.param}".split(":")[0]
+            space = len(syntax.split(f"<{param}>")[0])
             content = f"```yaml\n{syntax}\n" + (space + 1) * " " + "^" * len(param) + f"\n{error.args[0]}```"
 
             return await ctx.reply(content = content, embed = embed, mention_author = False)

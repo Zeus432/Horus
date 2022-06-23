@@ -10,9 +10,9 @@ class BotStuff(commands.Cog):
 
     def __init__(self, bot: Horus):
         self.bot = bot
-        self.emote = bot.get_em("botstuff")
+        self.emote = bot.get_em('botstuff')
     
-    @commands.command(name = "info", aliases = ['about','botinfo'], brief = "Get Bot Info")
+    @commands.command(name = "info", aliases = ['about', 'botinfo'], brief = "Get Bot Info")
     async def info(self, ctx: HorusCtx):
         """ View some info about the bot """
         await ctx.send(f"Hello there, I'm {self.bot.user.name}") # develop this later
@@ -27,7 +27,7 @@ class BotStuff(commands.Cog):
             typing_ping = (end - start) * 1000
 
             start = time.perf_counter()
-            await self.bot.db.execute('SELECT 1')
+            await self.bot.db.execute("SELECT 1")
             end = time.perf_counter()
             postgres_ping = (end - start) * 1000
 
@@ -44,11 +44,11 @@ class BotStuff(commands.Cog):
 
         await msg.edit(content = "Pong \U0001f3d3", embed = embed)
     
-    @commands.command(name = 'uptime', aliases = ["ut"], brief = "Bot Uptime")
+    @commands.command(name = "uptime", aliases = ['ut'], brief = "Bot Uptime")
     async def uptime(self, ctx: HorusCtx):
         """Gets the uptime of the bot"""
         uptime_string = self.bot.get_uptime()
-        await ctx.channel.send(f'**{self.bot.user.name}** has been up for {uptime_string}.\nSince <t:{round(self.bot._launch.timestamp())}>')
+        await ctx.channel.send(f"**{self.bot.user.name}** has been up for {uptime_string}.\nSince <t:{round(self.bot._launch.timestamp())}>")
     
     @commands.command(name = "prefix", brief = "Get Server prefix")
     async def prefix(self, ctx: HorusCtx):
