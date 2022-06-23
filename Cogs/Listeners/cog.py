@@ -28,10 +28,10 @@ class Listeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        if self._config["guild-join-leave"] is not True:
+        if self._config.get("guild-join-leave") is not True:
             return
 
-        chan = self.bot.get_channel(self.bot._config["guildlogchannel"])
+        chan = self.bot.get_channel(self.bot._config.get("guildlog"))
         await chan.send(embed = await GuildEmbed.join(self.bot, guild))
 
         # stuff for blacklist later
@@ -41,15 +41,15 @@ class Listeners(commands.Cog):
     
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
-        if self._config["guild-join-leave"] is not True:
+        if self._config.get("guild-join-leave") is not True:
             return
 
-        chan = self.bot.get_channel(self.bot._config["guildlogchannel"])
+        chan = self.bot.get_channel(self.bot._config.get("guildlog"))
         await chan.send(embed = GuildEmbed.leave(self.bot, guild))
     
     @commands.Cog.listener()
     async def on_command_completion(self, ctx: HorusCtx):
-        if self._config["command-logs"] is not True:
+        if self._config.get("command-logs") is not True:
             return
 
         # Do stuff here later

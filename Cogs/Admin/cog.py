@@ -20,4 +20,4 @@ class Admin(commands.Cog):
 
         await self.bot.redis.hset("prefix", ctx.guild.id, prefix)
         await self.bot.db.execute('UPDATE guilddata SET prefix = $2 WHERE guildid = $1', ctx.guild.id, [prefix])
-        await ctx.send(f'Prefix changed to: `{prefix}`')
+        await ctx.send(f"Prefix changed to: {discord.utils.escape_markdown(prefix)}")
