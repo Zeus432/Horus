@@ -31,8 +31,8 @@ class Listeners(commands.Cog):
         if self._config.get("guild-join-leave") is not True:
             return
 
-        chan = self.bot.get_channel(self.bot._config.get("guildlog"))
-        await chan.send(embed = await GuildEmbed.join(self.bot, guild))
+        webhook = await self.bot.fetch_webhook(self.bot._config.get("guildlog"))
+        await webhook.send(embed = await GuildEmbed.join(self.bot, guild))
 
         # stuff for blacklist later
 
@@ -44,8 +44,8 @@ class Listeners(commands.Cog):
         if self._config.get("guild-join-leave") is not True:
             return
 
-        chan = self.bot.get_channel(self.bot._config.get("guildlog"))
-        await chan.send(embed = GuildEmbed.leave(self.bot, guild))
+        webhook = await self.bot.fetch_webhook(self.bot._config.get("guildlog"))
+        await webhook.send(embed = GuildEmbed.leave(self.bot, guild))
     
     @commands.Cog.listener()
     async def on_command_completion(self, ctx: HorusCtx):

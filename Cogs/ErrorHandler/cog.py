@@ -34,8 +34,6 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, ignored):
             return
         
-        return await send_error(self.bot, ctx, error)
-        
         if isinstance(error, commands.DisabledCommand):
             return await ctx.reply(f"This command is disabled.", mention_author = False)
         
