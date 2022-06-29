@@ -12,22 +12,22 @@ class ListenerView(discord.ui.View):
         self.ctx = ctx
         self.config = config.copy()
         self.add_item(ListenerSelect(bot, ctx, self.config))
-    
+
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if self.user.id == interaction.user.id:
             return True
-        
+
         await interaction.response.send_message("This is not your button to click!", ephemeral = True)
         return False
-    
+
     async def end(self):
         for item in self.children:
             item.disabled = True
-        
+
         embed = discord.Embed(title = f"{self.bot.user.name} Listener Config", colour = self.bot.colour)
         embed.description = "```yaml\n" + "\n".join([f"{var} : {val}" for var, val in self.ctx.cog._config.items()]) + "```"
         await self.message.edit(embed = embed, view = self)
-    
+
     @discord.ui.button(label = "Confirm Changes", style = discord.ButtonStyle.green, row = 1)
     async def change(self, interaction: discord.Interaction, button: discord.ui.Button):
         changelog = [f"{var} : {val} => {True if val is False else False}" for var, val in self.ctx.cog._config.items() if self.config[var] is not val]
@@ -41,12 +41,12 @@ class ListenerView(discord.ui.View):
 
         await self.end()
         self.stop()
-    
+
     @discord.ui.button(emoji = emojis("trash"), style = discord.ButtonStyle.blurple, row = 1)
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.message.delete()
         self.stop()
-    
+
     async def on_timeout(self):
         await self.end()
 
@@ -57,7 +57,7 @@ class ListenerSelect(discord.ui.Select):
         self.config = config
         self.ctx = ctx
         self.bot = bot
-    
+
     async def callback(self, interaction: discord.Interaction):
         self.config[self.values[0]] = True if self.config[self.values[0]] == False else False
         embed = discord.Embed(title = f"{self.bot.user.name} Listener Config", colour = self.bot.colour)

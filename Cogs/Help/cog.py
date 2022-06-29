@@ -17,7 +17,7 @@ class Help(commands.Cog):
         help_command = CustomHelp()
         help_command.cog = self
         bot.help_command = help_command
-    
+
     def additional(self, ctx: HorusCtx) -> List[dict]:
         syntax_help = "**Important Things to Know**\n" \
         "```yaml\n" \
@@ -29,7 +29,7 @@ class Help(commands.Cog):
         "• [X|Y|Z]            - Argument can be either X, Y or Z```\n" \
         "__**Note:**__ Do not literally type out the `<>`, `[]`, `|`!\n" \
         f"Use `{ctx.clean_prefix}help <command | category>` to get help for any command"
-    
+
         return [{"content": syntax_help}]
 
     def cog_unload(self):
@@ -49,21 +49,21 @@ class CustomHelp(commands.HelpCommand):
 
         with open("Cogs/Help/botnews.md") as fl:
             self.bot_news = fl.read()
-    
+
     def ending_note(self) -> str:
         """ Get ending note for embeds """
         return f"Use {self.context.clean_prefix}{self.invoked_with} [command] for more info on a command."
-    
+
     def command_signature(self, command: commands.Command) -> str:
         """ Get proper command signature """
         return f"{command.qualified_name} {command.signature}"
-    
+
     def icon(self, ctx: HorusCtx) -> str:
         """ returns the bot's avatar url """
         return ctx.bot.user.display_avatar.url
 
     # Seperately define functions to return embeds in a list
-    
+
     async def get_bot_help(self, mapping: Mapping[Optional[commands.Cog], List[commands.Command]]) -> list[dict]:
         embed = discord.Embed(title = "Horus Help Menu", colour = self.context.bot.colour)
         embed.set_thumbnail(url = self.icon(self.context))
@@ -73,11 +73,11 @@ class CustomHelp(commands.HelpCommand):
 
             if cog is not None and cog != self.cog and filtered:
                 embed.add_field(name = f"{getattr(cog, 'emote', self.context.bot.memoji)} {cog.qualified_name}", value = f"\n`{self.context.clean_prefix}{self.invoked_with} {cog.qualified_name}`\n" + (cog.description or "...") + "\n\u200b", inline = True)
-            
+
         if self.bot_news:
             embed.add_field(name = f"{self.context.bot.get_em('news')} {self.context.bot.user.name} Updates", value = self.bot_news.replace("[prefix]", f"{self.context.clean_prefix}"), inline = False)
         embed.set_footer(icon_url = self.icon(self.context), text = self.ending_note())
-        
+
         syntax_help = "**Important Things to Know**\n" \
         "```yaml\n" \
         "• <argument>         - Argument is required\n" \
@@ -90,29 +90,29 @@ class CustomHelp(commands.HelpCommand):
         f"Use `{self.context.clean_prefix}help <command | category>` to get help for any command"
 
         return [{"embeds": [embed]}, {"content": syntax_help}]
-    
+
     async def get_cog_help(self, cog: commands.Cog) -> List[dict]:
         filtered = await self.filter_commands(cog.get_commands(), sort = True)
         pages = ceil(len(filtered) / 8)
         coghelp = []
-    
+
         for index, command in enumerate(filtered):
             if index % 8 == 0:
                 embed = discord.Embed(title = f"{cog.qualified_name} Help", colour = self.context.bot.colour, description = cog.description or "Couldn't get any info about this cog")
                 embed.set_footer(text = (f"Page {(index // 8) + 1} of {pages} - "  if pages > 1 else "") + self.ending_note())
-            
+
             embed.add_field(name = command.qualified_name, value = command.short_doc or "Couldn't get any info about this command", inline = False)
 
             if index % 8 == 7 or index + 1 == len(filtered):
                 coghelp.append({"embeds": [embed]})
-        
+
         if additional := getattr(cog, "additional", None):
             coghelp.extend(additional(self.context))
-        
+
         return coghelp
 
     # The actual send help functions
-    
+
     async def send_bot_help(self, mapping: Mapping[Optional[commands.Cog], List[commands.Command]]):
         bothelp = await self.get_bot_help(mapping)
 
@@ -124,7 +124,7 @@ class CustomHelp(commands.HelpCommand):
 
         for msg in coghelp:
             await self.context.reply(**msg, mention_author = False)
-    
+
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
         except: return # Return if user can't run this group commands
@@ -134,14 +134,14 @@ class CustomHelp(commands.HelpCommand):
 
         if aliases := "`, `".join(alias for alias in group.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
-        
+
         if cd := group._buckets._cooldown:
             cdtype = group._buckets._type
             embed.add_field(name = "Cooldown", value = f"Can be used {cd.rate} time" + "s" if cd.rate != 1 else "" + f" every {round(cd.per)} seconds " + "by" if cdtype.name == "user" else "in" + f" a {cdtype.name}", inline = False)
-        
+
         if concur := group._max_concurrency:
             embed.add_field(name = "Concurrency", value = f"Can be used {concur.number} time" + "s" if concur.number != 1 else "" + " consecutively " + "by" if concur.per.name == "user" else "in" + f" a {concur.per.name}", inline = False)
-        
+
         filtered = await self.filter_commands(group.commands, sort = True)
         pages = ceil(len(filtered) / 6)
         print(len(filtered), pages)
@@ -150,32 +150,32 @@ class CustomHelp(commands.HelpCommand):
         for index, command in enumerate(filtered):
             if index % 6 == 0:
                 embed.set_footer(text = (f"Page {(index // 6) + 1} of {pages} - "  if pages > 1 else "") + self.ending_note(), icon_url = self.icon(self.context))
-    
+
             embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or "Couldn't get any info about this command"), inline = False)
 
             if index % 6 == 5 or index + 1 == len(filtered):
                 grouphelp.append({"embeds": [embed]})
 
                 embed = discord.Embed(title = f"{group.cog_name or self.context.bot} Help", colour = self.context.bot.colour)
-        
+
         for msg in grouphelp:
             await self.context.reply(**msg, view = DeleteButton(self.context), mention_author = False)
-    
+
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)
         except: return # Return if user can't run this command
-    
+
         embed = discord.Embed(colour = self.context.bot.colour, title = f"{command.cog_name} Help" if command.cog_name else f"{self.context.bot} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.command_signature(command)}```\n>>> " + (command.help or "Couldn't get any info about this command"))
         embed.set_footer(text = self.ending_note(), icon_url = self.icon(self.context))
 
         if aliases := "`, `".join(alias for alias in command.aliases):
             embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
-        
+
         if cd := command._buckets._cooldown:
             cdtype = command._buckets._type
             embed.add_field(name = "Cooldown", value = f"Can be used {cd.rate} time" + "s" if cd.rate != 1 else "" + f" every {round(cd.per)} seconds " + "by" if cdtype.name == "user" else "in" + f" a {cdtype.name}", inline = False)
-        
+
         if concur := command._max_concurrency:
             embed.add_field(name = "Concurrency", value = f"Can be used {concur.number} time" + "s" if concur.number != 1 else "" + " consecutively " + "by" if concur.per.name == "user" else "in" + f" a {concur.per.name}", inline = False)
-        
+
         await self.context.reply(embed = embed, view = DeleteButton(self.context), mention_author = False)

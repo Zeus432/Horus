@@ -34,7 +34,7 @@ def _size(num):
             return f"{num:.1f}{unit}"
         num /= 1024.0
     return f"{num:.1f}YB"
-            
+
 def _bitsize(num):
     """ Convert from Bytes to appropriate size."""
     for unit in ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']:
@@ -59,7 +59,7 @@ def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
         featuresinfo += f"\n\U00002005{bot.get_em('replycont')} Private Threads" if "PRIVATE_THREADS" in guild.features else ""
         featuresinfo += f"\n\U00002005{bot.get_em('replyend')} Archive time limit: "
         featuresinfo += "1 week" if "SEVEN_DAY_THREAD_ARCHIVE" in guild.features else "3 days" if "THREE_DAY_THREAD_ARCHIVE" in guild.features else "1 day"
-    
+
     feature_list =  "\n".join(f"{bot.get_em('parrow')} {features[feature]}" for feature in guild.features if "THREAD" not in feature) + featuresinfo
     return feature_list or "No Features Availabe"
 
@@ -75,7 +75,7 @@ class GuildEmbed:
             embed.set_footer(icon_url = "https://cdn.discordapp.com/emojis/457879292152381443.png", text = "Verified Discord Server")
         elif "PARTNERED" in guild.features:
             embed.set_footer(icon_url = "https://cdn.discordapp.com/emojis/508929941610430464.png", text = "Discord Partnered Server")
-        
+
         embed.add_field(name = "Guild Info", value = f"Owner: {guild.owner.mention} (`{guild.owner.id}`)\nVerif. Level: **{verif[str(guild.verification_level)]}**\nServer ID: `{guild.id}`\n{'This guild has not been cached yet' if not guild.chunked else ''}", inline = False)
         embed.add_field(name = "Members", value = f"Humans: **{len([member for member in guild.members if not member.bot])}**\nBots: **{len([member for member in guild.members if member.bot])}**\nTotal: **{guild.member_count}**")
         embed.add_field(name = "Channels", value = f"{bot.get_em('text')} Text Channels: **{len(guild.text_channels)}**\n{bot.get_em('voice')} Voice Channels: **{len(guild.voice_channels)}**\n{bot.get_em('stage')} Stage Channels: **{len(guild.stage_channels)}**")
@@ -85,7 +85,7 @@ class GuildEmbed:
         embed.add_field(name = "**Server Features**", value = get_features(bot = bot, guild = guild), inline = False)
 
         self.embed = embed
-    
+
     @classmethod
     async def join(cls, bot: commands.Bot, guild: discord.Guild) -> discord.Embed:
         embed = cls(bot, guild).embed
@@ -101,7 +101,7 @@ class GuildEmbed:
         embed.colour = discord.Colour.green()
 
         return embed
-    
+
     @classmethod
     def leave(cls, bot: commands.Bot, guild: discord.Guild, blacklist: bool = False) -> discord.Embed:
         embed = cls(bot, guild).embed
@@ -110,7 +110,7 @@ class GuildEmbed:
         embed.colour = discord.Colour.dark_grey() if blacklist is True else discord.Color.red()
 
         return embed
-    
+
     @classmethod
     def default(cls, bot: commands.Bot, guild: discord.Guild):
         embed = cls(bot, guild).embed

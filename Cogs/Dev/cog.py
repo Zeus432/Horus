@@ -28,10 +28,10 @@ class Dev(commands.Cog):
         if await self.bot.is_owner(ctx.author):
             return True
         raise commands.NotOwner()
-    
+
     @commands.command(name = "eval", aliases = ['e'], brief = "Evaluate Code")
     async def _eval(self, ctx: HorusCtx, *, body: str):
-        """ 
+        """
         **Execute asynchronous code.**
         This command wraps code into the body of an async function and then
         calls and awaits it. The bot will respond with anything printed to
@@ -89,7 +89,7 @@ class Dev(commands.Cog):
             else:
                 self._last_result = ret
                 await ctx.send(f"```py\n{value}{ret}\n```")
-    
+
     @_eval.error
     async def _eval_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
@@ -114,12 +114,12 @@ class Dev(commands.Cog):
             restart_program()
         except:
             await message.add_reaction(self.bot.get_em('cross'))
-    
+
     @commands.command(name = "shutdown", aliases = ['die', 'sd', 'stop', 'https://tenor.com/view/thanos-gamora-infinity-war-soul-stone-sacrifice-gif-14289940'], help = "Shutdown the Bot", brief = "Shutdown")
     async def shutdown(self, ctx: HorusCtx):
         # Define some confirm buttons functions
         await ctx.reply("Are you sure you want to shutdown?", view = ConfirmShutdown(self.bot, ctx, 60))
-    
+
     @commands.command(name = "enable", aliases = ['en'], brief = "Enable Command")
     async def enable(self, ctx: HorusCtx, command: str):
         """Enable a command."""
@@ -143,7 +143,7 @@ class Dev(commands.Cog):
 
         command.enabled = False
         await ctx.send(f"Disabled {command.name} command.")
-    
+
     @commands.command(name = "sql", brief = "Run some Sql")
     async def sql(self, ctx: HorusCtx, *, query: str):
         """
@@ -181,7 +181,7 @@ class Dev(commands.Cog):
             await ctx.send("Too many results...", file = discord.File(file, "results.txt"))
         else:
             await ctx.send(endresult)
-    
+
     @commands.command(name = "devmode", brief = "Enter Devmode")
     async def devmode(self, ctx: HorusCtx):
         """ Start Developer mode to test major commands without others interfering """
@@ -189,18 +189,18 @@ class Dev(commands.Cog):
             self.bot._devmode = False
             await self.bot.change_presence(status = discord.Status.idle, activity = discord.Activity(type = discord.ActivityType.watching, name = f"for @{self.bot.user.name} help"))
             return await ctx.reply("Developer Mode has been disabled!")
-        
+
         self.bot._devmode = True
         await self.bot.change_presence(status = discord.Status.invisible)
         return await ctx.reply("Developer Mode has been enabled!")
-    
+
     @commands.command(name = "noprefix", brief = "Toggle Noprefix")
     async def noprefix(self, ctx: HorusCtx):
         """ Enable/Disable Noprefix for Bot Owners """
         self.bot._noprefix = False if self.bot._noprefix else True
         state = f"disabled, use default prefixes now {self.bot.get_em('hadtodoittoem')}" if not self.bot._noprefix else f"enabled for bot owners {self.bot.get_em('tokitosip')}"
         await ctx.reply(f"No prefix has been {state}")
-    
+
     @commands.command(name = "status", brief = "Change Bot Status")
     @commands.max_concurrency(1, commands.BucketType.user)
     async def status(self, ctx: HorusCtx):
@@ -213,18 +213,18 @@ class Dev(commands.Cog):
         view = ChangeStatus(self.bot, ctx)
         await ctx.send(embed = embed, view = view)
         await view.wait()
-    
+
     @commands.command(name = "load", aliases = ['l', 'rl'], brief = "Load Cogs")
     async def load(self, ctx: HorusCtx, cog: str = None):
         """ Loads/Reloads the Cog(s) given. If no cog is mentioned it reloads the last loaded cog """
         if cog is None and (cog := self._last_cog) is None:
             return await ctx.reply("You need to provide a cog to load!")
-        
+
         for c in INITIAL_EXTENSIONS:
             if cog.lower() in c.lower():
                 cog = c
                 break
-        
+
         try:
             await self.bot.load_extension(cog)
         except commands.ExtensionAlreadyLoaded:
@@ -233,28 +233,28 @@ class Dev(commands.Cog):
                 await self.bot.load_extension(cog)
             except Exception as error:
                 await ctx.send(f"I was unable to reload `{cog}`\n```py\n" + "".join(traceback.format_exception(type(error), error, error.__traceback__, 1)) + "```")
-            
+
             else:
                 await ctx.send(f"\U0001f501 Reloaded Module `{cog}`")
                 self._last_cog = cog
-        
+
         except Exception as error:
             await ctx.send(f"I was unable to load `{cog}`\n```py\n" + "".join(traceback.format_exception(type(error), error, error.__traceback__, 1)) + "```")
         else:
             await ctx.send(f"\U0001f4e5 Loaded Module `{cog}`")
             self._last_cog = cog
-    
+
     @commands.command(name = "unload", aliases = ['ul'], brief = "Unload Cogs")
     async def unload(self, ctx: HorusCtx, cog: str = None):
         """ Unloads the Cog(s) given. If no cog is mentioned it unloads the last loaded cog """
         if cog is None and (cog := self._last_cog) is None:
             return await ctx.reply("You need to provide a cog to unload!")
-        
+
         for c in INITIAL_EXTENSIONS:
             if cog.lower() in c.lower():
                 cog = c
                 break
-        
+
         try:
             await self.bot.unload_extension(cog)
         except Exception as error:
@@ -269,14 +269,14 @@ class Dev(commands.Cog):
         async with ctx.typing():
             msg = await ctx.reply("Fetching Guilds", mention_author = False)
             guilds = "\n".join([f"{index + 1}) {guild.name} ({guild.id})" for index, guild in enumerate(sorted(self.bot.guilds, key = lambda u: u.me.joined_at))])
-        
+
         try:
             await msg.delete()
         except:
             await msg.edit(content = f"```glsl\n{guilds}```")
         else:
             await ctx.send(content = f"```glsl\n{guilds}```")
-    
+
     @commands.command(name = "leave", brief = "Leave Guild")
     async def leave(self, ctx: HorusCtx, guild: discord.Guild = None):
         guild = ctx.guild if not guild else guild
@@ -290,7 +290,7 @@ class Dev(commands.Cog):
         guild = ctx.guild if not guild else guild
 
         await ctx.send(embed = GuildEmbed.default(self.bot, guild), view = GuildView(self.bot, ctx))
-    
+
     @commands.command(name = "bypasscooldown", aliases = ['bypasscd'], brief = "Toggle Cooldown Bypass")
     async def bypasscd(self, ctx: HorusCtx):
         """ Enable/Disable Cooldown Bypass for Bot Owners """

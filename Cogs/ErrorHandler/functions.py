@@ -24,7 +24,7 @@ async def send_error(bot: Horus, ctx: HorusCtx, error: commands.CommandError):
         embed.add_field(name = "Guild:", value = f"**{ctx.guild}**\n (`{ctx.guild.id}`)")
     else:
         embed.add_field(name = "Dm Channel:", value = f"<#{ctx.channel.id}>\n (`{ctx.channel.id}`)")
-    
+
     embed.add_field(name = "Message ID:", value = f"`{ctx.message.id}`")
     embed.add_field(name = "\u200b", value = f"**[\U0001f517 Jump to Error]({ctx.message.jump_url})**")
 
@@ -39,6 +39,6 @@ async def send_error(bot: Horus, ctx: HorusCtx, error: commands.CommandError):
         else:
             await webhook.send("```py\n" + senderror + "```")
             senderror = ""
-    
+
     if senderror:
         await webhook.send("```py\n" + senderror + "```")

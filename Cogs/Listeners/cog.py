@@ -13,7 +13,7 @@ class Listeners(commands.Cog):
         self.bot = bot
         self.emote = bot.get_em('listeners')
         self._config = load_toml("Cogs/Listeners/config.toml")
-    
+
     async def cog_check(self, ctx: HorusCtx):
         if await self.bot.is_owner(ctx.author):
             return True
@@ -38,7 +38,7 @@ class Listeners(commands.Cog):
 
         if await self.bot.db.fetchval("SELECT * FROM guilddata WHERE guildid = $1", guild.id) is None:
             await self.bot.db.execute("INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2", guild.id, {'prevbl': 0, 'blacklisted': False})
-    
+
     @commands.Cog.listener()
     async def on_guild_remove(self, guild: discord.Guild):
         if self._config.get('guild-join-leave') is not True:
@@ -46,7 +46,7 @@ class Listeners(commands.Cog):
 
         webhook = await self.bot.fetch_webhook(self.bot._config.get('guildlog'))
         await webhook.send(embed = GuildEmbed.leave(self.bot, guild))
-    
+
     @commands.Cog.listener()
     async def on_command_completion(self, ctx: HorusCtx):
         if self._config.get('command-logs') is not True:
