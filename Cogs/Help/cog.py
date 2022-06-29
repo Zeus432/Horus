@@ -5,7 +5,7 @@ from Core.bot import Horus, HorusCtx
 from typing import Mapping, Optional, List
 from math import ceil
 
-from .views import DeleteButton
+from .views import DeleteButton, HelpView
 
 
 class Help(commands.Cog):
@@ -89,7 +89,7 @@ class CustomHelp(commands.HelpCommand):
         "__**Note:**__ Do not literally type out the `<>`, `[]`, `|`!\n" \
         f"Use `{self.context.clean_prefix}help <command | category>` to get help for any command"
 
-        return [{"embeds": [embed]}, {"content": syntax_help}]
+        return [{"embeds": [embed], "content": ""}, {"embeds": [], "content": syntax_help}]
 
     async def get_cog_help(self, cog: commands.Cog) -> List[dict]:
         filtered = await self.filter_commands(cog.get_commands(), sort = True)
@@ -104,7 +104,7 @@ class CustomHelp(commands.HelpCommand):
             embed.add_field(name = command.qualified_name, value = command.short_doc or "Couldn't get any info about this command", inline = False)
 
             if index % 8 == 7 or index + 1 == len(filtered):
-                coghelp.append({"embeds": [embed]})
+                coghelp.append({"embeds": [embed], "content": ""})
 
         if additional := getattr(cog, "additional", None):
             coghelp.extend(additional(self.context))
@@ -116,14 +116,12 @@ class CustomHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping: Mapping[Optional[commands.Cog], List[commands.Command]]):
         bothelp = await self.get_bot_help(mapping)
 
-        for msg in bothelp:
-            await self.context.reply(**msg, mention_author = False)
+        await self.context.reply(**bothelp[0], view = HelpView(self.context.bot, self.context, bothelp), mention_author = False)
 
     async def send_cog_help(self, cog: commands.Cog):
         coghelp = await self.get_cog_help(cog)
 
-        for msg in coghelp:
-            await self.context.reply(**msg, mention_author = False)
+        await self.context.reply(**coghelp[0], view = HelpView(self.context.bot, self.context, coghelp), mention_author = False)
 
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
@@ -144,7 +142,6 @@ class CustomHelp(commands.HelpCommand):
 
         filtered = await self.filter_commands(group.commands, sort = True)
         pages = ceil(len(filtered) / 6)
-        print(len(filtered), pages)
         grouphelp = []
 
         for index, command in enumerate(filtered):
@@ -154,12 +151,11 @@ class CustomHelp(commands.HelpCommand):
             embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or "Couldn't get any info about this command"), inline = False)
 
             if index % 6 == 5 or index + 1 == len(filtered):
-                grouphelp.append({"embeds": [embed]})
+                grouphelp.append({"embeds": [embed], "content": ""})
 
                 embed = discord.Embed(title = f"{group.cog_name or self.context.bot} Help", colour = self.context.bot.colour)
 
-        for msg in grouphelp:
-            await self.context.reply(**msg, view = DeleteButton(self.context), mention_author = False)
+        await self.context.reply(**grouphelp[0], view = HelpView(self.context.bot, self.context, grouphelp, select = False), mention_author = False)
 
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)

@@ -19,6 +19,7 @@ source = "https://github.com/Zeus432/Horus" # github link to repo
 normal = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=67420289&scope=bot+applications.commands"
 mod = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=1116922503303&scope=bot+applications.commands"
 admin = "https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=8&scope=bot+applications.commands"
+support = "https://discord.gg/Rrpe2hkm"
 
 [lavalink] # Lavelink server info
 host = "0.0.0.0"
