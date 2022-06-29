@@ -214,7 +214,7 @@ class Dev(commands.Cog):
         await ctx.send(embed = embed, view = view)
         await view.wait()
     
-    @commands.command(name = "load", aliases = ['l'], brief = "Load Cogs")
+    @commands.command(name = "load", aliases = ['l', 'rl'], brief = "Load Cogs")
     async def load(self, ctx: HorusCtx, cog: str = None):
         """ Loads/Reloads the Cog(s) given. If no cog is mentioned it reloads the last loaded cog """
         if cog is None and (cog := self._last_cog) is None:

@@ -11,7 +11,7 @@ import asyncpg
 import json
 
 from Core.Utils.functions import write_toml, emojis
-from .settings import INITIAL_EXTENSIONS
+from .settings import INITIAL_EXTENSIONS, bot_colour
 
 
 class HorusCtx(commands.Context):
@@ -52,7 +52,7 @@ class Horus(commands.Bot):
         super().__init__(command_prefix = self.getprefix, intents = discord.Intents.all(), activity = discord.Game(name = "Waking Up"), status = discord.Status.online, case_insensitive = True, description = CONFIG['description'])
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
         self.owner_ids = frozenset(CONFIG['Owners']) # I like freezing my bot owner ids you can remove this frozenset if you want to
-        self.colour = discord.Colour(0x9C9CFF)
+        self.colour = discord.Colour(bot_colour)
         self.memoji = self.get_em('me')
         self._config = CONFIG
         self._launch = None
