@@ -60,15 +60,15 @@ class CustomHelp(commands.HelpCommand):
 
     def icon(self, ctx: HorusCtx) -> str:
         """ returns the bot's avatar url """
-        return ctx.bot.user.display_avatar.url
+        return ctx.author.display_avatar.url
 
     # Seperately define functions to return embeds in a list
 
     async def get_bot_help(self, mapping: Mapping[Optional[commands.Cog], List[commands.Command]]) -> list[dict]:
         embed = discord.Embed(title = "Horus Help Menu", colour = self.context.bot.colour)
-        embed.set_thumbnail(url = self.icon(self.context))
+        embed.set_thumbnail(url = self.context.bot.user.display_avatar.url)
 
-        for cog, commands in mapping.items():
+        for cog, commands in sorted(mapping.items(), key = lambda u: getattr(u[0], "qualified_name", "X")):
             filtered = await self.filter_commands(commands, sort = True)
 
             if cog is not None and cog != self.cog and filtered:
@@ -115,23 +115,41 @@ class CustomHelp(commands.HelpCommand):
 
     async def send_bot_help(self, mapping: Mapping[Optional[commands.Cog], List[commands.Command]]):
         bothelp = await self.get_bot_help(mapping)
+        pages = {"Main Menu": [self.cog, bothelp]}
 
-        await self.context.reply(**bothelp[0], view = HelpView(self.context.bot, self.context, bothelp), mention_author = False)
+        for cog, commands in sorted(mapping.items(), key = lambda u: getattr(u[0], "qualified_name", "X")):
+            filtered = await self.filter_commands(commands, sort = True)
+            if cog is not None and cog != self.cog and filtered:
+                    pages[cog.qualified_name] = [cog, await self.get_cog_help(cog)]
+
+        await self.context.reply(**bothelp[0], view = HelpView(self.context.bot, self.context, bothelp, pages), mention_author = False)
 
     async def send_cog_help(self, cog: commands.Cog):
-        coghelp = await self.get_cog_help(cog)
+        if not await self.filter_commands(cog.get_commands()):
+            return
 
-        await self.context.reply(**coghelp[0], view = HelpView(self.context.bot, self.context, coghelp), mention_author = False)
+        coghelp = await self.get_cog_help(cog)
+        mapping = self.get_bot_mapping()
+        pages = {"Main Menu": [self.cog, await self.get_bot_help(mapping)]}
+
+        for cog, commands in sorted(mapping.items(), key = lambda u: getattr(u[0], "qualified_name", "X")):
+            filtered = await self.filter_commands(commands, sort = True)
+            if cog is not None and cog != self.cog and filtered:
+                    pages[cog.qualified_name] = [cog, await self.get_cog_help(cog)]
+
+        await self.context.reply(**coghelp[0], view = HelpView(self.context.bot, self.context, coghelp, pages), mention_author = False)
 
     async def send_group_help(self, group: commands.Group):
         try: await group.can_run(self.context)
         except: return # Return if user can't run this group commands
 
-        embed = discord.Embed(colour = self.context.bot.colour, title = f"{group.cog_name or self.context.bot} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.command_signature(group)}```\n>>> " + (group.help or "Couldn't get any info about this group"))
+        filtered = await self.filter_commands(group.commands, sort = True)
+
+        embed = discord.Embed(colour = self.context.bot.colour, title = f"{group.cog_name or self.context.bot} Help", description = f"```yaml\nSyntax: {self.context.clean_prefix}{self.command_signature(group)}```\n" + (group.help or "Couldn't get any info about this group") + ("\n\n**Subcommands**" if not group.aliases else ""))
         embed.set_footer(text = self.ending_note(), icon_url = self.icon(self.context))
 
         if aliases := "`, `".join(alias for alias in group.aliases):
-            embed.add_field(name = "Aliases:", value = f"`{aliases}`", inline = False)
+            embed.add_field(name = "Aliases:", value = f"`{aliases}`" + ("\n\n**Subcommands:**" if filtered else ""), inline = False)
 
         if cd := group._buckets._cooldown:
             cdtype = group._buckets._type
@@ -140,7 +158,6 @@ class CustomHelp(commands.HelpCommand):
         if concur := group._max_concurrency:
             embed.add_field(name = "Concurrency", value = f"Can be used {concur.number} time" + "s" if concur.number != 1 else "" + " consecutively " + "by" if concur.per.name == "user" else "in" + f" a {concur.per.name}", inline = False)
 
-        filtered = await self.filter_commands(group.commands, sort = True)
         pages = ceil(len(filtered) / 6)
         grouphelp = []
 
