@@ -255,4 +255,10 @@ class Horus(commands.Bot):
         if self._devmode and message.author.id not in self.owner_ids:
             return # Only Developers can run commands in dev mode
 
+        if await self.redis.lpos("blacklist", message.guild.id) is not None:
+            return await message.guild.leave()
+
+        if await self.redis.lpos("blacklist", message.author.id) is not None and message.author.id not in self.owner_ids:
+            return # Return if user is blacklisted
+
         await self.process_commands(message)

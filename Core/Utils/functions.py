@@ -64,7 +64,7 @@ def get_features(bot: commands.Bot, guild: discord.Guild) -> str:
     return feature_list or "No Features Availabe"
 
 class GuildEmbed:
-    __slots__ = []
+    __slots__ = ['embed']
 
     def __init__(self, bot: commands.Bot, guild: discord.Guild):
         embed = discord.Embed(colour = bot.colour)
@@ -85,6 +85,8 @@ class GuildEmbed:
         if guild.premium_tier:
             embed.add_field(name = "**Server Boost**", value = f"Tier **{str(guild.premium_tier)}** with **{guild.premium_subscription_count}** boosters\nFile size limit: **{_size(guild.filesize_limit)}**\nEmoji limit: **{str(guild.emoji_limit)}**\nVCs max bitrate: **{_bitsize(guild.bitrate_limit)}**")
         embed.add_field(name = "**Server Features**", value = get_features(bot = bot, guild = guild), inline = False)
+
+        self.embed = embed
 
     @classmethod
     async def join(cls, bot: commands.Bot, guild: discord.Guild) -> discord.Embed:

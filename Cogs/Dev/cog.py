@@ -12,7 +12,7 @@ import io
 from Core.Utils.functions import GuildEmbed, write_toml
 from Core.settings import INITIAL_EXTENSIONS
 from .functions import get_reply, cleanup_code, restart_program, plural, TabularData
-from .views import ConfirmShutdown, ChangeStatus, GuildView, ConfirmLeave
+from .views import ConfirmShutdown, ChangeStatus, GuildView, ConfirmLeave, ConfirmBlacklist
 
 
 class Dev(commands.Cog):
@@ -297,3 +297,36 @@ class Dev(commands.Cog):
         self.bot._bypasscd = False if self.bot._bypasscd else True
         state = f"disabled!" if not self.bot._bypasscd else f"enabled for bot owners!"
         await ctx.reply(f"Cooldown bypass has been {state}")
+
+    @commands.group(name = "blacklist", aliases = ['bl'], brief = "Blacklist Command Group")
+    async def blacklist(self, ctx: HorusCtx):
+        """ The group command to handle all blacklisting of users and commands """
+        await ctx.send_help(ctx.command)
+
+    @blacklist.command(name = "add", brief = "Blacklist Guild / User")
+    async def add(self, ctx: HorusCtx, what: discord.User | discord.Guild | discord.Object):
+        """ Blacklist a server or user from using the bot """
+        what_type = "guild" if isinstance(what, discord.Object) else what.__class__.__name__.lower()
+        if await self.bot.redis.lpos("blacklist", what.id) is not None:
+            return await ctx.reply(f"This {what.__class__.__name__} is already blacklisted!")
+
+        if isinstance(what, discord.Object) and await self.bot.db.fetchval(f"SELECT blacklists FROM guilddata WHERE guildid = $1", what.id) is None:
+            return await ctx.send("Could not find this guild!")
+
+        view = ConfirmBlacklist(self.bot, ctx, what, what_type, blacklist = True)
+        await ctx.reply(f"Are you sure you want to blacklist: `{what.id if isinstance(what, discord.Object) else what}`?", view = view)
+        await view.wait()
+
+    @blacklist.command(name = "remove", brief = "Unblacklist Guild / User")
+    async def remove(self, ctx: HorusCtx, what: discord.User | discord.Guild | discord.Object):
+        """ Unblacklist a previously blacklisted server or user """
+        what_type = "guild" if isinstance(what, discord.Object) else what.__class__.__name__.lower()
+        if await self.bot.redis.lpos("blacklist", what.id) is None:
+            return await ctx.reply(f"This {what_type} is not blacklisted!")
+
+        if isinstance(what, discord.Object) and await self.bot.db.fetchval(f"SELECT blacklists FROM guilddata WHERE guildid = $1", what.id) is None:
+            return await ctx.send("Could not find this guild!")
+
+        view = ConfirmBlacklist(self.bot, ctx, what, what_type, blacklist = False)
+        await ctx.reply(f"Are you sure you want to unblacklist: `{what.id if isinstance(what, discord.Object) else what}`?", view = view)
+        await view.wait()

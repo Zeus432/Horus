@@ -34,7 +34,8 @@ class Listeners(commands.Cog):
         webhook = await self.bot.fetch_webhook(self.bot._config.get('guildlog'))
         await webhook.send(embed = await GuildEmbed.join(self.bot, guild))
 
-        # stuff for blacklist later
+        if await self.bot.redis.lpos("blacklist", guild.id) is not None:
+            await guild.leave() # Leave guild if previously blacklisted
 
         if await self.bot.db.fetchval("SELECT * FROM guilddata WHERE guildid = $1", guild.id) is None:
             await self.bot.db.execute("INSERT INTO guilddata(guildid, blacklists) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET blacklists = $2", guild.id, {'prevbl': 0, 'blacklisted': False})
@@ -45,7 +46,7 @@ class Listeners(commands.Cog):
             return
 
         webhook = await self.bot.fetch_webhook(self.bot._config.get('guildlog'))
-        await webhook.send(embed = GuildEmbed.leave(self.bot, guild))
+        await webhook.send(embed = GuildEmbed.leave(self.bot, guild, blacklist = True if await self.bot.redis.lpos("blacklist", guild.id) is not None else False))
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx: HorusCtx):
