@@ -72,30 +72,30 @@ class NumericStringParser(object):
         self.bnf = final
         # map operator symbols to corresponding arithmetic operations
         epsilon = 1e-12
-        self.opn = {"+": operator.add,
-                    "-": operator.sub,
-                    "+=": operator.iadd,
-                    "-=": operator.isub,
-                    "*": operator.mul,
-                    "*=": operator.imul,
-                    "/": operator.truediv,
-                    "/=": operator.itruediv,
-                    "^": operator.pow,
-                    "%": operator.mod}
-        self.fn = {"sin": math.sin,
-                   "cos": math.cos,
-                   "tan": math.tan,
-                   "sinh": math.sinh,
-                   "cosh": math.cosh,
-                   "tanh": math.tanh,
-                   "exp": math.exp,
-                   "abs": abs,
-                   "trunc": lambda a: int(a),
-                   "round": round,
-                   "sgn": lambda a: abs(a) > epsilon and ((a>0)-(a<0)) or 0,
-                   "log": lambda a: math.log(a, 10),
-                   "ln": math.log,
-                   "log2": math.log2}
+        self.opn = {'+': operator.add,
+                    '-': operator.sub,
+                    '+=': operator.iadd,
+                    '-=': operator.isub,
+                    '*': operator.mul,
+                    '*=': operator.imul,
+                    '/': operator.truediv,
+                    '/=': operator.itruediv,
+                    '^': operator.pow,
+                    '%': operator.mod}
+        self.fn = {'sin': math.sin,
+                   'cos': math.cos,
+                   'tan': math.tan,
+                   'sinh': math.sinh,
+                   'cosh': math.cosh,
+                   'tanh': math.tanh,
+                   'exp': math.exp,
+                   'abs': abs,
+                   'trunc': lambda a: int(a),
+                   'round': round,
+                   'sgn': lambda a: abs(a) > epsilon and ((a>0)-(a<0)) or 0,
+                   'log': lambda a: math.log(a, 10),
+                   'ln': math.log,
+                   'log2': math.log2}
 
     def evaluateStack(self, s):
         op = s.pop()

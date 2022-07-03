@@ -152,7 +152,7 @@ class Activity(discord.ui.Modal):
         self.aname = aname
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        activity = {"Competing": discord.ActivityType.competing, "Listening": discord.ActivityType.listening, "Playing": discord.ActivityType.playing, "Watching": discord.ActivityType.watching}
+        activity = {'Competing': discord.ActivityType.competing, "Listening": discord.ActivityType.listening, 'Playing': discord.ActivityType.playing, 'Watching': discord.ActivityType.watching}
         await self.bot.change_presence(status = self.ctx.guild.me.status, activity = discord.Activity(type = activity[self.atype.values[0]], name = self.aname.value))
 
         embed = discord.Embed(colour = self.bot.colour)

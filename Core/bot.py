@@ -101,7 +101,7 @@ class Horus(commands.Bot):
         self._webhook = await self.fetch_webhook(self._config.get('webhook'))
 
         await self.redis.delete("prefix") # clear redis prefix cache
-        await self.redis.hmset("prefix", {"default": self._config.get('prefix')}) # make redis prefix cache
+        await self.redis.hmset("prefix", {'default': self._config.get('prefix')}) # make redis prefix cache
 
         await self.redis.delete("blacklist") # clear redis blacklist cache
 

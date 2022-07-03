@@ -30,7 +30,7 @@ class Help(commands.Cog):
         "__**Note:**__ Do not literally type out the `<>`, `[]`, `|`!\n" \
         f"Use `{ctx.clean_prefix}help <command | category>` to get help for any command"
 
-        return [{"content": syntax_help}]
+        return [{'content': syntax_help}]
 
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
@@ -89,7 +89,7 @@ class CustomHelp(commands.HelpCommand):
         "__**Note:**__ Do not literally type out the `<>`, `[]`, `|`!\n" \
         f"Use `{self.context.clean_prefix}help <command | category>` to get help for any command"
 
-        return [{"embeds": [embed], "content": ""}, {"embeds": [], "content": syntax_help}]
+        return [{'embeds': [embed], 'content': ''}, {'embeds': [], 'content': syntax_help}]
 
     async def get_cog_help(self, cog: commands.Cog) -> List[dict]:
         filtered = await self.filter_commands(cog.get_commands(), sort = True)
@@ -104,7 +104,7 @@ class CustomHelp(commands.HelpCommand):
             embed.add_field(name = command.qualified_name, value = command.short_doc or "Couldn't get any info about this command", inline = False)
 
             if index % 8 == 7 or index + 1 == len(filtered):
-                coghelp.append({"embeds": [embed], "content": ""})
+                coghelp.append({'embeds': [embed], 'content': ''})
 
         if additional := getattr(cog, "additional", None):
             coghelp.extend(additional(self.context))
@@ -115,7 +115,7 @@ class CustomHelp(commands.HelpCommand):
 
     async def send_bot_help(self, mapping: Mapping[Optional[commands.Cog], List[commands.Command]]):
         bothelp = await self.get_bot_help(mapping)
-        pages = {"Main Menu": [self.cog, bothelp]}
+        pages = {'Main Menu': [self.cog, bothelp]}
 
         for cog, commands in sorted(mapping.items(), key = lambda u: getattr(u[0], "qualified_name", "X")):
             filtered = await self.filter_commands(commands, sort = True)
@@ -130,7 +130,7 @@ class CustomHelp(commands.HelpCommand):
 
         coghelp = await self.get_cog_help(cog)
         mapping = self.get_bot_mapping()
-        pages = {"Main Menu": [self.cog, await self.get_bot_help(mapping)]}
+        pages = {'Main Menu': [self.cog, await self.get_bot_help(mapping)]}
 
         for cog, commands in sorted(mapping.items(), key = lambda u: getattr(u[0], "qualified_name", "X")):
             filtered = await self.filter_commands(commands, sort = True)
@@ -168,7 +168,7 @@ class CustomHelp(commands.HelpCommand):
             embed.add_field(name = f"> {command.qualified_name}", value = f"> " + (command.short_doc or "Couldn't get any info about this command"), inline = False)
 
             if index % 6 == 5 or index + 1 == len(filtered):
-                grouphelp.append({"embeds": [embed], "content": ""})
+                grouphelp.append({'embeds': [embed], 'content': ''})
 
                 embed = discord.Embed(title = f"{group.cog_name or self.context.bot} Help", colour = self.context.bot.colour)
 
