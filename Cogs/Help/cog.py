@@ -172,7 +172,7 @@ class CustomHelp(commands.HelpCommand):
 
                 embed = discord.Embed(title = f"{group.cog_name or self.context.bot} Help", colour = self.context.bot.colour)
 
-        await self.context.reply(**grouphelp[0], view = HelpView(self.context.bot, self.context, grouphelp, select = False), mention_author = False)
+        await self.context.reply(**grouphelp[0], view = HelpView(self.context.bot, self.context, grouphelp), mention_author = False)
 
     async def send_command_help(self, command: commands.Command):
         try: await command.can_run(self.context)

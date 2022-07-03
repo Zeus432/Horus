@@ -75,7 +75,7 @@ class Horus(commands.Bot):
                     prefix = pre
 
                 else:
-                    prefix = await self.db.fetchval(f"INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) UPDATE SET prefix = $2 RETURNING prefix", message.guild.id, default)
+                    prefix = await self.db.fetchval(f"INSERT INTO guilddata(guildid, prefix) VALUES($1, $2) ON CONFLICT (guildid) DO UPDATE SET prefix = $2 RETURNING prefix", message.guild.id, prefix)
 
                 await self.redis.hset("prefix", message.guild.id, prefix[0]) # Update cache to have new value
 
@@ -100,7 +100,16 @@ class Horus(commands.Bot):
         self._launch = datetime.now()
         self._webhook = await self.fetch_webhook(self._config.get('webhook'))
 
-        await self.redis.hmset("prefix", {'default': self._config.get('prefix')}) # make redis prefix cache
+        await self.redis.delete("prefix") # clear redis prefix cache
+        await self.redis.hmset("prefix", {"default": self._config.get('prefix')}) # make redis prefix cache
+
+        await self.redis.delete("blacklist") # clear redis blacklist cache
+
+        blguilds = [guild['guildid'] for guild in await self.db.fetch("SELECT guildid FROM guilddata WHERE blacklists->'blacklisted' @> 'true'")] # get blacklisted guilds
+        blusers = [user['userid'] for user in await self.db.fetch("SELECT userid FROM userdata WHERE blacklists->'blacklisted' @> 'true'")] # get blacklisted users
+
+        if blacklist := (*blguilds, *blusers):
+            await self.redis.rpush("blacklist", *blacklist) # make redis blacklist cache
 
         logger.info(f"{self.user}: All systems Online!")
         await self._webhook.send(

@@ -134,6 +134,5 @@ class HelpSelect(discord.ui.Select['HelpView']):
 
             if "\U000025c4" in item.label:
                 item.disabled = True if self.view.current_page <= 1 else False
-        print(self.view.stuff[0])
 
         await interaction.response.edit_message(view = self.view, **self.view.stuff[0])

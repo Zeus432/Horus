@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS guilddata (
-    guildid BIGINT UNIQUE PRIMARY KEY,
+    guildid BIGINT PRIMARY KEY,
     prefix VARCHAR[] DEFAULT '{"h!"}',
     blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}',
-    server_bls jsonb DEFAULT '{}'
+    serverbls jsonb DEFAULT '{"role": [], "user": [], "channel": []}'
 );
 
 CREATE TABLE IF NOT EXISTS userdata (
