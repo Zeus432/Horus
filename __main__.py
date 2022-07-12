@@ -1,10 +1,10 @@
-from Core.bot import Horus
 from loguru import logger
 import vacefron
 import asyncio
 import aiohttp
 import pathlib
 
+from Core.bot import Horus
 from Core.Utils.functions import load_toml
 
 
@@ -25,4 +25,7 @@ async def startup():
 
 
 if __name__ == "__main__":
-    asyncio.run(startup())
+    try:
+        asyncio.run(startup())
+    except KeyboardInterrupt:
+        pass

@@ -1,13 +1,15 @@
 CREATE TABLE IF NOT EXISTS guilddata (
     guildid BIGINT PRIMARY KEY,
     prefix VARCHAR[] DEFAULT '{"h!"}',
+    serverbls jsonb DEFAULT '{"role": [], "user": [], "channel": []}',
     blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}',
-    serverbls jsonb DEFAULT '{"role": [], "user": [], "channel": []}'
+    blhistory jsonb DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS userdata (
     userid BIGINT UNIQUE PRIMARY KEY,
-    blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}'
+    blacklists jsonb DEFAULT '{"prevbl": 0, "blacklisted": false}',
+    blhistory jsonb DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS todo (

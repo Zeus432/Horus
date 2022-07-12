@@ -1,6 +1,6 @@
 aiohttp==3.8.1
 asyncpg==0.25.0
-discord.py @ git+https://github.com/Rapptz/discord.py@b7dd97dca997fcb7b9648dab0df826a56a1ebe53
+discord.py @ git+https://github.com/Rapptz/discord.py@9fe19dcc6923e4b6133bdedafb33658bf37c9ab7
 loguru==0.6.0
 python_dateutil==2.8.2
 redis==4.3.1

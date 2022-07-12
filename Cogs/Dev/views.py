@@ -257,12 +257,13 @@ class GuildView(discord.ui.View):
 
 
 class ConfirmBlacklist(discord.ui.View):
-    def __init__(self, bot: Horus, ctx: HorusCtx, what: discord.User | discord.Guild, what_type: str, blacklist: bool = True, timeout: float = 30):
+    def __init__(self, bot: Horus, ctx: HorusCtx, what: discord.User | discord.Guild, what_type: str, reason: str, blacklist: bool = True, timeout: float = 30):
         super().__init__(timeout = timeout)
         self.bot = bot
         self.ctx = ctx
         self.what = what
         self.what_type = what_type
+        self.reason = reason
         self.blacklist = blacklist
         self.user = ctx.author
         self.message: discord.Message
@@ -294,13 +295,21 @@ class ConfirmBlacklist(discord.ui.View):
                     'blacklisted': True,
                     'since': round(datetime.now().timestamp()),
                     'doneby': self.user.id,
-                    'history': [*[h for h in blacklists.get('history')], {'blnum': (blacklists.get('prevbl') or 0) + 1, 'doneby': self.user.id, 'since': round(datetime.now().timestamp())}]
+                    'reason': self.reason
                 })
 
                 await self.bot.db.execute(f"UPDATE {self.what_type}data SET blacklists = $2 WHERE {self.what_type}id = $1", self.what.id, blacklists)
 
             else:
-                await self.bot.db.execute(f"INSERT INTO {self.what_type}data({self.what_type}id, blacklists) VALUES($1, $2) ON CONFLICT ({self.what_type}id) DO UPDATE SET blacklists = $2", self.what.id, {'prevbl': 0, 'blacklisted': True, 'doneby': self.user.id, 'since': round(datetime.now().timestamp()), 'history': [{'blnum': 1, 'doneby': self.user.id, 'since': round(datetime.now().timestamp())}]})
+                blacklists = {
+                    'blacklisted': True,
+                    'since': round(datetime.now().timestamp()),
+                    'doneby': self.user.id,
+                    'reason': self.reason,
+                    'prevbl': 0
+                }
+
+                await self.bot.db.execute(f"INSERT INTO {self.what_type}data({self.what_type}id, blacklists) VALUES($1, $2) ON CONFLICT ({self.what_type}id) DO UPDATE SET blacklists = $2", self.what.id, blacklists)
 
             await self.bot.redis.rpush("blacklist", self.what.id) # add the user / guild id to blacklist cache
             await self.disable(button.style, f"{getattr(self.what, 'mention', None) or getattr(self.what, 'name', None) or '[Could not fetch guild]'} (`{self.what.id}`) has been blacklisted!", interaction)
@@ -310,12 +319,60 @@ class ConfirmBlacklist(discord.ui.View):
                 await interaction.followup.send("I have left this guild!")
 
         elif self.blacklist is False: # if action is to unblacklist
-            if blacklists := await self.bot.db.fetchval(f"SELECT blacklists FROM {self.what_type}data WHERE {self.what_type}id = $1", self.what.id):
-                blacklists.update({'blacklisted': False, 'prevbl': blacklists.get('prevbl') + 1, 'doneby': self.user.id, 'since': round(datetime.now().timestamp())})
-                await self.bot.db.execute(f"UPDATE {self.what_type}data SET blacklists = $2 WHERE {self.what_type}id = $1", self.what.id, blacklists)
+            if blacklists := await self.bot.db.fetch(f"SELECT blacklists, blhistory FROM {self.what_type}data WHERE {self.what_type}id = $1", self.what.id):
+                history = blacklists.get('blhistory')
+                blacklists = blacklists.get('blacklists')
+
+                history.update({
+                    blacklists.get('prevbl') + 1: {
+                        'blacklist': {
+                            'since': blacklists.get('since'),
+                            'doneby': blacklists.get('doneby'),
+                            'reason': blacklists.get('reason')
+                        },
+                        'unblacklist': {
+                            'since': round(datetime.now().timestamp()),
+                            'doneby': self.user.id,
+                            'reason': self.reason
+                        }
+                    }
+                })
+
+                blacklists.update({
+                    'blacklisted': False,
+                    'since': round(datetime.now().timestamp()),
+                    'doneby': self.user.id,
+                    'reason': self.reason,
+                    'prevbl': blacklists.get('prevbl') + 1
+                })
+
+                await self.bot.db.execute(f"UPDATE {self.what_type}data SET blacklists = $2, blhistory = $3 WHERE {self.what_type}id = $1", self.what.id, blacklists, history)
 
             else:
-                await self.bot.db.execute(f"INSERT INTO {self.what_type}data({self.what_type}id, blacklists) VALUES($1, $2) ON CONFLICT ({self.what_type}id) DO UPDATE SET blacklists = $2", self.what.id, {'prevbl': 1, 'blacklisted': False, 'doneby': self.user.id, 'since': round(datetime.now().timestamp())})
+                blacklists = {
+                    'blacklisted': False,
+                    'since': round(datetime.now().timestamp()),
+                    'doneby': self.user.id,
+                    'reason': self.reason,
+                    'prevbl': 1
+                }
+
+                history = {
+                    1: {
+                        'blacklist': {
+                            'since': None,
+                            'doneby': None,
+                            'reason': None
+                        },
+                        'unblacklist': {
+                            'since': round(datetime.now().timestamp()),
+                            'doneby': self.user.id,
+                            'reason': self.reason
+                        }
+                    }
+                }
+
+                await self.bot.db.execute(f"INSERT INTO {self.what_type}data({self.what_type}id, blacklists, blhistory) VALUES($1, $2, $3) ON CONFLICT ({self.what_type}id) DO UPDATE SET blacklists = $2, blhistory = $3", self.what.id, blacklists, history)
 
             await self.bot.redis.lrem("blacklist", 0, self.what.id) # remove the user / guild id from blacklist cache
             await self.disable(button.style, f"{getattr(self.what, 'mention', None) or getattr(self.what, 'name', None) or '[Could not fetch guild]'} (`{self.what.id}`) has been unblacklisted!", interaction)

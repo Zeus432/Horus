@@ -18,7 +18,7 @@ A basic discord bot written with [discord.py](https://github.com/Rapptz/discord.
 - [Redis](https://redis.io)
 - [Lavalink](https://github.com/freyacodes/Lavalink)
 
-As it is still under development self hosting is not recomended. [Invite](https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=67420289&scope=bot+applications.commands) the bot instead
+**Warning** : Horus is still under development, self hosting is not recomended. [Invite](https://discord.com/api/oauth2/authorize?client_id=858335663571992618&permissions=67420289&scope=bot+applications.commands) the bot instead
 
 ### Installing
 Should work if you have python >= `3.8` but for best results use version `3.10`.
@@ -49,10 +49,10 @@ pip install -U -r requirements.txt
 7. For emojis you have to fill out the [emojis.json](Core/Assets/emojis.json) on your own, I have no other solution for that as of now
 
 ### Hosting the Bot
-Now to host the bot make sure your postgresql, redis and lavalink servers are online.  
+Now to host the bot make sure your postgresql, redis and lavalink servers are online.
 Then make sure you're in the directory where [`__main__.py`](__main__.py) is in and then run this command
 ```
 python3 .
 ```
 
-#### Note: Horus is licensed under the [Mozilla Public License 2.0](LICENSE)
+#### **Note** : Horus is licensed under the [Mozilla Public License 2.0](LICENSE)
