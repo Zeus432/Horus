@@ -1,9 +1,0 @@
-aiohttp==3.8.1
-asyncpg==0.25.0
-discord.py @ git+https://github.com/Rapptz/discord.py@9fe19dcc6923e4b6133bdedafb33658bf37c9ab7
-loguru==0.6.0
-python_dateutil==2.8.2
-redis==4.3.1
-toml==0.10.2
-vacefron.py==1.6.3
-wavelink==1.2.5
