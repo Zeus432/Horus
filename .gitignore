@@ -1,0 +1,5 @@
+.vscode
+__pycache__
+horus-env
+*config.toml
+*.log
