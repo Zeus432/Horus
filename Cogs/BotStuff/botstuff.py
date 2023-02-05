@@ -4,6 +4,7 @@ from discord.ext import commands
 from Core.bot import Horus, HorusCtx
 
 import time
+import humanize
 
 
 class BotStuff(commands.Cog):
@@ -43,9 +44,10 @@ class BotStuff(commands.Cog):
     @commands.hybrid_command(name="uptime", aliases=["ut"], brief="Bot Uptime", extras={"dm": True})
     async def uptime(self, ctx: HorusCtx):
         """Gets the uptime of the bot"""
-        uptime_string = self.bot.get_uptime()
-        await ctx.send(
-            f"**{self.bot.user.name}** has been up for {uptime_string}.\nSince <t:{round(self.bot._launch.timestamp())}>"
+        uptime = discord.utils.utcnow() - self.bot._launch
+        await ctx.reply(
+            f"**{self.bot.user.name}** has been up for {humanize.precisedelta(uptime)}.\n{self.bot.timestamp(self.bot._launch, style = 'R')} ({self.bot.timestamp(self.bot._launch, style = 'f')})",
+            mention_author=False,
         )
 
     @commands.hybrid_command(name="prefix", brief="Get Server prefix", extras={"dm": True})

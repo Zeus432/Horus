@@ -57,6 +57,7 @@ class Horus(commands.Bot):
         self._config = CONFIG
         self._noprefix = False
         self.prefix_cache = {}
+        self.timestamp = discord.utils.format_dt
         self.colour = discord.Colour(bot_colour)
 
         self.db: asyncpg.Pool
@@ -101,7 +102,7 @@ class Horus(commands.Bot):
         logging.info(f"Message Cache Size: {len(self.cached_messages)}\n")
 
         self._app_info = await self.application_info()
-        self._launch = datetime.now()
+        self._launch = discord.utils.utcnow()
 
     async def setup_hook(self) -> None:
         loaded = []
@@ -115,7 +116,6 @@ class Horus(commands.Bot):
         logging.info(f"Loaded: " + ", ".join(loaded))
 
         async def func():
-            await self.wait_until_ready()
             await self.wait_until_ready()
             await self.change_presence(
                 status=discord.Status.idle,
@@ -161,33 +161,6 @@ class Horus(commands.Bot):
             return self.get_emoji(emoji)
 
         return emojis(emoji)
-
-    def get_uptime(self) -> str:
-        """Get Bot Uptime in a neatly converted string"""
-        delta_uptime = relativedelta(datetime.now(), self._launch)
-        days, hours, minutes, seconds = (
-            delta_uptime.days,
-            delta_uptime.hours,
-            delta_uptime.minutes,
-            delta_uptime.seconds,
-        )
-
-        uptimes = {
-            x[0]: x[1] for x in [("day", days), ("hour", hours), ("minute", minutes), ("second", seconds)] if x[1]
-        }
-        l = len(uptimes)
-
-        last = " ".join(value for index, value in enumerate(uptimes.keys()) if index == len(uptimes) - 1)
-
-        uptime_string = ", ".join(
-            f"{uptimes[value]} {value}{'s' if uptimes[value] > 1 else ''}"
-            for index, value in enumerate(uptimes.keys())
-            if index != l - 1
-        )
-        uptime_string += f" and {uptimes[last]}" if l > 1 else f"{uptimes[last]}"
-        uptime_string += f" {last}{'s' if uptimes[last] > 1 else ''}"
-
-        return uptime_string
 
     @discord.utils.cached_property
     async def stats_webhook(self) -> discord.Webhook:
