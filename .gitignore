@@ -3,3 +3,4 @@ __pycache__
 horus-env
 *config.toml
 *.log
+.DS_store
