@@ -12,7 +12,7 @@ import io
 from Core.Utils.functions import GuildEmbed, write_toml
 from Core.settings import INITIAL_EXTENSIONS
 from .functions import get_reply, cleanup_code, restart_program, plural, TabularData
-from .views import ConfirmShutdown, ChangeStatus, GuildView, ConfirmLeave, ConfirmBlacklist
+from .views import ConfirmShutdown, ChangeStatus, GuildView, ConfirmLeave, ConfirmBlacklist #BlacklistsView
 
 
 class Dev(commands.Cog):
@@ -229,8 +229,7 @@ class Dev(commands.Cog):
             await self.bot.load_extension(cog)
         except commands.ExtensionAlreadyLoaded:
             try:
-                await self.bot.unload_extension(cog)
-                await self.bot.load_extension(cog)
+                await self.bot.reload_extension(cog)
             except Exception as error:
                 await ctx.send(f"I was unable to reload `{cog}`\n```py\n" + "".join(traceback.format_exception(type(error), error, error.__traceback__, 1)) + "```")
 
@@ -330,3 +329,33 @@ class Dev(commands.Cog):
         view = ConfirmBlacklist(self.bot, ctx, what, what_type, reason, blacklist = False)
         await ctx.reply(f"Are you sure you want to unblacklist: `{what.id if isinstance(what, discord.Object) else what}`?", view = view)
         await view.wait()
+
+    @blacklist.command(name = "history", brief = "Get the blacklist history of a Guild / User")
+    async def history(self, ctx: HorusCtx, what: discord.User | discord.Guild | discord.Object):
+        """ Unblacklist a previously blacklisted server or user """
+        what_type = "guild" if isinstance(what, discord.Object) else what.__class__.__name__.lower()
+
+        if (blhistory := await self.bot.db.fetchval(f"SELECT blhistory FROM {what_type}data WHERE {what_type}id = $1", what.id)) is None and isinstance(what, discord.Object):
+            return await ctx.send(f"Could not find this {what_type}!")
+
+        elif not blhistory and (check := await self.bot.redis.lpos("blacklist", what.id)) is None:
+            return await ctx.send(f"This {what_type} was not previously blacklisted!")
+
+        elif check is not None:
+            blacklist = await self.bot.db.fetchval(f"SELECT blacklists FROM {what_type}data WHERE {what_type}id = $1", what.id)
+            blhistory.update({blacklist.get('prevbl') + 1 : {
+                'blacklist': {'since': blacklist.get('since'), 'doneby': blacklist.get('doneby'), 'reason': blacklist.get('reason')},
+                'unblacklist': {}
+            }})
+
+        await ctx.send(f"```json\n{blhistory}```".replace("'", '"'))
+
+    @blacklist.command(name = "list", brief = "Get list of current blacklists")
+    async def list(self, ctx: HorusCtx):
+        """ Get the list of currently blacklisted guilds and users """
+        blguilds = [{'guild': guild['guildid'], 'since': guild['blacklists'].get('since')} for guild in await self.bot.db.fetch("SELECT guildid, blacklists FROM guilddata WHERE blacklists->'blacklisted' @> 'true'")] # get blacklisted guilds
+        blusers = [{'user': user['userid'], 'since': user['blacklists'].get('since')} for user in await self.bot.db.fetch("SELECT userid, blacklists FROM userdata WHERE blacklists->'blacklisted' @> 'true'")] # get blacklisted users
+
+        #view = BlacklistsView(self.bot, ctx)
+        #await ctx.reply(embed = view.page1, view = view)
+        #await view.wait()

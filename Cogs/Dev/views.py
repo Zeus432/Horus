@@ -314,12 +314,12 @@ class ConfirmBlacklist(discord.ui.View):
             await self.bot.redis.rpush("blacklist", self.what.id) # add the user / guild id to blacklist cache
             await self.disable(button.style, f"{getattr(self.what, 'mention', None) or getattr(self.what, 'name', None) or '[Could not fetch guild]'} (`{self.what.id}`) has been blacklisted!", interaction)
 
-            if isinstance(self.what, discord.Guild):
-                await self.what.leave() # Leave guild when blacklisted
+            if self.what_type == "guild":
+                #await self.what.leave() # Leave guild when blacklisted
                 await interaction.followup.send("I have left this guild!")
 
         elif self.blacklist is False: # if action is to unblacklist
-            if blacklists := await self.bot.db.fetch(f"SELECT blacklists, blhistory FROM {self.what_type}data WHERE {self.what_type}id = $1", self.what.id):
+            if blacklists := await self.bot.db.fetchrow(f"SELECT blacklists, blhistory FROM {self.what_type}data WHERE {self.what_type}id = $1", self.what.id):
                 history = blacklists.get('blhistory')
                 blacklists = blacklists.get('blacklists')
 
