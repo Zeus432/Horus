@@ -1,4 +1,4 @@
-aiohttp==3.8.5
+aiohttp==3.9.2
 asyncpg==0.24.0
 discord.py==1.7.3
 emojis==0.6.0
